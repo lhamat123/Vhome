@@ -1,77 +1,47 @@
-# VHome — Catálogo Inmobiliario
+# 🏠 LHAMAT Vhome — Portal de venta de inmuebles
 
-Sitio web estático y elegante para publicar propiedades en GitHub Pages. Sin backend, sin costos.
+Portal web para publicar casas, apartamentos, fincas y locales. Diseño oscuro/claro con 4 temas, datos almacenados en este repositorio como `data.json`.
 
-## 🚀 Publicar en GitHub Pages
+## Archivos
 
-1. Sube todos los archivos al repositorio `lhamat123/Vhome`
-2. Ve a **Settings → Pages → Deploy from branch → main → / (root)**
-3. Tu sitio quedará en: **`https://lhamat123.github.io/Vhome/`**
+| Archivo | Descripción |
+|---------|-------------|
+| `index.html` | Aplicación completa (HTML + CSS + JS en un solo archivo) |
+| `data.json` | Base de datos de propiedades (se actualiza desde la app) |
 
----
+## Configuración rápida
 
-## 📁 Estructura
+Editar estas 3 líneas al inicio del `<script>` en `index.html`:
 
-```
-Vhome/
-├── index.html                 ← Sitio completo (todo en uno)
-├── data/
-│   └── propiedades.json       ← ⭐ EDITA AQUÍ las propiedades
-└── img/
-    ├── casa1-principal.jpg    ← Fotos (súbelas aquí)
-    └── ...
+```js
+const GH_USER  = 'lhamat123';   // ✅ ya configurado
+const GH_REPO  = 'Vhome';       // ✅ ya configurado
+const APP_PASS = 'admin1234';   // ← CAMBIA esta contraseña
 ```
 
----
+## Cómo publicar en GitHub Pages
 
-## ✏️ Agregar una propiedad
+1. Ve a **Settings → Pages** en este repositorio
+2. En *Source* selecciona **Deploy from a branch**
+3. Rama: `main`, carpeta: `/ (root)`
+4. Guarda — en 1-2 minutos tendrás la web en:
+   `https://lhamat123.github.io/Vhome`
 
-Edita `data/propiedades.json` y agrega un objeto al array:
+## Cómo agregar propiedades
 
-```json
-{
-  "id": 2,
-  "tipo": "Apartamento",
-  "nombre": "Apartamento en Miramar",
-  "precio": 25000,
-  "moneda": "USD",
-  "negociable": true,
-  "direccion": "Calle 5ta No. 302 e/ 2 y 4, Miramar, La Habana",
-  "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Miramar+La+Habana",
-  "contacto": {
-    "nombre": "Nombre Vendedor",
-    "telefono": "+5355551234",
-    "whatsapp": true
-  },
-  "superficies": {
-    "util": 80,
-    "construida": 90,
-    "total": 90
-  },
-  "descripcion": "Descripción completa de la propiedad...",
-  "amenidades": ["2 Dormitorios", "1 Servicio Sanitario", "Cocina equipada"],
-  "fotoPrincipal": "img/apto2-principal.jpg",
-  "galeria": ["img/apto2-foto1.jpg", "img/apto2-foto2.jpg"]
-}
-```
+1. Abre la web publicada
+2. Haz clic en 🔐 (icono de candado)
+3. Ingresa la contraseña y un **GitHub Token** con permiso `repo`
+   - Genera el token en: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
+4. Haz clic en **＋ Nueva** y completa el formulario
 
-**Tipos válidos:** `"Casa"` · `"Apartamento"` · `"Local"` · `"Finca"`
+## Tipos de inmueble soportados
 
----
+- 🏡 **Casa**
+- 🏢 **Apartamento**
+- 🌾 **Finca**
+- 🏪 **Local**
 
-## 🖼️ Fotos
+## Comodidades disponibles
 
-- Crea la carpeta `img/` y sube las imágenes
-- Referencia en el JSON: `"img/nombre.jpg"`
-- Recomendado: JPG, 1200×800px para principal · 800×600px para galería
-
----
-
-## 🔄 Actualizar
-
-```bash
-git add .
-git commit -m "Nueva propiedad: Apartamento Miramar"
-git push
-```
-GitHub Pages se actualiza en ~1 minuto.
+🚗 Garaje · 🌿 Jardín · ☀️ Terraza · 🏊 Piscina · 🔥 Barbacoa · 💧 Cisterna · ⚡ Placa Solar · 📶 WiFi/Cable
