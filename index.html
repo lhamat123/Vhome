@@ -305,7 +305,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 </div>
 
 <!-- ══ DETAIL MODAL ══ -->
-<div class="modal-overlay" id="detail-overlay" onclick="if(event.target===this)closeDetail()">
+<div class="modal-overlay" id="detail-overlay">
   <div class="modal" id="detail-modal">
     <div class="modal-header">
       <div class="modal-title" id="detail-title">Detalle</div>
@@ -321,7 +321,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 </div>
 
 <!-- ══ FORM MODAL ══ -->
-<div class="modal-overlay" id="form-overlay" onclick="if(event.target===this)closeFormModal()">
+<div class="modal-overlay" id="form-overlay">
   <div class="modal form-modal">
     <div class="modal-header">
       <div class="modal-title" id="form-title">Nueva Propiedad</div>
@@ -861,7 +861,7 @@ function closeDetail() {
   viewingId = null;
 }
 
-function editCurrent() { if (viewingId) { closeDetail(); startEdit(viewingId); } }
+function editCurrent() { if (viewingId) { const id = viewingId; closeDetail(); startEdit(id); } }
 
 function deleteProperty() {
   const p = properties.find(x=>x.id===viewingId);
