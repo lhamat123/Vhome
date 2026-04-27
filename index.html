@@ -417,6 +417,28 @@ button{cursor:pointer;font-family:inherit;}input,select,textarea{font-family:inh
       <div style="margin-top:10px;font-size:12px;color:var(--mu);">Los campos vacíos no se mostrarán en la web pública. Guarda los cambios al terminar.</div>
     </div>
 
+    <!-- GITHUB CONFIG -->
+    <div class="asec">
+      <div class="asec-head">
+        <span>🐙 Configuración de GitHub</span>
+        <button class="ab ab-ghost" style="font-size:11px;" onclick="showGhConfig()">▼ Mostrar/Ocultar</button>
+      </div>
+      <div id="ghConfigPanel" style="display:none;">
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#92400e;line-height:1.6;">
+          ⚠️ <strong>Importante:</strong> El Token de GitHub se guarda en memoria mientras la página esté abierta. Nunca lo compartas ni lo expongas públicamente. Usa un token con permisos mínimos (<code>repo</code> → <code>contents</code> read+write).
+        </div>
+        <div class="fgrid" style="max-width:600px;">
+          <div class="fg"><label>Usuario GitHub</label><input type="text" id="ghOwner" placeholder="tu-usuario"></div>
+          <div class="fg"><label>Repositorio</label><input type="text" id="ghRepo" placeholder="casasya-data"></div>
+          <div class="fg"><label>Archivo de datos</label><input type="text" id="ghFile" placeholder="data.json"></div>
+          <div class="fg"><label>Personal Access Token (PAT)</label><input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx"></div>
+        </div>
+        <div style="display:flex;gap:9px;margin-top:12px;">
+          <button class="ab ab-green" onclick="saveGhConfig()">✔ Conectar y recargar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- TABLE -->
     <div class="asec">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -436,52 +458,170 @@ button{cursor:pointer;font-family:inherit;}input,select,textarea{font-family:inh
 <div id="toast"></div>
 
 <script>
-/* ═══ DEFAULT DATA ═══ */
-const DEFAULT_PROPS = [
-  {id:'CY001',type:'Casa',title:'Casa colonial con jardín y terraza',price:85000,phone:'+1 (305) 555-0100',visits:0,
-   status:'Disponible',legal:'Listo',legalNote:'Escritura notariada, libre de cargas y gravámenes.',
-   street:'Calle 17 No. 1205 e/ 20 y 22',neighborhood:'Vedado',city:'La Habana',province:'La Habana',zip:'10400',
-   beds:3,baths:2,area:180,floors:2,
-   desc:'Espectacular casa colonial completamente reformada. Amplia sala, cocina equipada, tres habitaciones con armarios empotrados, dos baños modernos. Jardín privado con barbacoa. Garaje para dos vehículos.',
-   features:['Garaje','Jardín','Terraza','Aire acondicionado'],
-   images:['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80','https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80','https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80']},
-  {id:'CY002',type:'Apartamento',title:'Apartamento moderno en planta alta',price:55000,phone:'+1 (305) 555-0102',visits:0,
-   status:'Disponible',legal:'En proceso',legalNote:'Trámite de cambio de titularidad en curso.',
-   street:'Ave. 5ta No. 4202 Apto 3B',neighborhood:'Miramar',city:'La Habana',province:'La Habana',zip:'11300',
-   beds:2,baths:1,area:95,floors:1,
-   desc:'Luminoso apartamento en planta alta con vistas despejadas. Recién renovado. Cocina americana integrada al salón. Dos habitaciones amplias, baño completo.',
-   features:['Ascensor','Balcón','Parking'],
-   images:['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80','https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=80']},
-  {id:'CY003',type:'Casa',title:'Chalet independiente con piscina',price:210000,phone:'+1 (305) 555-0103',visits:0,
-   status:'Disponible',legal:'Listo',legalNote:'Documentación completa. Libre de deudas.',
-   street:'Calle 240 No. 3105',neighborhood:'Siboney',city:'La Habana',province:'La Habana',zip:'11600',
-   beds:4,baths:3,area:320,floors:2,
-   desc:'Lujosa residencia en zona exclusiva. Cuatro habitaciones, tres baños completos, salón de doble altura, cocina de diseño, piscina privada y amplia parcela.',
-   features:['Piscina','Garaje x2','Jardín','Seguridad 24h','Barbacoa'],
-   images:['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80','https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80']},
-  {id:'CY004',type:'Apartamento',title:'Estudio céntrico recién reformado',price:28000,phone:'+1 (305) 555-0104',visits:0,
-   status:'Reservada',legal:'Sin papeles',legalNote:'Sin documentación formal. Requiere regularización.',
-   street:'Obispo No. 312 e/ Aguiar y Habana, Apto 2',neighborhood:'Centro Histórico',city:'La Habana',province:'La Habana',zip:'10100',
-   beds:1,baths:1,area:45,floors:1,
-   desc:'Precioso estudio en el corazón de La Habana Vieja. Completamente reformado, cocina equipada, baño moderno. Ideal para inversión.',
-   features:['WiFi','Aire acondicionado'],
-   images:['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80']},
-];
+/* ═══════════════════════════════════════════════════════════════
+   CASASYA — GITHUB-BACKED STORAGE
+   Todos los datos se leen y escriben en un archivo data.json
+   dentro de tu repositorio de GitHub.
+
+   CONFIGURACIÓN (edita los 4 valores de abajo):
+   ════════════════════════════════════════════════════════════════ */
+const GH_CONFIG = {
+  owner : 'TU_USUARIO_GITHUB',     // ← tu usuario de GitHub
+  repo  : 'casasya-data',          // ← nombre del repositorio
+  file  : 'data.json',             // ← archivo donde se guardan los datos
+  token : ''                       // ← tu GitHub Personal Access Token (PAT)
+                                   //   Permisos necesarios: repo (contents: read+write)
+};
+/* ════════════════════════════════════════════════════════════════
+   FIN DE CONFIGURACIÓN
+   ════════════════════════════════════════════════════════════════ */
+
 const DEFAULT_SOCIAL = {wa:'',tg:'',ig:'',fb:'',em:'',city:''};
-const DEFAULT_VISITS = 0;
 
-/* ═══ LOAD ═══ */
-let DATA, SOCIAL, VISITS;
-try { DATA   = JSON.parse(localStorage.getItem('cy_props_v5'))  || JSON.parse(JSON.stringify(DEFAULT_PROPS)); } catch(e){ DATA   = JSON.parse(JSON.stringify(DEFAULT_PROPS)); }
-try { SOCIAL = JSON.parse(localStorage.getItem('cy_social_v5')) || {...DEFAULT_SOCIAL}; } catch(e){ SOCIAL = {...DEFAULT_SOCIAL}; }
-try { VISITS = parseInt(localStorage.getItem('cy_visits_v5'))   || 0; } catch(e){ VISITS = 0; }
+let DATA = [], SOCIAL = {...DEFAULT_SOCIAL}, VISITS = 0;
+let _ghSha = null; // SHA del archivo actual en GitHub (necesario para actualizarlo)
+let editId = null, logged = false;
+const PASS = 'admin123';
 
-// Count visit on load
-VISITS++;
-localStorage.setItem('cy_visits_v5', VISITS);
+/* ─── GitHub API helpers ─── */
+function ghHeaders(){
+  const h = {'Content-Type':'application/json','Accept':'application/vnd.github+json'};
+  if(GH_CONFIG.token) h['Authorization'] = 'token ' + GH_CONFIG.token;
+  return h;
+}
+function ghUrl(){ return `https://api.github.com/repos/${GH_CONFIG.owner}/${GH_CONFIG.repo}/contents/${GH_CONFIG.file}`; }
 
-let editId=null, logged=false;
-const PASS='admin123';
+async function ghLoad(){
+  /* Muestra spinner de carga */
+  showLoadingOverlay(true);
+  try {
+    const res = await fetch(ghUrl() + '?t=' + Date.now(), {headers: ghHeaders()});
+    if(res.status === 404){
+      /* El archivo aún no existe — usamos datos del backup embebido */
+      console.warn('CasasYa: data.json no encontrado en GitHub. Usando datos iniciales.');
+      useEmbeddedData();
+    } else if(!res.ok){
+      throw new Error('GitHub API: ' + res.status + ' ' + res.statusText);
+    } else {
+      const json = await res.json();
+      _ghSha = json.sha;
+      const content = JSON.parse(atob(json.content.replace(/\n/g,'')));
+      DATA   = content.properties || [];
+      SOCIAL = content.social     || {...DEFAULT_SOCIAL};
+      VISITS = content.visits     || 0;
+    }
+  } catch(err){
+    console.error('CasasYa ghLoad error:', err);
+    toast('⚠️ Error cargando datos de GitHub. Revisa la configuración.','warn');
+    useEmbeddedData();
+  } finally {
+    showLoadingOverlay(false);
+  }
+  /* Contar visita — guardar en background sin bloquear UI */
+  VISITS++;
+  ghSave(false); // silent save
+}
+
+async function ghSave(showToast=true){
+  if(!GH_CONFIG.token){
+    toast('⚠️ Configura el GitHub Token en GH_CONFIG para guardar cambios.','warn');
+    return false;
+  }
+  const payload = {properties: DATA, social: SOCIAL, visits: VISITS};
+  const body = {
+    message: 'CasasYa update ' + new Date().toISOString(),
+    content: btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2)))),
+  };
+  if(_ghSha) body.sha = _ghSha;
+  try {
+    const res = await fetch(ghUrl(), {method:'PUT', headers: ghHeaders(), body: JSON.stringify(body)});
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.message || res.status);
+    }
+    const json = await res.json();
+    _ghSha = json.content.sha;
+    if(showToast) toast('✔ Guardado en GitHub correctamente','ok');
+    return true;
+  } catch(err){
+    console.error('CasasYa ghSave error:', err);
+    if(showToast) toast('❌ Error guardando en GitHub: ' + err.message,'warn');
+    return false;
+  }
+}
+
+/* ─── Datos embebidos de respaldo (se usan si GitHub no está configurado) ─── */
+function useEmbeddedData(){
+  DATA = [
+    {id:'CY001',type:'Casa',title:'Casa colonial con jardín y terraza',price:85000,phone:'+1 (305) 555-0100',visits:0,
+     status:'Disponible',legal:'Listo',legalNote:'Escritura notariada, libre de cargas y gravámenes.',
+     street:'Calle 17 No. 1205 e/ 20 y 22',neighborhood:'Vedado',city:'La Habana',province:'La Habana',zip:'10400',
+     beds:3,baths:2,area:180,floors:2,
+     desc:'Espectacular casa colonial completamente reformada. Amplia sala, cocina equipada, tres habitaciones con armarios empotrados, dos baños modernos. Jardín privado con barbacoa. Garaje para dos vehículos.',
+     features:['Garaje','Jardín','Terraza','Aire acondicionado'],
+     images:['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80','https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80','https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80']},
+    {id:'CY002',type:'Apartamento',title:'Apartamento moderno en planta alta',price:55000,phone:'+1 (305) 555-0102',visits:0,
+     status:'Disponible',legal:'En proceso',legalNote:'Trámite de cambio de titularidad en curso.',
+     street:'Ave. 5ta No. 4202 Apto 3B',neighborhood:'Miramar',city:'La Habana',province:'La Habana',zip:'11300',
+     beds:2,baths:1,area:95,floors:1,
+     desc:'Luminoso apartamento en planta alta con vistas despejadas. Recién renovado. Cocina americana integrada al salón. Dos habitaciones amplias, baño completo.',
+     features:['Ascensor','Balcón','Parking'],
+     images:['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80','https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=80']},
+    {id:'CY003',type:'Casa',title:'Chalet independiente con piscina',price:210000,phone:'+1 (305) 555-0103',visits:0,
+     status:'Disponible',legal:'Listo',legalNote:'Documentación completa. Libre de deudas.',
+     street:'Calle 240 No. 3105',neighborhood:'Siboney',city:'La Habana',province:'La Habana',zip:'11600',
+     beds:4,baths:3,area:320,floors:2,
+     desc:'Lujosa residencia en zona exclusiva. Cuatro habitaciones, tres baños completos, salón de doble altura, cocina de diseño, piscina privada y amplia parcela.',
+     features:['Piscina','Garaje x2','Jardín','Seguridad 24h','Barbacoa'],
+     images:['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80','https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80']},
+    {id:'CY004',type:'Apartamento',title:'Estudio céntrico recién reformado',price:28000,phone:'+1 (305) 555-0104',visits:0,
+     status:'Reservada',legal:'Sin papeles',legalNote:'Sin documentación formal. Requiere regularización.',
+     street:'Obispo No. 312 e/ Aguiar y Habana, Apto 2',neighborhood:'Centro Histórico',city:'La Habana',province:'La Habana',zip:'10100',
+     beds:1,baths:1,area:45,floors:1,
+     desc:'Precioso estudio en el corazón de La Habana Vieja. Completamente reformado, cocina equipada, baño moderno. Ideal para inversión.',
+     features:['WiFi','Aire acondicionado'],
+     images:['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80']},
+  ];
+  SOCIAL = {...DEFAULT_SOCIAL};
+  VISITS = 0;
+}
+
+/* ─── Loading overlay ─── */
+function showLoadingOverlay(show){
+  let ov = document.getElementById('ghLoadingOv');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'ghLoadingOv';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(15,39,68,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;gap:14px;';
+    ov.innerHTML='<div style="font-size:36px;animation:spin 1s linear infinite">⟳</div><div style="font-size:14px;letter-spacing:.5px;">Cargando datos desde GitHub…</div>';
+    const style=document.createElement('style');
+    style.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(ov);
+  }
+  ov.style.display = show ? 'flex' : 'none';
+}
+
+/* ─── GitHub Config Panel (en Admin) ─── */
+function showGhConfig(){
+  document.getElementById('ghConfigPanel').style.display =
+    document.getElementById('ghConfigPanel').style.display==='none' ? 'block' : 'none';
+}
+function saveGhConfig(){
+  GH_CONFIG.owner = document.getElementById('ghOwner').value.trim();
+  GH_CONFIG.repo  = document.getElementById('ghRepo').value.trim();
+  GH_CONFIG.file  = document.getElementById('ghFile').value.trim() || 'data.json';
+  GH_CONFIG.token = document.getElementById('ghToken').value.trim();
+  _ghSha = null; // resetear sha para forzar reload
+  toast('Configuración guardada. Recargando datos…','');
+  ghLoad().then(()=>{ renderGrid(); renderSocial(); updateStats(); loadSocialForm(); renderTable(); updateAdminStats(); });
+}
+function loadGhConfigForm(){
+  document.getElementById('ghOwner').value = GH_CONFIG.owner;
+  document.getElementById('ghRepo').value  = GH_CONFIG.repo;
+  document.getElementById('ghFile').value  = GH_CONFIG.file;
+  document.getElementById('ghToken').value = GH_CONFIG.token;
+}
 
 /* ═══ HELPERS ═══ */
 function fullAddr(p){ return [p.street,p.neighborhood,p.city,p.province,p.zip].filter(Boolean).join(', '); }
@@ -498,7 +638,7 @@ function goPage(name){
   document.getElementById('btnPub').classList.toggle('act',name==='public');
   document.getElementById('btnAdm').classList.toggle('act',name==='admin');
   if(name==='public'){ renderGrid(); renderSocial(); updateStats(); }
-  if(name==='admin'){ loadSocialForm(); renderTable(); updateAdminStats(); }
+  if(name==='admin'){ loadSocialForm(); loadGhConfigForm(); renderTable(); updateAdminStats(); }
   window.scrollTo(0,0);
 }
 
@@ -655,7 +795,7 @@ function showDetail(id){
   const p=DATA.find(x=>x.id===id); if(!p) return;
   // Count property visit
   p.visits=(p.visits||0)+1;
-  localStorage.setItem('cy_props_v5',JSON.stringify(DATA));
+  ghSave(false); // silent background save
   goPage('detail');
   const addr=fullAddr(p);
   const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr);
@@ -799,12 +939,10 @@ function saveProp(){
 }
 
 /* ═══ SAVE / EXPORT / IMPORT ═══ */
-function admSave(){
+async function admSave(){
   readSocialForm();
-  localStorage.setItem('cy_props_v5',JSON.stringify(DATA));
-  localStorage.setItem('cy_social_v5',JSON.stringify(SOCIAL));
-  renderGrid(); renderSocial(); updateStats(); updateAdminStats();
-  toast('✔ Cambios guardados permanentemente','ok');
+  const ok = await ghSave(true);
+  if(ok){ renderGrid(); renderSocial(); updateStats(); updateAdminStats(); }
 }
 function admExport(){
   const exp={properties:DATA,social:SOCIAL,visits:VISITS};
@@ -814,17 +952,15 @@ function admExport(){
 }
 function admImport(input){
   const f=input.files[0]; if(!f) return;
-  const r=new FileReader(); r.onload=ev=>{
+  const r=new FileReader(); r.onload=async ev=>{
     try{
       const imp=JSON.parse(ev.target.result);
       if(imp.properties) DATA=imp.properties;
       if(imp.social) SOCIAL=imp.social;
-      if(imp.visits) VISITS=imp.visits;
-      localStorage.setItem('cy_props_v5',JSON.stringify(DATA));
-      localStorage.setItem('cy_social_v5',JSON.stringify(SOCIAL));
-      localStorage.setItem('cy_visits_v5',VISITS);
+      if(typeof imp.visits==='number') VISITS=imp.visits;
       loadSocialForm(); renderTable(); updateAdminStats();
-      toast('Backup importado y guardado','ok');
+      toast('Backup cargado. Guardando en GitHub…','');
+      await ghSave(true);
     } catch(_){ toast('Error: archivo inválido','warn'); }
   }; r.readAsText(f); input.value='';
 }
@@ -837,9 +973,11 @@ function toast(msg,type){
 }
 
 /* ═══ BOOT ═══ */
-renderGrid();
-renderSocial();
-updateStats();
+ghLoad().then(()=>{
+  renderGrid();
+  renderSocial();
+  updateStats();
+});
 </script>
 </body>
 </html>
