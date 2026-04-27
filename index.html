@@ -496,7 +496,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 const GH_USER  = 'lhamat123';     // ← tu usuario GitHub
 const GH_REPO  = 'Vhome';      // ← nombre del repo
 const GH_FILE  = 'data.json';
-const APP_PASS = 'Vhome2025';      // ← cambia esta contraseña
+const APP_PASS = '';      // ← cambia esta contraseña
 // ══════════════════════════════════════════════════
 
 const AMENITIES_LIST = [
@@ -563,7 +563,7 @@ function doLogin() {
   const pass  = document.getElementById('login-pass').value;
   const token = document.getElementById('login-token').value.trim();
   const errEl = document.getElementById('login-err');
-  if (pass !== APP_PASS) { errEl.textContent = 'Contraseña incorrecta.'; return; }
+  if (APP_PASS !== '' && pass !== APP_PASS) { errEl.textContent = 'Contraseña incorrecta.'; return; }
   if (!token || !token.startsWith('github_')) { errEl.textContent = 'Token inválido.'; return; }
   ghToken = token; isAuth = true;
   try { sessionStorage.setItem('lhim_tok', ghToken); } catch(e) {}
