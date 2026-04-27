@@ -3,1017 +3,466 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CasasYa</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<style>
-:root{--pr:#1a3c5e;--ac:#e8a832;--lt:#f4f1eb;--wh:#fff;--tx:#1c1c1c;--mu:#6b6b6b;--bd:#ddd;--ok:#2d7a4f;--er:#b33030;--rr:10px;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Georgia,serif;background:var(--lt);color:var(--tx);min-height:100vh;}
-button{cursor:pointer;font-family:inherit;}input,select,textarea{font-family:inherit;}
-.page{display:none;}.page.active{display:block;}
-
-/* NAV */
-.nav{background:var(--pr);padding:0 18px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;}
-.nav-logo{font-size:20px;font-weight:bold;color:var(--ac);letter-spacing:-0.5px;}
-.nav-logo span{color:#fff;}
-.nav-right{display:flex;align-items:center;gap:7px;}
-.nb{background:none;border:1.5px solid rgba(255,255,255,.35);color:#fff;padding:5px 13px;border-radius:20px;font-size:13px;transition:all .2s;}
-.nb:hover,.nb.act{background:var(--ac);border-color:var(--ac);color:#000;}
-
-/* HERO */
-.hero{background:linear-gradient(135deg,#0f2744 0%,#1a3c5e 50%,#2a5a8e 100%);color:#fff;padding:48px 18px 36px;text-align:center;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C%3C/g%3E%3C%3C/g%3E%3C/svg%3E") repeat;}
-.hero-content{position:relative;z-index:1;}
-.hero h1{font-size:32px;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,.3);}
-.hero p{font-size:15px;color:rgba(255,255,255,.8);margin-bottom:24px;}
-
-/* STATS BAR */
-.stats-bar{display:flex;gap:0;background:rgba(0,0,0,.25);border-radius:12px;margin:0 auto 24px;max-width:420px;overflow:hidden;}
-.stat-item{flex:1;padding:10px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.1);}
-.stat-item:last-child{border-right:none;}
-.stat-num{font-size:20px;font-weight:bold;color:var(--ac);display:block;line-height:1;}
-.stat-lbl{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
-
-/* SEARCH */
-.sbar{background:#fff;border-radius:50px;padding:6px 6px 6px 17px;display:flex;gap:7px;max-width:580px;margin:0 auto;box-shadow:0 4px 18px rgba(0,0,0,.3);}
-.sbar input{flex:1;border:none;outline:none;font-size:14px;color:var(--tx);}
-.sbar button{background:var(--ac);border:none;color:#000;padding:8px 20px;border-radius:40px;font-weight:bold;font-size:13px;}
-
-/* FILTER BAR — HERO BOTTOM */
-.hero-filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
-.hf-group{display:flex;flex-direction:column;align-items:flex-start;gap:3px;}
-.hf-group label{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;}
-.hf-group input,.hf-group select{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:8px;font-size:13px;outline:none;width:140px;}
-.hf-group input::placeholder{color:rgba(255,255,255,.5);}
-.hf-group select option{color:#000;background:#fff;}
-.hf-btn{background:var(--ac);color:#000;border:none;padding:8px 20px;border-radius:8px;font-weight:bold;font-size:13px;align-self:flex-end;}
-.hf-btn-clear{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:8px;font-size:12px;align-self:flex-end;}
-
-/* SECONDARY FILTERS */
-.filt{background:#fff;padding:10px 18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--bd);}
-.filt select{border:1px solid var(--bd);border-radius:20px;padding:5px 11px;font-size:12px;background:#fff;outline:none;}
-.rst{background:none;border:1px solid var(--bd);padding:5px 11px;border-radius:20px;font-size:12px;color:var(--mu);}
-.rc{margin-left:auto;font-size:12px;color:var(--mu);font-weight:bold;}
-
-/* GRID */
-.gcon{padding:20px;max-width:1200px;margin:0 auto;}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px;}
-.card{background:#fff;border-radius:var(--rr);overflow:hidden;box-shadow:0 2px 11px rgba(0,0,0,.09);transition:transform .2s,box-shadow .2s;cursor:pointer;}
-.card:hover{transform:translateY(-3px);box-shadow:0 7px 22px rgba(0,0,0,.14);}
-.cimg{width:100%;height:178px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:44px;color:#aaa;position:relative;overflow:hidden;}
-.cimg img{width:100%;height:100%;object-fit:cover;}
-.cbadge{position:absolute;top:9px;left:9px;font-size:11px;font-weight:bold;padding:3px 9px;border-radius:12px;}
-.cbadge.disponible{background:var(--ac);color:#000;}
-.cbadge.reservada{background:#c47a00;color:#fff;}
-.cbadge.vendida{background:var(--er);color:#fff;}
-.clegal{position:absolute;top:9px;right:9px;font-size:10px;font-weight:bold;padding:3px 8px;border-radius:12px;}
-.clegal.listo{background:#d1fae5;color:#065f46;}
-.clegal.enproceso{background:#fef3c7;color:#92400e;}
-.clegal.sinpapeles{background:#fee2e2;color:#991b1b;}
-.cbody{padding:14px;}
-.cprice{font-size:20px;font-weight:bold;color:var(--pr);margin-bottom:4px;}
-.ctitle{font-size:13px;font-weight:bold;margin-bottom:5px;}
-.cloc{font-size:12px;color:var(--mu);margin-bottom:9px;}
-.cspecs{display:flex;gap:12px;font-size:12px;color:var(--mu);padding-top:9px;border-top:1px solid var(--bd);}
-.nores{text-align:center;padding:56px 18px;color:var(--mu);font-size:16px;}
-
-/* SOCIAL FOOTER */
-.social-section{background:var(--pr);color:#fff;padding:36px 20px;text-align:center;}
-.social-section h3{font-size:20px;margin-bottom:6px;color:var(--ac);}
-.social-section p{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:22px;}
-.social-links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
-.slink{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:30px;text-decoration:none;font-size:13px;font-weight:bold;transition:all .2s;}
-.slink:hover{transform:translateY(-2px);filter:brightness(1.1);}
-.slink.whatsapp{background:#25d366;color:#fff;}
-.slink.instagram{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;}
-.slink.facebook{background:#1877f2;color:#fff;}
-.slink.telegram{background:#0088cc;color:#fff;}
-.slink.email{background:#ea4335;color:#fff;}
-.social-cta{background:var(--ac);color:#000;border:none;padding:12px 28px;border-radius:30px;font-size:14px;font-weight:bold;margin-top:4px;}
-.footer-copy{background:#0f2744;color:rgba(255,255,255,.4);text-align:center;padding:14px;font-size:11px;letter-spacing:.5px;}
-
-/* VISIT COUNTER WIDGET */
-.visit-widget{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:16px 24px;max-width:340px;margin:0 auto 0;display:flex;align-items:center;gap:16px;}
-.visit-icon{font-size:28px;}
-.visit-info{}
-.visit-num{font-size:26px;font-weight:bold;color:var(--ac);line-height:1;}
-.visit-txt{font-size:11px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;}
-
-/* DETAIL */
-.dback{display:flex;align-items:center;gap:7px;background:var(--pr);color:#fff;padding:12px 20px;font-size:13px;cursor:pointer;}
-.dcon{max-width:960px;margin:0 auto;padding:20px;}
-.dgal{display:grid;grid-template-columns:2fr 1fr;gap:7px;border-radius:var(--rr);overflow:hidden;height:310px;margin-bottom:20px;}
-.dmi{background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:56px;overflow:hidden;}
-.dmi img{width:100%;height:100%;object-fit:cover;}
-.dsi{display:flex;flex-direction:column;gap:7px;}
-.dsib{flex:1;background:#d4d4d4;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-.dsib img{width:100%;height:100%;object-fit:cover;}
-.dlay{display:grid;grid-template-columns:1fr 295px;gap:20px;}
-.dinfo h2{font-size:22px;margin-bottom:7px;color:var(--pr);}
-.dprice{font-size:28px;font-weight:bold;color:var(--pr);margin-bottom:12px;}
-.dlegal-box{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;margin-bottom:14px;}
-.dlegal-box.listo{background:#d1fae5;color:#065f46;}
-.dlegal-box.enproceso{background:#fef3c7;color:#92400e;}
-.dlegal-box.sinpapeles{background:#fee2e2;color:#991b1b;}
-.dadrbox{background:#eef4fb;border-left:3px solid var(--pr);padding:9px 13px;border-radius:0 7px 7px 0;margin-bottom:14px;font-size:13px;line-height:1.7;}
-.dadrbox strong{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--pr);margin-bottom:3px;}
-.dmeta{display:flex;gap:11px;flex-wrap:wrap;margin-bottom:16px;}
-.dmi2{background:var(--lt);padding:8px 14px;border-radius:7px;font-size:13px;text-align:center;}
-.dmi2 strong{display:block;font-size:18px;color:var(--pr);}
-.ddesc{font-size:14px;line-height:1.7;color:#444;margin-bottom:16px;}
-.dfeat{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
-.ftag{background:#e8f0fa;color:var(--pr);padding:4px 12px;border-radius:20px;font-size:12px;}
-.scard{background:#fff;border-radius:var(--rr);padding:16px;box-shadow:0 2px 11px rgba(0,0,0,.09);margin-bottom:14px;}
-.scard h3{font-size:14px;margin-bottom:12px;color:var(--pr);}
-.qbox{display:flex;flex-direction:column;align-items:center;gap:7px;}
-.qurl{font-size:10px;color:var(--mu);word-break:break-all;text-align:center;}
-.cform input,.cform textarea{width:100%;border:1px solid var(--bd);border-radius:5px;padding:7px 10px;font-size:13px;margin-bottom:8px;outline:none;}
-.cform textarea{height:70px;resize:none;}
-.btnp{width:100%;background:var(--pr);color:#fff;border:none;padding:10px;border-radius:7px;font-size:14px;font-weight:bold;}
-.dibadge{display:inline-block;background:var(--lt);color:var(--mu);font-size:11px;padding:3px 10px;border-radius:12px;margin-bottom:9px;}
-.mlink{display:inline-flex;align-items:center;gap:5px;color:var(--pr);font-size:12px;text-decoration:none;border:1px solid var(--pr);padding:4px 11px;border-radius:20px;margin-top:6px;}
-.prop-visit{font-size:12px;color:var(--mu);margin-top:8px;text-align:center;}
-
-/* DETAIL SOCIAL */
-.detail-social{margin-top:8px;}
-.detail-social p{font-size:12px;color:var(--mu);margin-bottom:6px;}
-.dslinks{display:flex;flex-direction:column;gap:6px;}
-.dslink{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:7px;text-decoration:none;font-size:12px;font-weight:bold;color:#fff;}
-.dslink.whatsapp{background:#25d366;}
-.dslink.telegram{background:#0088cc;}
-.dslink.instagram{background:linear-gradient(45deg,#f09433,#dc2743,#bc1888);}
-
-/* ADMIN */
-#page-admin{background:#f0ede8;min-height:100vh;padding-bottom:2rem;}
-.abar{background:#1a1a2e;padding:.5rem .85rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;position:sticky;top:0;z-index:200;}
-.abar-title{font-family:Georgia,serif;font-size:.88rem;color:#fff;flex:1;white-space:nowrap;}
-.abar-user{font-size:.7rem;color:rgba(255,255,255,.5);background:rgba(255,255,255,.08);padding:3px 10px;border-radius:12px;}
-.ab{padding:5px 13px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:.7rem;font-weight:700;letter-spacing:.04em;transition:all .16s;white-space:nowrap;}
-.ab-ghost{background:transparent;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.2);}
-.ab-ghost:hover{background:rgba(255,255,255,.1);color:#fff;}
-.ab-green{background:#16a34a;color:#fff;}.ab-green:hover{filter:brightness(.9);}
-.ab-gold{background:var(--ac);color:#000;}.ab-gold:hover{filter:brightness(.92);}
-.ab-blue{background:#2563eb;color:#fff;}.ab-blue:hover{filter:brightness(.9);}
-.ab-red{background:#dc2626;color:#fff;}.ab-red:hover{filter:brightness(.9);}
-.abody{max-width:960px;margin:0 auto;padding:1rem;}
-
-/* ADMIN STATS */
-.adm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-.adm-stat{background:#fff;border-radius:8px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,.08);text-align:center;}
-.adm-stat-num{font-size:24px;font-weight:bold;color:var(--pr);}
-.adm-stat-lbl{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
-
-.asec{background:#fff;border-radius:var(--rr);padding:20px;margin-bottom:18px;box-shadow:0 2px 11px rgba(0,0,0,.09);}
-.asec-head{font-size:16px;color:var(--pr);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--lt);display:flex;align-items:center;justify-content:space-between;}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
-.fg{display:flex;flex-direction:column;gap:4px;}
-.fg label{font-size:11px;font-weight:bold;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;}
-.fg input,.fg select,.fg textarea{border:1.5px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:13px;outline:none;transition:border .2s;background:#fff;}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--pr);}
-.fg textarea{height:80px;resize:vertical;}
-.fg.full{grid-column:1/-1;}
-.sdiv{grid-column:1/-1;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:.7px;color:var(--pr);padding:9px 0 3px;border-bottom:1px solid var(--lt);margin-top:5px;}
-.factions{display:flex;gap:9px;justify-content:flex-end;margin-top:16px;padding-top:13px;border-top:1px solid var(--bd);}
-.btnsave{background:var(--pr);color:#fff;border:none;padding:9px 24px;border-radius:7px;font-size:13px;font-weight:bold;}
-.btncancel{background:none;border:1px solid var(--bd);color:var(--mu);padding:9px 17px;border-radius:7px;font-size:13px;}
-.atable{width:100%;border-collapse:collapse;font-size:13px;}
-.atable th{background:var(--lt);padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);}
-.atable td{padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:middle;}
-.atable tr:hover td{background:#fafafa;}
-.pcode{font-weight:bold;color:var(--pr);font-size:12px;}
-.tact{display:flex;gap:6px;}
-.bedit{background:#eaf0fa;color:var(--pr);border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:bold;}
-.bdel{background:#faeaea;color:var(--er);border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:bold;}
-.sbadge{display:inline-block;font-size:10px;padding:2px 9px;border-radius:12px;font-weight:bold;}
-.sbadge.disponible{background:#e0f5e9;color:var(--ok);}
-.sbadge.vendida{background:#faeaea;color:var(--er);}
-.sbadge.reservada{background:#fef3e0;color:#a06010;}
-.lbadge{display:inline-block;font-size:10px;padding:2px 9px;border-radius:12px;font-weight:bold;}
-.lbadge.listo{background:#d1fae5;color:#065f46;}
-.lbadge.enproceso{background:#fef3c7;color:#92400e;}
-.lbadge.sinpapeles{background:#fee2e2;color:#991b1b;}
-.addbtn{background:var(--ac);color:#000;border:none;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:bold;}
-.visit-td{font-size:12px;color:var(--mu);}
-
-/* ADMIN SOCIAL CONFIG */
-.social-config{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.sc-item{display:flex;align-items:center;gap:8px;background:#fafaf8;border:1px solid var(--bd);border-radius:7px;padding:8px 11px;}
-.sc-icon{font-size:18px;flex-shrink:0;}
-.sc-item input{border:none;outline:none;background:transparent;flex:1;font-size:13px;color:var(--tx);}
-
-#toast{position:fixed;bottom:1.1rem;left:50%;transform:translateX(-50%) translateY(12px);background:#1a1a2e;color:#fff;padding:7px 17px;border-radius:30px;font-size:.75rem;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:9999;white-space:nowrap;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-#toast.ok{background:#16a34a;}
-#toast.warn{background:#d97706;}
-
-.login-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:300;}
-.lbox{background:#fff;border-radius:11px;padding:32px;width:300px;box-shadow:0 8px 30px rgba(0,0,0,.25);}
-.lbox h3{font-size:18px;color:var(--pr);margin-bottom:4px;}
-.lbox p{font-size:12px;color:var(--mu);margin-bottom:20px;}
-.lbox input{width:100%;border:1.5px solid var(--bd);border-radius:5px;padding:8px 12px;font-size:13px;outline:none;margin-bottom:10px;}
-.lbox input:focus{border-color:var(--pr);}
-.lerr{color:var(--er);font-size:12px;margin-bottom:8px;display:none;}
-
-@media(max-width:640px){
-  .fgrid{grid-template-columns:1fr;}.dlay{grid-template-columns:1fr;}
-  .dgal{grid-template-columns:1fr;height:auto;}.hero h1{font-size:22px;}
-  .adm-stats{grid-template-columns:1fr 1fr;}.social-config{grid-template-columns:1fr;}
-  .hero-filters{flex-direction:column;align-items:center;}
-  .hf-group input,.hf-group select{width:200px;}
-}
-</style>
+<title>VHome — Propiedades de Lujo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-theme="dark">
 
-<nav class="nav">
-  <div class="nav-logo">Casas<span>Ya</span></div>
-  <div class="nav-right">
-    <button class="nb act" id="btnPub" onclick="goPage('public')">🏠 Inicio</button>
-    <button class="nb" id="btnAdm" onclick="requireLogin()">⚙️ Admin</button>
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-brand">
+    <span class="brand-v">V</span><span class="brand-home">HOME</span>
+    <span class="brand-tag">REAL ESTATE</span>
   </div>
+  <ul class="nav-links">
+    <li><a href="#inicio" class="nav-link active">Inicio</a></li>
+    <li><a href="#propiedades" class="nav-link">Propiedades</a></li>
+    <li><a href="#categorias" class="nav-link">Categorías</a></li>
+    <li><a href="#nosotros" class="nav-link">Nosotros</a></li>
+    <li><a href="#contacto" class="nav-link">Contacto</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-theme" id="themeToggle" title="Cambiar tema">◑</button>
+    <a href="#contacto" class="btn-cta">Consultar</a>
+  </div>
+  <button class="nav-burger" id="navBurger">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
-<div class="login-ov" id="loginOv" style="display:none;">
-  <div class="lbox">
-    <h3>🔐 Acceso Administrador</h3>
-    <p>Introduce la contraseña para continuar</p>
-    <div class="lerr" id="lerr">Contraseña incorrecta</div>
-    <input type="password" id="lpass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btnp" onclick="doLogin()">Entrar</button>
-    <button class="btncancel" style="width:100%;margin-top:7px;" onclick="closeLogin()">Cancelar</button>
+<!-- ── HERO ── -->
+<section class="hero" id="inicio">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="hero-orb hero-orb1"></div>
+    <div class="hero-orb hero-orb2"></div>
+    <div class="hero-orb hero-orb3"></div>
   </div>
-</div>
-
-<!-- ═══ PUBLIC ═══ -->
-<div class="page active" id="page-public">
-  <div class="hero">
-    <div class="hero-content">
-      <h1>Encuentra tu hogar ideal</h1>
-      <p>Las mejores propiedades en venta, actualizadas en tiempo real</p>
-
-      <!-- STATS -->
-      <div class="stats-bar">
-        <div class="stat-item"><span class="stat-num" id="statTotal">0</span><div class="stat-lbl">Propiedades</div></div>
-        <div class="stat-item"><span class="stat-num" id="statDisp">0</span><div class="stat-lbl">Disponibles</div></div>
-        <div class="stat-item"><span class="stat-num" id="statVisits">0</span><div class="stat-lbl">Visitas totales</div></div>
-      </div>
-
-      <!-- SEARCH -->
-      <div class="sbar">
-        <input type="text" id="si" placeholder="Ciudad, barrio, características..." oninput="filterProp()">
-        <button onclick="filterProp()">Buscar</button>
-      </div>
-
-      <!-- MAIN FILTERS -->
-      <div class="hero-filters">
-        <div class="hf-group">
-          <label>Estado</label>
-          <select id="hfStatus" onchange="filterProp()">
-            <option value="Disponible">✅ Disponibles</option>
-            <option value="">Todos</option>
-            <option value="Reservada">Reservadas</option>
-          </select>
-        </div>
-        <div class="hf-group">
-          <label>Precio mínimo $</label>
-          <input type="number" id="hfMin" placeholder="0" min="0" oninput="filterProp()">
-        </div>
-        <div class="hf-group">
-          <label>Precio máximo $</label>
-          <input type="number" id="hfMax" placeholder="Sin límite" min="0" oninput="filterProp()">
-        </div>
-        <div class="hf-group">
-          <label>Tipo</label>
-          <select id="hfType" onchange="filterProp()">
-            <option value="">Todos los tipos</option>
-            <option>Casa</option><option>Apartamento</option><option>Local</option><option>Terreno</option>
-          </select>
-        </div>
-        <button class="hf-btn-clear" onclick="resetF()">✕ Limpiar</button>
+  <div class="hero-content">
+    <div class="hero-badge">✦ Propiedades Premium en Colombia</div>
+    <h1 class="hero-title">
+      Encuentra tu<br>
+      <em>hogar ideal</em>
+    </h1>
+    <p class="hero-sub">Casas, apartamentos y fincas seleccionadas con los más altos estándares de calidad y ubicación estratégica.</p>
+    <div class="hero-search">
+      <div class="search-row">
+        <select class="search-select" id="searchType">
+          <option value="">Tipo de propiedad</option>
+          <option value="casa">Casa</option>
+          <option value="apartamento">Apartamento</option>
+          <option value="finca">Finca</option>
+        </select>
+        <select class="search-select" id="searchOp">
+          <option value="">Operación</option>
+          <option value="venta">Venta</option>
+          <option value="arriendo">Arriendo</option>
+        </select>
+        <select class="search-select" id="searchCity">
+          <option value="">Ciudad</option>
+          <option value="bogota">Bogotá</option>
+          <option value="medellin">Medellín</option>
+          <option value="cali">Cali</option>
+          <option value="cartagena">Cartagena</option>
+          <option value="barranquilla">Barranquilla</option>
+        </select>
+        <button class="btn-search" onclick="buscarPropiedades()">Buscar →</button>
       </div>
     </div>
-  </div>
-
-  <!-- SECONDARY FILTERS -->
-  <div class="filt">
-    <select id="fBeds" onchange="filterProp()">
-      <option value="">Habitaciones</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
-    </select>
-    <select id="fLegal" onchange="filterProp()">
-      <option value="">Estado legal</option><option value="Listo">✅ Listo</option><option value="En proceso">🔄 En proceso</option><option value="Sin papeles">⚠️ Sin papeles</option>
-    </select>
-    <span class="rc" id="rc"></span>
-  </div>
-
-  <div class="gcon">
-    <div class="grid" id="pgrid"></div>
-    <div class="nores" id="nores" style="display:none;">😔 No se encontraron propiedades con esos criterios.<br><small style="font-size:13px;margin-top:8px;display:block;">Prueba ajustando el rango de precios o los filtros.</small></div>
-  </div>
-
-  <!-- SOCIAL SECTION -->
-  <div class="social-section">
-    <h3>📲 Contáctanos por nuestras redes</h3>
-    <p>Estamos disponibles para resolver tus dudas y ayudarte a encontrar tu propiedad ideal</p>
-    <div class="social-links" id="socialLinks"></div>
-    <div class="visit-widget">
-      <div class="visit-icon">👁️</div>
-      <div class="visit-info">
-        <div class="visit-num" id="visitCount">0</div>
-        <div class="visit-txt">visitas a CasasYa</div>
-      </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">+1,200</span><span class="stat-label">Propiedades</span></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span class="stat-num">+850</span><span class="stat-label">Clientes felices</span></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span class="stat-num">15+</span><span class="stat-label">Años de exp.</span></div>
     </div>
   </div>
-  <div class="footer-copy">© 2025 CasasYa · Todos los derechos reservados · <span id="footerCity"></span></div>
-</div>
-
-<!-- ═══ DETAIL ═══ -->
-<div class="page" id="page-detail">
-  <div class="dback" onclick="goPage('public')">← Volver al listado</div>
-  <div class="dcon" id="dcont"></div>
-</div>
-
-<!-- ═══ ADMIN ═══ -->
-<div class="page" id="page-admin">
-  <div class="abar">
-    <span class="abar-title">⚙️ Panel de Administración — CasasYa</span>
-    <span class="abar-user" id="abarUser">👤 admin</span>
-    <button class="ab ab-ghost" onclick="goPage('public')">🏠 Ver web</button>
-    <button class="ab ab-green" onclick="admSave()">☁️ Guardar en GitHub</button>
-    <button class="ab ab-red" onclick="doLogout()">🚪 Salir</button>
-  </div>
-  <div class="abody">
-
-    <!-- STATS -->
-    <div class="adm-stats">
-      <div class="adm-stat"><div class="adm-stat-num" id="aStatTotal">0</div><div class="adm-stat-lbl">Total propiedades</div></div>
-      <div class="adm-stat"><div class="adm-stat-num" id="aStatDisp">0</div><div class="adm-stat-lbl">Disponibles</div></div>
-      <div class="adm-stat"><div class="adm-stat-num" id="aStatRes">0</div><div class="adm-stat-lbl">Reservadas</div></div>
-      <div class="adm-stat"><div class="adm-stat-num" id="aStatVis">0</div><div class="adm-stat-lbl">Visitas totales</div></div>
-    </div>
-
-    <!-- FORM -->
-    <div class="asec" id="admForm" style="display:none;">
-      <div class="asec-head"><span id="formTitle">➕ Nueva Propiedad</span></div>
-      <div class="fgrid">
-        <div class="sdiv">📋 Información general</div>
-        <div class="fg"><label>Tipo *</label><select id="fT"><option>Casa</option><option>Apartamento</option><option>Local</option><option>Terreno</option></select></div>
-        <div class="fg"><label>Estado de venta *</label><select id="fS"><option>Disponible</option><option>Reservada</option><option>Vendida</option></select></div>
-        <div class="fg full"><label>Título *</label><input type="text" id="fTi" placeholder="Ej: Casa colonial con jardín y garaje, 3 habitaciones"></div>
-        <div class="fg"><label>Precio (USD) *</label><input type="number" id="fPr" placeholder="85000" min="0"></div>
-        <div class="fg"><label>Teléfono contacto</label><input type="tel" id="fPh" placeholder="+1 (305) 555-0000"></div>
-
-        <div class="sdiv">📄 Estado legal para compraventa</div>
-        <div class="fg full"><label>Estado legal *</label>
-          <select id="fLg">
-            <option value="Listo">✅ Listo — Documentación completa</option>
-            <option value="En proceso">🔄 En proceso — Trámites en curso</option>
-            <option value="Sin papeles">⚠️ Sin papeles — Sin documentación</option>
-          </select>
-        </div>
-        <div class="fg full"><label>Notas sobre documentación</label><input type="text" id="fLgN" placeholder="Ej: Escritura notariada, libre de cargas."></div>
-
-        <div class="sdiv">📍 Dirección completa</div>
-        <div class="fg full"><label>Calle y número *</label><input type="text" id="fSt" placeholder="Ej: Calle 23 No. 456 e/ F y G"></div>
-        <div class="fg"><label>Barrio / Reparto</label><input type="text" id="fNe" placeholder="Ej: Vedado"></div>
-        <div class="fg"><label>Municipio / Ciudad *</label><input type="text" id="fCi" placeholder="Ej: La Habana"></div>
-        <div class="fg"><label>Provincia / Estado</label><input type="text" id="fPv" placeholder="Ej: La Habana"></div>
-        <div class="fg"><label>Código Postal</label><input type="text" id="fZp" placeholder="Ej: 10400"></div>
-
-        <div class="sdiv">🏗️ Características</div>
-        <div class="fg"><label>Habitaciones</label><input type="number" id="fBd" placeholder="3" min="0"></div>
-        <div class="fg"><label>Baños</label><input type="number" id="fBa" placeholder="2" min="0"></div>
-        <div class="fg"><label>Superficie (m²)</label><input type="number" id="fAr" placeholder="120" min="0"></div>
-        <div class="fg"><label>Plantas</label><input type="number" id="fFl" placeholder="1" min="1"></div>
-        <div class="fg full"><label>Extras (separados por comas)</label><input type="text" id="fFe" placeholder="Garaje, Piscina, Terraza, Aire acondicionado, Jardín"></div>
-
-        <div class="sdiv">📝 Descripción e imágenes</div>
-        <div class="fg full"><label>Descripción</label><textarea id="fDe" placeholder="Describe la propiedad..."></textarea></div>
-        <div class="fg full">
-          <label>URLs de imágenes (separadas por comas)</label>
-          <textarea id="fIm" placeholder="https://ejemplo.com/foto1.jpg, https://ejemplo.com/foto2.jpg" style="height:58px;"></textarea>
-          <small style="color:var(--mu);font-size:11px;margin-top:3px;">La primera imagen será la portada.</small>
-        </div>
+  <div class="hero-img">
+    <div class="hero-img-wrap">
+      <div class="prop-card-float">
+        <span class="pcf-tag">En venta</span>
+        <div class="pcf-title">Casa Campestre<br><span>Bogotá · El Chicó</span></div>
+        <div class="pcf-price">$2,850,000,000</div>
       </div>
-      <div class="factions">
-        <button class="btncancel" onclick="cancelEdit()">Cancelar</button>
-        <button class="btnsave" onclick="saveProp()">💾 Guardar Propiedad</button>
-      </div>
-    </div>
-
-    <!-- SOCIAL CONFIG -->
-    <div class="asec">
-      <div class="asec-head"><span>📲 Redes sociales y contacto</span></div>
-      <div class="social-config">
-        <div class="sc-item"><span class="sc-icon">💬</span><input id="scWa" type="text" placeholder="WhatsApp: +1 305 555 0000"></div>
-        <div class="sc-item"><span class="sc-icon">📱</span><input id="scTg" type="text" placeholder="Telegram: @usuario o enlace"></div>
-        <div class="sc-item"><span class="sc-icon">📸</span><input id="scIg" type="text" placeholder="Instagram: @tucuenta o enlace"></div>
-        <div class="sc-item"><span class="sc-icon">👥</span><input id="scFb" type="text" placeholder="Facebook: enlace a página"></div>
-        <div class="sc-item"><span class="sc-icon">✉️</span><input id="scEm" type="text" placeholder="Email: correo@ejemplo.com"></div>
-        <div class="sc-item"><span class="sc-icon">🏙️</span><input id="scCity" type="text" placeholder="Ciudad / País (para el footer)"></div>
-      </div>
-      <div style="margin-top:10px;font-size:12px;color:var(--mu);">Los campos vacíos no se mostrarán en la web pública. Guarda los cambios al terminar.</div>
-    </div>
-
-    <!-- GITHUB CONFIG -->
-    <div class="asec">
-      <div class="asec-head">
-        <span>🐙 Conexión GitHub (donde se guardan los datos)</span>
-        <span id="ghStatusBadge" style="font-size:11px;padding:3px 10px;border-radius:12px;background:#fee2e2;color:#991b1b;">⚠️ Sin configurar</span>
-      </div>
-      <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#92400e;line-height:1.6;">
-        ⚠️ El Token se guarda en tu navegador (localStorage). Nunca lo compartas públicamente. Permisos necesarios: <code>repo → contents</code> read+write.
-      </div>
-      <div class="fgrid" style="max-width:620px;">
-        <div class="fg"><label>Usuario GitHub</label><input type="text" id="ghOwner" placeholder="tu-usuario"></div>
-        <div class="fg"><label>Repositorio</label><input type="text" id="ghRepo" placeholder="casasya-data"></div>
-        <div class="fg"><label>Archivo de datos</label><input type="text" id="ghFile" placeholder="data.json"></div>
-        <div class="fg"><label>Personal Access Token (PAT)</label><input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx"></div>
-      </div>
-      <div style="display:flex;gap:9px;margin-top:12px;align-items:center;">
-        <button class="ab ab-green" onclick="saveGhConfig()">✔ Conectar y guardar token</button>
-        <span style="font-size:11px;color:var(--mu);">El token se recordará en este navegador.</span>
-      </div>
-    </div>
-
-    <!-- TABLE -->
-    <div class="asec">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div style="font-size:16px;font-weight:bold;color:var(--pr);">Propiedades publicadas</div>
-        <button class="addbtn" onclick="showForm()">+ Añadir Propiedad</button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="atable">
-          <thead><tr><th>Ref.</th><th>Propiedad</th><th>Dirección</th><th>Precio</th><th>Venta</th><th>Legal</th><th>Visitas</th><th>Acciones</th></tr></thead>
-          <tbody id="atbody"></tbody>
-        </table>
+      <div class="hero-house-svg">
+        <svg viewBox="0 0 520 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Sky gradient -->
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.08"/>
+              <stop offset="100%" stop-color="var(--accent2)" stop-opacity="0.04"/>
+            </linearGradient>
+            <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--surface2)"/>
+              <stop offset="100%" stop-color="var(--surface)"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <rect width="520" height="420" fill="url(#sky)"/>
+          <!-- Ground -->
+          <ellipse cx="260" cy="400" rx="240" ry="20" fill="var(--accent)" opacity="0.04"/>
+          <!-- Main house body -->
+          <rect x="100" y="200" width="320" height="200" rx="4" fill="url(#wallGrad)" stroke="var(--border)" stroke-width="1.5"/>
+          <!-- Roof -->
+          <path d="M80 205 L260 90 L440 205 Z" fill="var(--surface2)" stroke="var(--accent)" stroke-width="1.5" filter="url(#glow)"/>
+          <!-- Roof ridge accent -->
+          <line x1="260" y1="90" x2="260" y2="200" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+          <!-- Windows top floor -->
+          <rect x="140" y="230" width="70" height="55" rx="3" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1"/>
+          <line x1="175" y1="230" x2="175" y2="285" stroke="var(--accent)" stroke-width="0.8" opacity="0.5"/>
+          <rect x="310" y="230" width="70" height="55" rx="3" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1"/>
+          <line x1="345" y1="230" x2="345" y2="285" stroke="var(--accent)" stroke-width="0.8" opacity="0.5"/>
+          <!-- Window light effect -->
+          <rect x="141" y="231" width="68" height="25" rx="2" fill="var(--accent)" opacity="0.08"/>
+          <rect x="311" y="231" width="68" height="25" rx="2" fill="var(--accent)" opacity="0.08"/>
+          <!-- Door -->
+          <rect x="218" y="310" width="84" height="90" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+          <rect x="225" y="318" width="30" height="45" rx="2" fill="var(--accent)" opacity="0.1" stroke="var(--accent)" stroke-width="0.8"/>
+          <rect x="264" y="318" width="30" height="45" rx="2" fill="var(--accent)" opacity="0.1" stroke="var(--accent)" stroke-width="0.8"/>
+          <!-- Door handle -->
+          <circle cx="255" cy="363" r="3" fill="var(--accent)" opacity="0.6"/>
+          <circle cx="265" cy="363" r="3" fill="var(--accent)" opacity="0.6"/>
+          <!-- Chimney -->
+          <rect x="330" y="115" width="28" height="60" rx="2" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+          <!-- Smoke -->
+          <path d="M344 115 Q348 100 344 88 Q340 75 346 65" stroke="var(--text2)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
+          <path d="M350 112 Q355 98 351 85 Q347 73 353 62" stroke="var(--text2)" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.2"/>
+          <!-- Trees -->
+          <ellipse cx="65" cy="310" rx="32" ry="40" fill="var(--green)" opacity="0.12"/>
+          <rect x="61" y="340" width="8" height="50" rx="2" fill="var(--border)"/>
+          <ellipse cx="455" cy="295" rx="28" ry="36" fill="var(--green)" opacity="0.12"/>
+          <rect x="451" y="325" width="8" height="65" rx="2" fill="var(--border)"/>
+          <!-- Path to door -->
+          <path d="M260 400 L260 400 L240 400 L235 390 L260 390 L285 390 L280 400 Z" fill="var(--border)" opacity="0.4"/>
+          <!-- Stars/sparkles -->
+          <circle cx="80" cy="60" r="1.5" fill="var(--accent)" opacity="0.6"/>
+          <circle cx="430" cy="40" r="1" fill="var(--accent2)" opacity="0.5"/>
+          <circle cx="350" cy="50" r="1.5" fill="var(--accent)" opacity="0.4"/>
+          <circle cx="150" cy="35" r="1" fill="var(--yellow)" opacity="0.5"/>
+        </svg>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<div id="toast"></div>
-
-<script>
-/* ═══════════════════════════════════════════════════════════════
-   CASASYA — GITHUB-BACKED STORAGE
-   Todos los datos se leen y escriben en un archivo data.json
-   dentro de tu repositorio de GitHub.
-
-   CONFIGURACIÓN (edita los 4 valores de abajo):
-   ════════════════════════════════════════════════════════════════ */
-/* ─── GitHub config: persiste en localStorage ─── */
-function loadGhConfigFromStorage(){
-  return {
-    owner : localStorage.getItem('gh_owner') || '',
-    repo  : localStorage.getItem('gh_repo')  || 'casasya-data',
-    file  : localStorage.getItem('gh_file')  || 'data.json',
-    token : localStorage.getItem('gh_token') || ''
-  };
-}
-const GH_CONFIG = loadGhConfigFromStorage();
-
-const DEFAULT_SOCIAL = {wa:'',tg:'',ig:'',fb:'',em:'',city:''};
-
-let DATA = [], SOCIAL = {...DEFAULT_SOCIAL}, VISITS = 0;
-let _ghSha = null; // SHA del archivo actual en GitHub (necesario para actualizarlo)
-let editId = null, logged = false;
-const PASS = 'admin123';
-
-/* ─── GitHub API helpers ─── */
-function ghHeaders(){
-  const h = {'Content-Type':'application/json','Accept':'application/vnd.github+json'};
-  if(GH_CONFIG.token) h['Authorization'] = 'token ' + GH_CONFIG.token;
-  return h;
-}
-function ghUrl(){ return `https://api.github.com/repos/${GH_CONFIG.owner}/${GH_CONFIG.repo}/contents/${GH_CONFIG.file}`; }
-
-async function ghLoad(){
-  showLoadingOverlay(true);
-  if(!GH_CONFIG.owner || !GH_CONFIG.token){
-    useEmbeddedData();
-    showLoadingOverlay(false);
-    return;
-  }
-  try {
-    const res = await fetch(ghUrl() + '?t=' + Date.now(), {headers: ghHeaders()});
-    if(res.status === 404){
-      /* El archivo aún no existe — usamos datos del backup embebido */
-      console.warn('CasasYa: data.json no encontrado en GitHub. Usando datos iniciales.');
-      useEmbeddedData();
-    } else if(!res.ok){
-      throw new Error('GitHub API: ' + res.status + ' ' + res.statusText);
-    } else {
-      const json = await res.json();
-      _ghSha = json.sha;
-      const content = JSON.parse(atob(json.content.replace(/\n/g,'')));
-      DATA   = content.properties || [];
-      SOCIAL = content.social     || {...DEFAULT_SOCIAL};
-      VISITS = content.visits     || 0;
-    }
-  } catch(err){
-    console.error('CasasYa ghLoad error:', err);
-    toast('⚠️ Error cargando datos de GitHub. Revisa la configuración.','warn');
-    useEmbeddedData();
-  } finally {
-    showLoadingOverlay(false);
-  }
-  /* Contar visita — guardar en background sin bloquear UI */
-  VISITS++;
-  if(GH_CONFIG.token && GH_CONFIG.owner) ghSave(false); // silent save
-}
-
-async function ghSave(showToast=true){
-  if(!GH_CONFIG.token || !GH_CONFIG.owner){
-    if(showToast) showTokenModal();
-    return false;
-  }
-  const payload = {properties: DATA, social: SOCIAL, visits: VISITS};
-  const body = {
-    message: 'CasasYa update ' + new Date().toISOString(),
-    content: btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2)))),
-  };
-  if(_ghSha) body.sha = _ghSha;
-  try {
-    const res = await fetch(ghUrl(), {method:'PUT', headers: ghHeaders(), body: JSON.stringify(body)});
-    if(!res.ok){
-      const err = await res.json().catch(()=>({}));
-      throw new Error(err.message || res.status);
-    }
-    const json = await res.json();
-    _ghSha = json.content.sha;
-    if(showToast) toast('✔ Guardado en GitHub correctamente','ok');
-    return true;
-  } catch(err){
-    console.error('CasasYa ghSave error:', err);
-    if(showToast) toast('❌ Error guardando en GitHub: ' + err.message,'warn');
-    return false;
-  }
-}
-
-/* ─── Datos embebidos de respaldo (se usan si GitHub no está configurado) ─── */
-function useEmbeddedData(){
-  DATA = [
-    {id:'CY001',type:'Casa',title:'Casa colonial con jardín y terraza',price:85000,phone:'+1 (305) 555-0100',visits:0,
-     status:'Disponible',legal:'Listo',legalNote:'Escritura notariada, libre de cargas y gravámenes.',
-     street:'Calle 17 No. 1205 e/ 20 y 22',neighborhood:'Vedado',city:'La Habana',province:'La Habana',zip:'10400',
-     beds:3,baths:2,area:180,floors:2,
-     desc:'Espectacular casa colonial completamente reformada. Amplia sala, cocina equipada, tres habitaciones con armarios empotrados, dos baños modernos. Jardín privado con barbacoa. Garaje para dos vehículos.',
-     features:['Garaje','Jardín','Terraza','Aire acondicionado'],
-     images:['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80','https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80','https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80']},
-    {id:'CY002',type:'Apartamento',title:'Apartamento moderno en planta alta',price:55000,phone:'+1 (305) 555-0102',visits:0,
-     status:'Disponible',legal:'En proceso',legalNote:'Trámite de cambio de titularidad en curso.',
-     street:'Ave. 5ta No. 4202 Apto 3B',neighborhood:'Miramar',city:'La Habana',province:'La Habana',zip:'11300',
-     beds:2,baths:1,area:95,floors:1,
-     desc:'Luminoso apartamento en planta alta con vistas despejadas. Recién renovado. Cocina americana integrada al salón. Dos habitaciones amplias, baño completo.',
-     features:['Ascensor','Balcón','Parking'],
-     images:['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80','https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=80']},
-    {id:'CY003',type:'Casa',title:'Chalet independiente con piscina',price:210000,phone:'+1 (305) 555-0103',visits:0,
-     status:'Disponible',legal:'Listo',legalNote:'Documentación completa. Libre de deudas.',
-     street:'Calle 240 No. 3105',neighborhood:'Siboney',city:'La Habana',province:'La Habana',zip:'11600',
-     beds:4,baths:3,area:320,floors:2,
-     desc:'Lujosa residencia en zona exclusiva. Cuatro habitaciones, tres baños completos, salón de doble altura, cocina de diseño, piscina privada y amplia parcela.',
-     features:['Piscina','Garaje x2','Jardín','Seguridad 24h','Barbacoa'],
-     images:['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80','https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80']},
-    {id:'CY004',type:'Apartamento',title:'Estudio céntrico recién reformado',price:28000,phone:'+1 (305) 555-0104',visits:0,
-     status:'Reservada',legal:'Sin papeles',legalNote:'Sin documentación formal. Requiere regularización.',
-     street:'Obispo No. 312 e/ Aguiar y Habana, Apto 2',neighborhood:'Centro Histórico',city:'La Habana',province:'La Habana',zip:'10100',
-     beds:1,baths:1,area:45,floors:1,
-     desc:'Precioso estudio en el corazón de La Habana Vieja. Completamente reformado, cocina equipada, baño moderno. Ideal para inversión.',
-     features:['WiFi','Aire acondicionado'],
-     images:['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80']},
-  ];
-  SOCIAL = {...DEFAULT_SOCIAL};
-  VISITS = 0;
-}
-
-/* ─── Loading overlay ─── */
-function showLoadingOverlay(show){
-  let ov = document.getElementById('ghLoadingOv');
-  if(!ov){
-    ov = document.createElement('div');
-    ov.id = 'ghLoadingOv';
-    ov.style.cssText='position:fixed;inset:0;background:rgba(15,39,68,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;gap:14px;';
-    ov.innerHTML='<div style="font-size:36px;animation:spin 1s linear infinite">⟳</div><div style="font-size:14px;letter-spacing:.5px;">Cargando datos desde GitHub…</div>';
-    const style=document.createElement('style');
-    style.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
-    document.head.appendChild(style);
-    document.body.appendChild(ov);
-  }
-  ov.style.display = show ? 'flex' : 'none';
-}
-
-/* ─── GitHub Config Panel ─── */
-function showGhConfig(){ /* no-op, panel is always visible now */ }
-
-function saveGhConfig(){
-  GH_CONFIG.owner = document.getElementById('ghOwner').value.trim();
-  GH_CONFIG.repo  = document.getElementById('ghRepo').value.trim();
-  GH_CONFIG.file  = document.getElementById('ghFile').value.trim() || 'data.json';
-  GH_CONFIG.token = document.getElementById('ghToken').value.trim();
-  // Persistir en localStorage
-  localStorage.setItem('gh_owner', GH_CONFIG.owner);
-  localStorage.setItem('gh_repo',  GH_CONFIG.repo);
-  localStorage.setItem('gh_file',  GH_CONFIG.file);
-  localStorage.setItem('gh_token', GH_CONFIG.token);
-  _ghSha = null;
-  toast('Token guardado. Conectando con GitHub…','');
-  ghLoad().then(()=>{ renderGrid(); renderSocial(); updateStats(); loadSocialForm(); renderTable(); updateAdminStats(); updateGhStatusBadge(); });
-}
-
-function updateGhStatusBadge(){
-  const badge = document.getElementById('ghStatusBadge');
-  if(!badge) return;
-  if(GH_CONFIG.token && GH_CONFIG.owner){
-    badge.style.background='#d1fae5'; badge.style.color='#065f46';
-    badge.textContent='✅ Conectado: ' + GH_CONFIG.owner + '/' + GH_CONFIG.repo;
-  } else {
-    badge.style.background='#fee2e2'; badge.style.color='#991b1b';
-    badge.textContent='⚠️ Sin configurar';
-  }
-}
-function loadGhConfigForm(){
-  document.getElementById('ghOwner').value = GH_CONFIG.owner;
-  document.getElementById('ghRepo').value  = GH_CONFIG.repo;
-  document.getElementById('ghFile').value  = GH_CONFIG.file;
-  document.getElementById('ghToken').value = GH_CONFIG.token;
-  updateGhStatusBadge();
-}
-
-/* ═══ HELPERS ═══ */
-function fullAddr(p){ return [p.street,p.neighborhood,p.city,p.province,p.zip].filter(Boolean).join(', '); }
-function shortAddr(p){ return [p.neighborhood,p.city].filter(Boolean).join(', ')||p.city||''; }
-function legalKey(l){ return (l||'').toLowerCase().replace(/ /g,''); }
-function legalIcon(l){ return l==='Listo'?'✅':l==='En proceso'?'🔄':'⚠️'; }
-function e(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function fmtN(n){ return n>=1000?(n/1000).toFixed(1)+'k':n; }
-
-/* ═══ NAVIGATION ═══ */
-function goPage(name){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.getElementById('btnPub').classList.toggle('act',name==='public');
-  document.getElementById('btnAdm').classList.toggle('act',name==='admin');
-  if(name==='public'){ renderGrid(); renderSocial(); updateStats(); }
-  if(name==='admin'){ loadSocialForm(); loadGhConfigForm(); renderTable(); updateAdminStats(); }
-  window.scrollTo(0,0);
-}
-
-/* ═══ AUTH ═══ */
-function requireLogin(){ if(logged){goPage('admin');return;} document.getElementById('loginOv').style.display='flex'; setTimeout(()=>document.getElementById('lpass').focus(),80); }
-function doLogin(){
-  if(document.getElementById('lpass').value===PASS){
-    logged=true; document.getElementById('loginOv').style.display='none';
-    document.getElementById('lpass').value=''; document.getElementById('lerr').style.display='none';
-    goPage('admin');
-  } else { document.getElementById('lerr').style.display='block'; }
-}
-function closeLogin(){ document.getElementById('loginOv').style.display='none'; document.getElementById('lerr').style.display='none'; document.getElementById('lpass').value=''; }
-function doLogout(){
-  if(!confirm('¿Cerrar sesión de administrador?')) return;
-  logged=false;
-  goPage('public');
-  toast('Sesión cerrada correctamente','ok');
-}
-
-/* ═══ STATS ═══ */
-function updateStats(){
-  const disp=DATA.filter(p=>p.status==='Disponible').length;
-  document.getElementById('statTotal').textContent=DATA.filter(p=>p.status!=='Vendida').length;
-  document.getElementById('statDisp').textContent=disp;
-  document.getElementById('statVisits').textContent=fmtN(VISITS);
-  document.getElementById('visitCount').textContent=VISITS.toLocaleString();
-  const fc=document.getElementById('footerCity');
-  if(fc) fc.textContent=SOCIAL.city||'';
-}
-function updateAdminStats(){
-  document.getElementById('aStatTotal').textContent=DATA.length;
-  document.getElementById('aStatDisp').textContent=DATA.filter(p=>p.status==='Disponible').length;
-  document.getElementById('aStatRes').textContent=DATA.filter(p=>p.status==='Reservada').length;
-  document.getElementById('aStatVis').textContent=VISITS.toLocaleString();
-}
-
-/* ═══ SOCIAL RENDER ═══ */
-function renderSocial(){
-  const cont=document.getElementById('socialLinks');
-  cont.innerHTML='';
-  if(SOCIAL.wa){
-    const num=SOCIAL.wa.replace(/[^0-9+]/g,'');
-    const a=document.createElement('a');
-    a.href='https://wa.me/'+num+'?text=Hola%2C%20estoy%20interesado%20en%20una%20propiedad%20de%20CasasYa';
-    a.target='_blank'; a.className='slink whatsapp'; a.innerHTML='<span>💬</span> WhatsApp'; cont.appendChild(a);
-  }
-  if(SOCIAL.tg){
-    const a=document.createElement('a');
-    a.href=SOCIAL.tg.startsWith('http')?SOCIAL.tg:'https://t.me/'+SOCIAL.tg.replace('@','');
-    a.target='_blank'; a.className='slink telegram'; a.innerHTML='<span>✈️</span> Telegram'; cont.appendChild(a);
-  }
-  if(SOCIAL.ig){
-    const a=document.createElement('a');
-    a.href=SOCIAL.ig.startsWith('http')?SOCIAL.ig:'https://instagram.com/'+SOCIAL.ig.replace('@','');
-    a.target='_blank'; a.className='slink instagram'; a.innerHTML='<span>📸</span> Instagram'; cont.appendChild(a);
-  }
-  if(SOCIAL.fb){
-    const a=document.createElement('a');
-    a.href=SOCIAL.fb.startsWith('http')?SOCIAL.fb:'https://facebook.com/'+SOCIAL.fb;
-    a.target='_blank'; a.className='slink facebook'; a.innerHTML='<span>👥</span> Facebook'; cont.appendChild(a);
-  }
-  if(SOCIAL.em){
-    const a=document.createElement('a');
-    a.href='mailto:'+SOCIAL.em+'?subject=Consulta%20desde%20CasasYa';
-    a.target='_blank'; a.className='slink email'; a.innerHTML='<span>✉️</span> Email'; cont.appendChild(a);
-  }
-  if(!cont.children.length){
-    cont.innerHTML='<span style="color:rgba(255,255,255,.4);font-size:13px;">Configura las redes desde el panel de administrador</span>';
-  }
-}
-function loadSocialForm(){
-  document.getElementById('scWa').value=SOCIAL.wa||'';
-  document.getElementById('scTg').value=SOCIAL.tg||'';
-  document.getElementById('scIg').value=SOCIAL.ig||'';
-  document.getElementById('scFb').value=SOCIAL.fb||'';
-  document.getElementById('scEm').value=SOCIAL.em||'';
-  document.getElementById('scCity').value=SOCIAL.city||'';
-}
-function readSocialForm(){
-  SOCIAL.wa=document.getElementById('scWa').value.trim();
-  SOCIAL.tg=document.getElementById('scTg').value.trim();
-  SOCIAL.ig=document.getElementById('scIg').value.trim();
-  SOCIAL.fb=document.getElementById('scFb').value.trim();
-  SOCIAL.em=document.getElementById('scEm').value.trim();
-  SOCIAL.city=document.getElementById('scCity').value.trim();
-}
-
-/* ═══ FILTER & GRID ═══ */
-function filterProp(){
-  const q=(document.getElementById('si').value||'').toLowerCase();
-  const status=document.getElementById('hfStatus').value;
-  const minP=parseFloat(document.getElementById('hfMin').value)||0;
-  const maxP=parseFloat(document.getElementById('hfMax').value)||Infinity;
-  const type=document.getElementById('hfType').value;
-  const beds=parseInt(document.getElementById('fBeds').value)||0;
-  const legal=document.getElementById('fLegal').value;
-
-  const list=DATA.filter(p=>{
-    if(status==='Disponible'&&p.status!=='Disponible') return false;
-    if(status==='Reservada'&&p.status!=='Reservada') return false;
-    if(status===''&&p.status==='Vendida') return false;
-    const s=(p.title+p.street+p.neighborhood+p.city+p.province+p.desc+(p.features||[]).join(' ')).toLowerCase();
-    if(q&&!s.includes(q)) return false;
-    if(type&&p.type!==type) return false;
-    if(beds&&(p.beds||0)<beds) return false;
-    if(p.price<minP) return false;
-    if(maxP!==Infinity&&p.price>maxP) return false;
-    if(legal&&p.legal!==legal) return false;
-    return true;
-  });
-  renderGrid(list);
-}
-
-function resetF(){
-  document.getElementById('si').value='';
-  document.getElementById('hfStatus').value='Disponible';
-  document.getElementById('hfMin').value='';
-  document.getElementById('hfMax').value='';
-  document.getElementById('hfType').value='';
-  document.getElementById('fBeds').value='';
-  document.getElementById('fLegal').value='';
-  renderGrid();
-}
-
-function renderGrid(list){
-  list=list||DATA.filter(p=>p.status!=='Vendida');
-  const g=document.getElementById('pgrid'), no=document.getElementById('nores');
-  document.getElementById('rc').textContent=list.length+' propiedad'+(list.length!==1?'es':'');
-  if(!list.length){g.innerHTML='';no.style.display='block';return;}
-  no.style.display='none';
-  g.innerHTML=list.map(p=>`
-    <div class="card" onclick="showDetail('${e(p.id)}')">
-      <div class="cimg">
-        ${p.images&&p.images[0]?`<img src="${e(p.images[0])}" alt="${e(p.title)}" onerror="this.style.display='none'">`:' 🏠'}
-        <div class="cbadge ${p.status.toLowerCase()}">${e(p.status)}</div>
-        <div class="clegal ${legalKey(p.legal)}">${legalIcon(p.legal)} ${e(p.legal||'')}</div>
+<!-- ── CATEGORÍAS ── -->
+<section class="section" id="categorias">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// Explorar</span>
+      <h2 class="section-title">Categorías <em>Destacadas</em></h2>
+      <p class="section-sub">Encuentra la propiedad perfecta según tu estilo de vida</p>
+    </div>
+    <div class="categories-grid">
+      <div class="cat-card" onclick="filtrarPorTipo('casa')">
+        <div class="cat-icon">🏠</div>
+        <h3 class="cat-name">Casas</h3>
+        <p class="cat-desc">Residencias independientes con jardín, garaje y amplios espacios para tu familia.</p>
+        <div class="cat-count">342 propiedades</div>
+        <div class="cat-arrow">→</div>
       </div>
-      <div class="cbody">
-        <div class="cprice">$${p.price.toLocaleString()}</div>
-        <div class="ctitle">${e(p.title)}</div>
-        <div class="cloc">📍 ${e(shortAddr(p)||'—')}</div>
-        <div class="cspecs">
-          ${p.beds?`<span>🛏 ${p.beds}</span>`:''}
-          ${p.baths?`<span>🚿 ${p.baths}</span>`:''}
-          ${p.area?`<span>📐 ${p.area} m²</span>`:''}
-        </div>
+      <div class="cat-card cat-card--accent" onclick="filtrarPorTipo('apartamento')">
+        <div class="cat-icon">🏢</div>
+        <h3 class="cat-name">Apartamentos</h3>
+        <p class="cat-desc">Unidades modernas en edificios con seguridad, zonas comunes y vista privilegiada.</p>
+        <div class="cat-count">589 propiedades</div>
+        <div class="cat-arrow">→</div>
       </div>
-    </div>`).join('');
-}
-
-/* ═══ DETAIL ═══ */
-function showDetail(id){
-  const p=DATA.find(x=>x.id===id); if(!p) return;
-  // Count property visit
-  p.visits=(p.visits||0)+1;
-  ghSave(false); // silent background save
-  goPage('detail');
-  const addr=fullAddr(p);
-  const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr);
-  const url=window.location.origin+window.location.pathname+'?prop='+p.id;
-  const lk=legalKey(p.legal);
-
-  // Build social contact links for detail
-  let socialHtml='';
-  if(SOCIAL.wa||SOCIAL.tg||SOCIAL.ig){
-    socialHtml=`<div class="detail-social"><p>Contactar por:</p><div class="dslinks">`;
-    if(SOCIAL.wa){ const num=SOCIAL.wa.replace(/[^0-9+]/g,''); socialHtml+=`<a class="dslink whatsapp" href="https://wa.me/${num}?text=Hola%2C%20me%20interesa%20la%20propiedad%20${encodeURIComponent(p.id)}%20-%20${encodeURIComponent(p.title)}" target="_blank">💬 WhatsApp</a>`; }
-    if(SOCIAL.tg){ const tl=SOCIAL.tg.startsWith('http')?SOCIAL.tg:'https://t.me/'+SOCIAL.tg.replace('@',''); socialHtml+=`<a class="dslink telegram" href="${tl}" target="_blank">✈️ Telegram</a>`; }
-    if(SOCIAL.ig){ const il=SOCIAL.ig.startsWith('http')?SOCIAL.ig:'https://instagram.com/'+SOCIAL.ig.replace('@',''); socialHtml+=`<a class="dslink instagram" href="${il}" target="_blank">📸 Instagram</a>`; }
-    socialHtml+=`</div></div>`;
-  }
-
-  document.getElementById('dcont').innerHTML=`
-    <div class="dgal">
-      <div class="dmi">${p.images&&p.images[0]?`<img src="${e(p.images[0])}" alt="${e(p.title)}" onerror="this.style.display='none'">`:' 🏠'}</div>
-      <div class="dsi">
-        <div class="dsib">${p.images&&p.images[1]?`<img src="${e(p.images[1])}" alt="" onerror="this.style.display='none'">`:''}</div>
-        <div class="dsib">${p.images&&p.images[2]?`<img src="${e(p.images[2])}" alt="" onerror="this.style.display='none'">`:''}</div>
+      <div class="cat-card" onclick="filtrarPorTipo('finca')">
+        <div class="cat-icon">🌿</div>
+        <h3 class="cat-name">Fincas</h3>
+        <p class="cat-desc">Propiedades rurales con terreno, naturaleza y tranquilidad a poca distancia de la ciudad.</p>
+        <div class="cat-count">271 propiedades</div>
+        <div class="cat-arrow">→</div>
       </div>
     </div>
-    <div class="dlay">
-      <div class="dinfo">
-        <div class="dibadge">Ref: ${e(p.id)} · ${e(p.type)}</div>
-        <h2>${e(p.title)}</h2>
-        <div class="dprice">$${p.price.toLocaleString()}</div>
-        <div class="dlegal-box ${lk}">${legalIcon(p.legal)} Estado legal: <strong>${e(p.legal)}</strong></div>
-        ${p.legalNote?`<div style="font-size:13px;color:var(--mu);margin-bottom:14px;font-style:italic;">📋 ${e(p.legalNote)}</div>`:''}
-        ${addr?`<div class="dadrbox"><strong>📍 Dirección</strong>${e(addr)}<br><a class="mlink" href="${maps}" target="_blank">🗺 Ver en Google Maps</a></div>`:''}
-        <div class="dmeta">
-          ${p.beds?`<div class="dmi2"><strong>${p.beds}</strong>Habitaciones</div>`:''}
-          ${p.baths?`<div class="dmi2"><strong>${p.baths}</strong>Baños</div>`:''}
-          ${p.area?`<div class="dmi2"><strong>${p.area}</strong>m²</div>`:''}
-          ${p.floors?`<div class="dmi2"><strong>${p.floors}</strong>Plantas</div>`:''}
-        </div>
-        ${p.desc?`<div class="ddesc">${e(p.desc)}</div>`:''}
-        ${p.features&&p.features.length?`<div class="dfeat">${p.features.map(f=>`<span class="ftag">✓ ${e(f)}</span>`).join('')}</div>`:''}
+  </div>
+</section>
+
+<!-- ── PROPIEDADES ── -->
+<section class="section" id="propiedades">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// Listado</span>
+      <h2 class="section-title">Propiedades <em>en Venta</em></h2>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('todos', this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('casa', this)">Casas</button>
+      <button class="filter-btn" onclick="setFilter('apartamento', this)">Apartamentos</button>
+      <button class="filter-btn" onclick="setFilter('finca', this)">Fincas</button>
+      <div class="filter-sort">
+        <select class="filter-select" id="sortSelect" onchange="sortPropiedades()">
+          <option value="default">Ordenar por</option>
+          <option value="precio_asc">Menor precio</option>
+          <option value="precio_desc">Mayor precio</option>
+          <option value="area">Mayor área</option>
+        </select>
       </div>
-      <div>
-        <div class="scard">
-          <h3>Código QR de esta propiedad</h3>
-          <div class="qbox"><div id="qr-${e(p.id)}"></div><div class="qurl">Ref: ${e(p.id)}</div></div>
-          <div class="prop-visit">👁️ ${p.visits} vista${p.visits!==1?'s':''} a esta propiedad</div>
+    </div>
+    <div class="props-grid" id="propsGrid">
+      <!-- JS rendered -->
+    </div>
+    <div class="load-more-wrap">
+      <button class="btn-outline" id="btnLoadMore" onclick="loadMore()">Cargar más propiedades</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── BANNER CTA ── -->
+<section class="banner-cta">
+  <div class="banner-bg">
+    <div class="banner-orb"></div>
+  </div>
+  <div class="container banner-content">
+    <div class="banner-text">
+      <h2>¿Tienes una propiedad<br>para <em>vender o arrendar</em>?</h2>
+      <p>Publica con nosotros y llega a miles de compradores calificados. Sin comisiones ocultas.</p>
+    </div>
+    <div class="banner-actions">
+      <a href="#contacto" class="btn-cta btn-cta-lg">Publicar propiedad</a>
+      <a href="tel:+573001234567" class="btn-ghost">📞 Llamar ahora</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── NOSOTROS ── -->
+<section class="section" id="nosotros">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <span class="section-tag">// Sobre Nosotros</span>
+        <h2 class="section-title">Más de 15 años<br>construyendo <em>confianza</em></h2>
+        <p>En VHome combinamos experiencia, tecnología y trato humano para que encontrar o vender una propiedad sea una experiencia memorable, no un dolor de cabeza.</p>
+        <p>Nuestro equipo de asesores especializados te acompaña en cada paso del proceso: desde la búsqueda inicial hasta la firma de escrituras.</p>
+        <div class="about-features">
+          <div class="feature">✦ Asesoría jurídica incluida</div>
+          <div class="feature">✦ Avalúos certificados</div>
+          <div class="feature">✦ Gestión de crédito hipotecario</div>
+          <div class="feature">✦ Fotografía y tour 360° gratis</div>
         </div>
-        <div class="scard">
-          <h3>Contactar</h3>
-          ${p.phone?`<div style="margin-bottom:11px;padding:8px 12px;background:var(--lt);border-radius:7px;font-size:13px;">📞 ${e(p.phone)}</div>`:''}
-          ${socialHtml}
-          <div class="cform" style="margin-top:12px;">
-            <input type="text" placeholder="Tu nombre">
-            <input type="email" placeholder="Tu correo">
-            <textarea placeholder="Mensaje sobre ref. ${e(p.id)}..."></textarea>
-            <button class="btnp" onclick="toast('Mensaje enviado correctamente','ok')">Enviar consulta</button>
+      </div>
+      <div class="about-stats">
+        <div class="astat">
+          <div class="astat-num">+1,200</div>
+          <div class="astat-label">Propiedades vendidas</div>
+        </div>
+        <div class="astat">
+          <div class="astat-num">98%</div>
+          <div class="astat-label">Satisfacción de clientes</div>
+        </div>
+        <div class="astat">
+          <div class="astat-num">15+</div>
+          <div class="astat-label">Años en el mercado</div>
+        </div>
+        <div class="astat">
+          <div class="astat-num">12</div>
+          <div class="astat-label">Ciudades con cobertura</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIOS ── -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">// Testimonios</span>
+      <h2 class="section-title">Lo que dicen<br>nuestros <em>clientes</em></h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"El proceso fue increíblemente fluido. Encontramos la casa de nuestros sueños en menos de un mes y el equipo de VHome estuvo presente en cada momento."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MC</div>
+          <div>
+            <div class="testi-name">María Camila R.</div>
+            <div class="testi-city">Bogotá</div>
           </div>
         </div>
       </div>
-    </div>`;
-
-  setTimeout(()=>{
-    const el=document.getElementById('qr-'+p.id);
-    if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:url,width:120,height:120,colorDark:'#1a3c5e',colorLight:'#ffffff'});
-  },200);
-}
-
-/* ═══ ADMIN TABLE ═══ */
-function renderTable(){
-  const tb=document.getElementById('atbody');
-  if(!DATA.length){ tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--mu);padding:28px;">No hay propiedades. Pulsa "+ Añadir Propiedad".</td></tr>'; return; }
-  tb.innerHTML=DATA.map(p=>`
-    <tr>
-      <td><span class="pcode">${e(p.id)}</span></td>
-      <td><strong>${e(p.title)}</strong><br><small style="color:var(--mu)">${e(p.type)} · ${p.beds||0} hab. · ${p.area||'?'} m²</small></td>
-      <td style="font-size:12px;max-width:150px;">${e(fullAddr(p)||'—')}</td>
-      <td><strong>$${p.price.toLocaleString()}</strong></td>
-      <td><span class="sbadge ${p.status.toLowerCase()}">${e(p.status)}</span></td>
-      <td><span class="lbadge ${legalKey(p.legal)}">${legalIcon(p.legal)} ${e(p.legal||'—')}</span></td>
-      <td class="visit-td">👁️ ${p.visits||0}</td>
-      <td><div class="tact">
-        <button class="bedit" onclick="editProp('${e(p.id)}')">✏️</button>
-        <button class="bdel" onclick="delProp('${e(p.id)}')">🗑</button>
-      </div></td>
-    </tr>`).join('');
-}
-
-/* ═══ FORM ═══ */
-function showForm(pre){
-  const f=document.getElementById('admForm');
-  f.style.display='block';
-  document.getElementById('formTitle').textContent=pre?'✏️ Editar Propiedad':'➕ Nueva Propiedad';
-  const map={fT:'type',fS:'status',fLg:'legal',fLgN:'legalNote',fTi:'title',fPr:'price',fPh:'phone',
-    fSt:'street',fNe:'neighborhood',fCi:'city',fPv:'province',fZp:'zip',
-    fBd:'beds',fBa:'baths',fAr:'area',fFl:'floors',fDe:'desc'};
-  if(pre){
-    Object.entries(map).forEach(([elId,key])=>{ const el=document.getElementById(elId); if(el) el.value=pre[key]||''; });
-    document.getElementById('fFe').value=(pre.features||[]).join(', ');
-    document.getElementById('fIm').value=(pre.images||[]).join(', ');
-  } else {
-    Object.keys(map).forEach(elId=>{ const el=document.getElementById(elId); if(!el)return; if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; });
-    document.getElementById('fFe').value=''; document.getElementById('fIm').value='';
-  }
-  f.scrollIntoView({behavior:'smooth',block:'start'});
-}
-function cancelEdit(){ editId=null; document.getElementById('admForm').style.display='none'; }
-function editProp(id){ editId=id; const p=DATA.find(x=>x.id===id); if(p) showForm(p); }
-function delProp(id){
-  if(!confirm('¿Eliminar esta propiedad?')) return;
-  DATA=DATA.filter(x=>x.id!==id);
-  renderTable(); toast('Eliminada. Pulsa "Guardar y aplicar".','warn');
-}
-function saveProp(){
-  const title=document.getElementById('fTi').value.trim();
-  const price=parseFloat(document.getElementById('fPr').value);
-  const street=document.getElementById('fSt').value.trim();
-  const city=document.getElementById('fCi').value.trim();
-  if(!title||!price||!street||!city){ toast('Completa: título, precio, calle y ciudad','warn'); return; }
-  const d={
-    type:document.getElementById('fT').value, status:document.getElementById('fS').value,
-    legal:document.getElementById('fLg').value, legalNote:document.getElementById('fLgN').value.trim(),
-    title, price, street, city,
-    neighborhood:document.getElementById('fNe').value.trim(), province:document.getElementById('fPv').value.trim(),
-    zip:document.getElementById('fZp').value.trim(), phone:document.getElementById('fPh').value.trim(),
-    beds:parseInt(document.getElementById('fBd').value)||0, baths:parseInt(document.getElementById('fBa').value)||0,
-    area:parseInt(document.getElementById('fAr').value)||0, floors:parseInt(document.getElementById('fFl').value)||1,
-    desc:document.getElementById('fDe').value.trim(),
-    features:document.getElementById('fFe').value.split(',').map(s=>s.trim()).filter(Boolean),
-    images:document.getElementById('fIm').value.split(',').map(s=>s.trim()).filter(Boolean),
-  };
-  if(editId){
-    const idx=DATA.findIndex(x=>x.id===editId);
-    if(idx>=0) DATA[idx]={...DATA[idx],...d};
-    editId=null; toast('Actualizada. Pulsa "Guardar y aplicar".','');
-  } else {
-    const newId='CY'+Date.now().toString().slice(-5);
-    DATA.push({id:newId,visits:0,...d});
-    toast('Añadida. Pulsa "Guardar y aplicar".','');
-  }
-  renderTable(); cancelEdit(); updateAdminStats();
-}
-
-/* ═══ SAVE ═══ */
-async function admSave(){
-  if(!GH_CONFIG.token || !GH_CONFIG.owner){ showTokenModal(); return; }
-  readSocialForm();
-  const ok = await ghSave(true);
-  if(ok){ renderGrid(); renderSocial(); updateStats(); updateAdminStats(); }
-}
-
-/* ─── Modal rápido para configurar token si falta ─── */
-function showTokenModal(){
-  let ov = document.getElementById('tokenModalOv');
-  if(!ov){
-    ov = document.createElement('div');
-    ov.id = 'tokenModalOv';
-    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:500;';
-    ov.innerHTML=`<div style="background:#fff;border-radius:12px;padding:28px;width:340px;box-shadow:0 8px 30px rgba(0,0,0,.3);">
-      <h3 style="color:var(--pr);font-size:16px;margin-bottom:6px;">🔑 Configura GitHub para guardar</h3>
-      <p style="font-size:12px;color:var(--mu);margin-bottom:16px;">Sin el token los cambios se pierden al recargar. Solo necesitas hacerlo una vez.</p>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-        <input id="tmOwner" type="text" placeholder="Usuario GitHub" style="border:1.5px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:13px;outline:none;" value="${GH_CONFIG.owner||''}">
-        <input id="tmRepo"  type="text" placeholder="Repositorio (ej: casasya-data)" style="border:1.5px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:13px;outline:none;" value="${GH_CONFIG.repo||'casasya-data'}">
-        <input id="tmToken" type="password" placeholder="ghp_xxxxxxxxxxxx" style="border:1.5px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:13px;outline:none;">
+      <div class="testi-card testi-card--featured">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Vendí mi finca en tiempo récord a un excelente precio. La asesoría jurídica incluida fue clave para que todo saliera perfecto sin contratiempos."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">JA</div>
+          <div>
+            <div class="testi-name">Jorge Andrés M.</div>
+            <div class="testi-city">Medellín</div>
+          </div>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="applyTokenModal()" style="flex:1;background:var(--pr);color:#fff;border:none;padding:9px;border-radius:7px;font-size:13px;font-weight:bold;cursor:pointer;">Guardar y conectar</button>
-        <button onclick="document.getElementById('tokenModalOv').style.display='none'" style="background:none;border:1px solid var(--bd);color:var(--mu);padding:9px 14px;border-radius:7px;font-size:13px;cursor:pointer;">Cancelar</button>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"El apartamento que compré superó mis expectativas. El asesor entendió perfectamente lo que necesitaba y me mostró opciones que no encontré en ningún otro lado."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">LP</div>
+          <div>
+            <div class="testi-name">Laura Patricia V.</div>
+            <div class="testi-city">Cali</div>
+          </div>
+        </div>
       </div>
-    </div>`;
-    document.body.appendChild(ov);
-  }
-  ov.style.display='flex';
-  setTimeout(()=>{ const t=document.getElementById('tmToken'); if(t) t.focus(); },80);
-}
-function applyTokenModal(){
-  const owner = document.getElementById('tmOwner').value.trim();
-  const repo  = document.getElementById('tmRepo').value.trim() || 'casasya-data';
-  const token = document.getElementById('tmToken').value.trim();
-  if(!owner||!token){ toast('Completa usuario y token','warn'); return; }
-  GH_CONFIG.owner=owner; GH_CONFIG.repo=repo; GH_CONFIG.file=GH_CONFIG.file||'data.json'; GH_CONFIG.token=token;
-  localStorage.setItem('gh_owner',owner); localStorage.setItem('gh_repo',repo);
-  localStorage.setItem('gh_file',GH_CONFIG.file); localStorage.setItem('gh_token',token);
-  document.getElementById('tokenModalOv').style.display='none';
-  loadGhConfigForm();
-  toast('Token guardado. Guardando en GitHub…','');
-  admSave();
-}
+    </div>
+  </div>
+</section>
 
-/* ═══ TOAST ═══ */
-function toast(msg,type){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className=type||''; t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
-}
+<!-- ── CONTACTO ── -->
+<section class="section" id="contacto">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <span class="section-tag">// Contacto</span>
+        <h2 class="section-title">Hablemos sobre<br>tu <em>próxima propiedad</em></h2>
+        <p>Nuestros asesores están disponibles para resolver todas tus dudas sin ningún compromiso.</p>
+        <div class="contact-items">
+          <div class="citem">
+            <span class="citem-icon">📍</span>
+            <div>
+              <div class="citem-label">Oficina principal</div>
+              <div class="citem-val">Cra. 15 #93-47 Of. 502, Bogotá</div>
+            </div>
+          </div>
+          <div class="citem">
+            <span class="citem-icon">📞</span>
+            <div>
+              <div class="citem-label">Teléfono</div>
+              <div class="citem-val">+57 300 123 4567</div>
+            </div>
+          </div>
+          <div class="citem">
+            <span class="citem-icon">✉️</span>
+            <div>
+              <div class="citem-label">Email</div>
+              <div class="citem-val">info@vhome.co</div>
+            </div>
+          </div>
+          <div class="citem">
+            <span class="citem-icon">🕐</span>
+            <div>
+              <div class="citem-label">Horario</div>
+              <div class="citem-val">Lun–Sáb: 8am – 6pm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="enviarContacto(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre completo</label>
+            <input type="text" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" placeholder="+57 300 000 0000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" placeholder="correo@ejemplo.com" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo de propiedad</label>
+            <select>
+              <option value="">Seleccionar</option>
+              <option>Casa</option>
+              <option>Apartamento</option>
+              <option>Finca</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Operación</label>
+            <select>
+              <option value="">Seleccionar</option>
+              <option>Comprar</option>
+              <option>Arrendar</option>
+              <option>Vender</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mensaje</label>
+          <textarea placeholder="Cuéntanos qué estás buscando..." rows="4"></textarea>
+        </div>
+        <button type="submit" class="btn-cta btn-cta-full">Enviar consulta →</button>
+      </form>
+    </div>
+  </div>
+</section>
 
-/* ═══ BOOT ═══ */
-ghLoad().then(()=>{
-  renderGrid();
-  renderSocial();
-  updateStats();
-});
-</script>
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-brand" style="margin-bottom:1rem">
+          <span class="brand-v">V</span><span class="brand-home">HOME</span>
+        </div>
+        <p>Tu aliado de confianza en el mercado inmobiliario colombiano desde 2009.</p>
+        <div class="social-links">
+          <a href="#" class="social-link">Instagram</a>
+          <a href="#" class="social-link">Facebook</a>
+          <a href="#" class="social-link">LinkedIn</a>
+          <a href="#" class="social-link">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Propiedades</h4>
+        <ul>
+          <li><a href="#">Casas en venta</a></li>
+          <li><a href="#">Apartamentos</a></li>
+          <li><a href="#">Fincas</a></li>
+          <li><a href="#">Proyectos nuevos</a></li>
+          <li><a href="#">Arriendos</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Ciudades</h4>
+        <ul>
+          <li><a href="#">Bogotá</a></li>
+          <li><a href="#">Medellín</a></li>
+          <li><a href="#">Cali</a></li>
+          <li><a href="#">Cartagena</a></li>
+          <li><a href="#">Barranquilla</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Servicios</h4>
+        <ul>
+          <li><a href="#">Asesoría gratuita</a></li>
+          <li><a href="#">Avalúos</a></li>
+          <li><a href="#">Crédito hipotecario</a></li>
+          <li><a href="#">Gestión jurídica</a></li>
+          <li><a href="#">Publicar propiedad</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 VHome Real Estate · Todos los derechos reservados</span>
+      <span>Hecho con ✦ en Colombia</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── MODAL PROPIEDAD ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal" id="propModal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
