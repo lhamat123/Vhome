@@ -1,85 +1,77 @@
-# 🏠 CasasYa — Portal Inmobiliario
+# VHome — Catálogo Inmobiliario
 
-> Plataforma inmobiliaria de una sola página (SPA) para publicar y gestionar propiedades en venta. Sin servidor, sin base de datos — todo funciona en el navegador.
+Sitio web estático y elegante para publicar propiedades en GitHub Pages. Sin backend, sin costos.
 
-🌐 **Demo en vivo:** [Ver CasasYa](https://lhamat123.github.io/Vhome/)
+## 🚀 Publicar en GitHub Pages
 
----
-
-## ✨ Características
-
-- **Catálogo público** con búsqueda y filtros (precio, tipo, habitaciones, estado legal)
-- **Vista detalle** de cada propiedad con galería, QR code y formulario de contacto
-- **Panel de administración** protegido con contraseña
-- **Redes sociales** configurables (WhatsApp, Telegram, Instagram, Facebook, Email)
-- **Exportar / Importar** backup en JSON
-- **Contador de visitas** por página y por propiedad
-- **100% sin servidor** — datos guardados en `localStorage`
-- **Responsive** — funciona en móvil y escritorio
+1. Sube todos los archivos al repositorio `lhamat123/Vhome`
+2. Ve a **Settings → Pages → Deploy from branch → main → / (root)**
+3. Tu sitio quedará en: **`https://lhamat123.github.io/Vhome/`**
 
 ---
 
-## 🚀 Despliegue en GitHub Pages
-
-1. Sube este repositorio a GitHub
-2. Ve a **Settings → Pages**
-3. En *Source* selecciona **`main` branch / `/ (root)`**
-4. Pulsa **Save** — en 1-2 minutos tu sitio estará en línea en:
-   ```
-   https://<tu-usuario>.github.io/<nombre-del-repo>/
-   ```
-
----
-
-## 🔐 Acceso al panel de administración
-
-| Campo | Valor por defecto |
-|-------|-------------------|
-| Usuario | `admin` |
-| Contraseña | `admin123` |
-
-> ⚠️ **Cambia la contraseña** antes de publicar. Edita la línea `const PASS='admin123';` en `index.html`.
-
----
-
-## 📋 Gestión de propiedades
-
-Desde el panel de Admin puedes:
-- **Añadir / Editar / Eliminar** propiedades
-- Subir URLs de imágenes (Unsplash, Imgur, Cloudinary, etc.)
-- Configurar los enlaces de redes sociales
-- Exportar un backup `.json` y volver a importarlo en otro dispositivo
-
----
-
-## 🗂 Estructura del repositorio
+## 📁 Estructura
 
 ```
 Vhome/
-├── index.html        ← Aplicación completa (HTML + CSS + JS)
-├── README.md         ← Este archivo
-└── .nojekyll         ← Evita que GitHub procese el HTML con Jekyll
+├── index.html                 ← Sitio completo (todo en uno)
+├── data/
+│   └── propiedades.json       ← ⭐ EDITA AQUÍ las propiedades
+└── img/
+    ├── casa1-principal.jpg    ← Fotos (súbelas aquí)
+    └── ...
 ```
 
 ---
 
-## 🛠 Tecnologías
+## ✏️ Agregar una propiedad
 
-- HTML5 · CSS3 · JavaScript vanilla
-- [QRCode.js](https://github.com/davidshimjs/qrcodejs) — generación de códigos QR
-- `localStorage` — persistencia de datos en el navegador
+Edita `data/propiedades.json` y agrega un objeto al array:
+
+```json
+{
+  "id": 2,
+  "tipo": "Apartamento",
+  "nombre": "Apartamento en Miramar",
+  "precio": 25000,
+  "moneda": "USD",
+  "negociable": true,
+  "direccion": "Calle 5ta No. 302 e/ 2 y 4, Miramar, La Habana",
+  "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Miramar+La+Habana",
+  "contacto": {
+    "nombre": "Nombre Vendedor",
+    "telefono": "+5355551234",
+    "whatsapp": true
+  },
+  "superficies": {
+    "util": 80,
+    "construida": 90,
+    "total": 90
+  },
+  "descripcion": "Descripción completa de la propiedad...",
+  "amenidades": ["2 Dormitorios", "1 Servicio Sanitario", "Cocina equipada"],
+  "fotoPrincipal": "img/apto2-principal.jpg",
+  "galeria": ["img/apto2-foto1.jpg", "img/apto2-foto2.jpg"]
+}
+```
+
+**Tipos válidos:** `"Casa"` · `"Apartamento"` · `"Local"` · `"Finca"`
 
 ---
 
-## 📸 Imágenes de propiedades
+## 🖼️ Fotos
 
-Las imágenes se añaden por URL. Puedes usar:
-- [Unsplash](https://unsplash.com) — fotos gratuitas de alta calidad
-- [Cloudinary](https://cloudinary.com) — hosting de imágenes gratuito
-- [ImgBB](https://imgbb.com) — subida directa y enlace permanente
+- Crea la carpeta `img/` y sube las imágenes
+- Referencia en el JSON: `"img/nombre.jpg"`
+- Recomendado: JPG, 1200×800px para principal · 800×600px para galería
 
 ---
 
-## 📄 Licencia
+## 🔄 Actualizar
 
-MIT — libre para uso personal y comercial.
+```bash
+git add .
+git commit -m "Nueva propiedad: Apartamento Miramar"
+git push
+```
+GitHub Pages se actualiza en ~1 minuto.

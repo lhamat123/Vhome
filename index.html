@@ -1,468 +1,426 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VHome — Propiedades de Lujo</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body data-theme="dark">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VHome · Propiedades en Cuba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0e0e0e;--ink2:#3a3630;--ink3:#7a756e;
+  --paper:#faf7f2;--paper2:#f2ede3;
+  --gold:#b8924a;--gold2:#d4a85a;
+  --moss:#1e3228;--moss2:#2c4a38;
+  --terra:#8b3a22;--white:#ffffff;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:16px;line-height:1.6;overflow-x:hidden}
 
-<!-- ── NAVBAR ── -->
-<nav class="navbar" id="navbar">
-  <div class="nav-brand">
-    <span class="brand-v">V</span><span class="brand-home">HOME</span>
-    <span class="brand-tag">REAL ESTATE</span>
-  </div>
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:72px;background:rgba(14,14,14,0.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,146,74,0.2)}
+.nav-logo{font-family:var(--serif);font-size:1.7rem;color:var(--paper);letter-spacing:0.04em;text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{color:rgba(250,247,242,0.6);text-decoration:none;font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;transition:color 0.2s}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{padding:10px 24px;background:var(--gold);color:var(--ink);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;font-weight:500;transition:background 0.2s}
+.nav-cta:hover{background:var(--gold2)}
+
+/* HERO */
+.hero{height:100vh;min-height:640px;background:var(--moss);position:relative;display:flex;align-items:flex-end;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0a1510 0%,#1e3228 45%,#0d150f 100%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(184,146,74,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(184,146,74,0.05) 1px,transparent 1px);background-size:80px 80px}
+.hero-circle{position:absolute;width:600px;height:600px;border-radius:50%;border:1px solid rgba(184,146,74,0.1);top:50%;left:62%;transform:translate(-50%,-50%)}
+.hero-circle2{position:absolute;width:920px;height:920px;border-radius:50%;border:1px solid rgba(184,146,74,0.05);top:50%;left:62%;transform:translate(-50%,-50%)}
+.hero-content{position:relative;z-index:2;padding:0 80px 96px;max-width:760px;animation:rise 1s cubic-bezier(.16,1,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.hero-eye{font-size:0.72rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;display:flex;align-items:center;gap:14px}
+.hero-eye::before{content:'';display:block;width:40px;height:1px;background:var(--gold)}
+.hero h1{font-family:var(--serif);font-size:clamp(2.8rem,6vw,5.2rem);font-weight:400;color:var(--paper);line-height:1.07;margin-bottom:28px;letter-spacing:-0.01em}
+.hero h1 em{font-style:italic;color:var(--gold2)}
+.hero-sub{font-size:1rem;color:rgba(250,247,242,0.55);max-width:440px;margin-bottom:48px;font-weight:300;line-height:1.8}
+.hero-btns{display:flex;gap:20px;align-items:center}
+.btn-hero{display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:var(--gold);color:var(--ink);font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;font-weight:500;transition:all 0.25s}
+.btn-hero:hover{background:var(--gold2);transform:translateY(-2px)}
+.btn-ghost{color:rgba(250,247,242,0.6);font-size:0.8rem;letter-spacing:0.08em;text-decoration:none;border-bottom:1px solid rgba(250,247,242,0.25);padding-bottom:2px;transition:all 0.2s}
+.btn-ghost:hover{color:var(--paper);border-color:var(--paper)}
+.hero-stats{position:absolute;right:80px;bottom:96px;z-index:2;text-align:right;animation:rise 1.3s cubic-bezier(.16,1,.3,1) both;display:flex;flex-direction:column;gap:32px}
+.stat-n{font-family:var(--serif);font-size:2.6rem;color:var(--paper);line-height:1}
+.stat-l{font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(250,247,242,0.35);margin-top:4px}
+
+/* TICKER */
+.strip{background:var(--gold);padding:14px 0;overflow:hidden;white-space:nowrap}
+.strip-inner{display:inline-flex;gap:56px;animation:ticker 24s linear infinite}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.strip-item{font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);font-weight:500;display:inline-flex;align-items:center;gap:14px;flex-shrink:0}
+.strip-item::after{content:'◆';font-size:0.45rem;opacity:0.6}
+
+/* FILTERS */
+.filters-wrap{background:var(--ink);position:sticky;top:72px;z-index:90;border-bottom:1px solid rgba(184,146,74,0.15)}
+.filters{display:flex;overflow-x:auto;padding:0 48px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.f-btn{padding:20px 28px;background:none;border:none;color:rgba(250,247,242,0.4);font-family:var(--sans);font-size:0.73rem;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap;border-bottom:2px solid transparent;flex-shrink:0}
+.f-btn:hover{color:rgba(250,247,242,0.75)}
+.f-btn.on{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* COUNT */
+.count-bar{background:var(--paper2);padding:18px 80px;border-bottom:1px solid rgba(0,0,0,0.07);display:flex;align-items:center;justify-content:space-between}
+.count-txt{font-size:0.77rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink3)}
+.count-n{font-family:var(--serif);font-size:1.15rem;color:var(--ink);margin-right:5px}
+
+/* GRID */
+.props-section{padding:64px 80px 96px}
+.props-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:2px}
+
+/* CARD */
+.card{background:var(--white);cursor:pointer;position:relative;overflow:hidden;animation:fade 0.4s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.card:hover .card-photo img{transform:scale(1.06)}
+.card:hover .card-veil{opacity:1}
+.card-photo{aspect-ratio:3/2;overflow:hidden;position:relative;background:var(--paper2)}
+.card-photo img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s cubic-bezier(.16,1,.3,1);display:block}
+.card-no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3.5rem;background:var(--paper2)}
+.card-veil{position:absolute;inset:0;background:rgba(14,14,14,0.5);opacity:0;transition:opacity 0.3s;display:flex;align-items:center;justify-content:center}
+.card-veil-label{padding:11px 26px;border:1px solid rgba(250,247,242,0.75);color:var(--paper);font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase}
+.card-badge{position:absolute;top:16px;left:16px;padding:5px 13px;background:var(--moss);color:var(--paper);font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase}
+.card-neg{position:absolute;top:16px;right:16px;padding:5px 13px;background:var(--gold);color:var(--ink);font-size:0.64rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:500}
+.card-body{padding:26px 26px 22px}
+.card-sub{font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+.card-name{font-family:var(--serif);font-size:1.45rem;font-weight:400;color:var(--ink);line-height:1.15;margin-bottom:6px}
+.card-price{font-family:var(--serif);font-size:1.55rem;color:var(--terra);margin-bottom:14px}
+.card-dir{font-size:0.79rem;color:var(--ink3);margin-bottom:18px;display:flex;gap:6px;line-height:1.5}
+.card-dir-dot{color:var(--gold);flex-shrink:0;margin-top:2px}
+.card-sups{display:flex;border-top:1px solid rgba(0,0,0,0.07);border-bottom:1px solid rgba(0,0,0,0.07);margin-bottom:18px}
+.c-sup{flex:1;padding:11px 6px;text-align:center;border-right:1px solid rgba(0,0,0,0.07)}
+.c-sup:last-child{border-right:none}
+.c-sup-v{font-family:var(--serif);font-size:1.05rem;color:var(--ink);display:block}
+.c-sup-l{font-size:0.61rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--ink3);margin-top:2px;display:block}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px}
+.ctag{padding:4px 11px;border:1px solid rgba(0,0,0,0.1);font-size:0.69rem;letter-spacing:0.05em;color:var(--ink2);background:var(--paper)}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;align-items:flex-start;justify-content:center;padding:32px 20px 40px;overflow-y:auto;backdrop-filter:blur(6px)}
+.modal-bg.show{display:flex}
+.modal{background:var(--white);max-width:920px;width:100%;position:relative;animation:rise 0.35s cubic-bezier(.16,1,.3,1)}
+.modal-x{position:absolute;top:18px;right:18px;width:38px;height:38px;background:rgba(0,0,0,0.1);border:none;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:10;transition:background 0.2s}
+.modal-x:hover{background:rgba(0,0,0,0.2)}
+.modal-top{aspect-ratio:16/7;overflow:hidden;background:var(--paper2);display:flex;align-items:center;justify-content:center;font-size:5rem}
+.modal-top img{width:100%;height:100%;object-fit:cover;display:block}
+.modal-split{display:grid;grid-template-columns:1fr 300px}
+.modal-main{padding:36px 36px 36px;border-right:1px solid rgba(0,0,0,0.08)}
+.modal-side{padding:32px 28px}
+.m-eye{font-size:0.63rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:9px}
+.m-title{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--ink);line-height:1.1;margin-bottom:14px}
+.m-price{font-family:var(--serif);font-size:2.2rem;color:var(--terra);margin-bottom:8px}
+.m-neg{display:inline-block;padding:4px 13px;background:var(--gold);color:var(--ink);font-size:0.63rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:22px;font-weight:500}
+.m-dir{display:flex;align-items:flex-start;gap:7px;font-size:0.85rem;color:var(--ink2);margin-bottom:11px}
+.m-dir-dot{color:var(--gold);flex-shrink:0;margin-top:3px}
+.maps-a{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:1px solid rgba(0,0,0,0.12);font-size:0.73rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink2);text-decoration:none;margin-bottom:26px;transition:all 0.2s;background:var(--paper)}
+.maps-a:hover{background:var(--paper2);border-color:var(--gold)}
+.m-sups{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(0,0,0,0.07);margin-bottom:26px}
+.m-sup{background:var(--paper);padding:15px;text-align:center}
+.m-sup-v{font-family:var(--serif);font-size:1.35rem;color:var(--ink);display:block}
+.m-sup-l{font-size:0.61rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--ink3);margin-top:3px;display:block}
+.m-lbl{font-size:0.63rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;border-bottom:1px solid rgba(0,0,0,0.08);padding-bottom:8px}
+.m-desc{font-size:0.88rem;line-height:1.82;color:var(--ink2);margin-bottom:26px;padding-left:14px;border-left:2px solid var(--gold)}
+.m-amenidades{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:26px}
+.m-tag{padding:5px 13px;border:1px solid rgba(0,0,0,0.09);font-size:0.71rem;letter-spacing:0.04em;color:var(--ink2);background:var(--paper)}
+.m-galeria{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.g-item{aspect-ratio:4/3;overflow:hidden;background:var(--paper2);cursor:pointer}
+.g-item img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s;display:block}
+.g-item:hover img{transform:scale(1.08)}
+
+/* SIDEBAR */
+.contact-box{background:var(--moss);padding:24px;margin-bottom:18px}
+.contact-lbl{font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(250,247,242,0.4);margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:7px}
+.contact-name{font-family:var(--serif);font-size:1.25rem;color:var(--paper);margin-bottom:5px}
+.contact-tel{font-size:0.84rem;color:rgba(250,247,242,0.55);margin-bottom:18px}
+.contact-btns{display:flex;flex-direction:column;gap:8px}
+.btn-call{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:var(--gold);color:var(--ink);text-decoration:none;font-size:0.73rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;transition:background 0.2s}
+.btn-call:hover{background:var(--gold2)}
+.btn-wa{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:#25D366;color:#fff;text-decoration:none;font-size:0.73rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;transition:opacity 0.2s}
+.btn-wa:hover{opacity:0.85}
+.aside-sups .m-lbl{margin-top:0}
+.aside-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.07);font-size:0.86rem}
+.aside-row span:first-child{color:var(--ink3)}
+.aside-row span:last-child{font-weight:500}
+.aside-note{font-size:0.77rem;color:var(--ink3);line-height:1.7;margin-top:18px}
+.aside-note strong{font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;display:block;margin-bottom:7px;color:var(--ink3)}
+
+/* LIGHTBOX */
+.lb-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.94);z-index:99999;align-items:center;justify-content:center}
+.lb-bg.show{display:flex}
+.lb-img{max-width:90vw;max-height:90vh;object-fit:contain}
+.lb-close{position:absolute;top:22px;right:28px;color:white;font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;opacity:0.7;transition:opacity 0.2s}
+.lb-close:hover{opacity:1}
+
+/* EMPTY */
+.empty{grid-column:1/-1;padding:100px 0;text-align:center;color:var(--ink3)}
+.empty-i{font-size:3rem;margin-bottom:14px}
+
+/* FOOTER */
+footer{background:var(--ink);padding:64px 80px 36px;color:rgba(250,247,242,0.45)}
+.footer-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.f-logo{font-family:var(--serif);font-size:2rem;color:var(--paper);margin-bottom:11px}
+.f-logo span{color:var(--gold)}
+.footer-grid p{font-size:0.84rem;line-height:1.7}
+.footer-grid strong{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;display:block;margin-bottom:9px;color:rgba(250,247,242,0.6)}
+.footer-copy{border-top:1px solid rgba(255,255,255,0.07);padding-top:22px;display:flex;justify-content:space-between;font-size:0.74rem;flex-wrap:wrap;gap:10px}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:0 22px}
+  .hero-content{padding:0 28px 80px}
+  .hero-stats{display:none}
+  .filters{padding:0 22px}
+  .count-bar,.props-section{padding-left:22px;padding-right:22px}
+  .props-grid{grid-template-columns:1fr;gap:2px}
+  .modal-split{grid-template-columns:1fr}
+  .modal-main{padding:26px 22px;border-right:none;border-bottom:1px solid rgba(0,0,0,0.08)}
+  .modal-side{padding:24px 22px}
+  footer,.footer-grid{padding-left:22px;padding-right:22px}
+  .footer-grid{grid-template-columns:1fr;gap:28px}
+}
+@media(max-width:600px){
+  .nav-links,.nav-cta{display:none}
+  .hero h1{font-size:2.3rem}
+  .m-galeria{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">V<span>home</span></a>
   <ul class="nav-links">
-    <li><a href="#inicio" class="nav-link active">Inicio</a></li>
-    <li><a href="#propiedades" class="nav-link">Propiedades</a></li>
-    <li><a href="#categorias" class="nav-link">Categorías</a></li>
-    <li><a href="#nosotros" class="nav-link">Nosotros</a></li>
-    <li><a href="#contacto" class="nav-link">Contacto</a></li>
+    <li><a href="#propiedades">Propiedades</a></li>
+    <li><a href="#footer-section">Contacto</a></li>
   </ul>
-  <div class="nav-actions">
-    <button class="btn-theme" id="themeToggle" title="Cambiar tema">◑</button>
-    <a href="#contacto" class="btn-cta">Consultar</a>
-  </div>
-  <button class="nav-burger" id="navBurger">
-    <span></span><span></span><span></span>
-  </button>
+  <a href="#propiedades" class="nav-cta">Ver catálogo</a>
 </nav>
 
-<!-- ── HERO ── -->
-<section class="hero" id="inicio">
-  <div class="hero-bg">
-    <div class="hero-grid"></div>
-    <div class="hero-orb hero-orb1"></div>
-    <div class="hero-orb hero-orb2"></div>
-    <div class="hero-orb hero-orb3"></div>
-  </div>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-circle"></div>
+  <div class="hero-circle2"></div>
   <div class="hero-content">
-    <div class="hero-badge">✦ Propiedades Premium en Colombia</div>
-    <h1 class="hero-title">
-      Encuentra tu<br>
-      <em>hogar ideal</em>
-    </h1>
-    <p class="hero-sub">Casas, apartamentos y fincas seleccionadas con los más altos estándares de calidad y ubicación estratégica.</p>
-    <div class="hero-search">
-      <div class="search-row">
-        <select class="search-select" id="searchType">
-          <option value="">Tipo de propiedad</option>
-          <option value="casa">Casa</option>
-          <option value="apartamento">Apartamento</option>
-          <option value="finca">Finca</option>
-        </select>
-        <select class="search-select" id="searchOp">
-          <option value="">Operación</option>
-          <option value="venta">Venta</option>
-          <option value="arriendo">Arriendo</option>
-        </select>
-        <select class="search-select" id="searchCity">
-          <option value="">Ciudad</option>
-          <option value="bogota">Bogotá</option>
-          <option value="medellin">Medellín</option>
-          <option value="cali">Cali</option>
-          <option value="cartagena">Cartagena</option>
-          <option value="barranquilla">Barranquilla</option>
-        </select>
-        <button class="btn-search" onclick="buscarPropiedades()">Buscar →</button>
-      </div>
-    </div>
-    <div class="hero-stats">
-      <div class="stat"><span class="stat-num">+1,200</span><span class="stat-label">Propiedades</span></div>
-      <div class="stat-div"></div>
-      <div class="stat"><span class="stat-num">+850</span><span class="stat-label">Clientes felices</span></div>
-      <div class="stat-div"></div>
-      <div class="stat"><span class="stat-num">15+</span><span class="stat-label">Años de exp.</span></div>
+    <div class="hero-eye">Inmobiliaria · Cuba</div>
+    <h1>Tu próxima<br><em>propiedad</em><br>te espera aquí</h1>
+    <p class="hero-sub">Casas, apartamentos, locales y fincas. Atención directa con el vendedor, precios reales y negociables.</p>
+    <div class="hero-btns">
+      <a href="#propiedades" class="btn-hero">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Ver propiedades
+      </a>
+      <a href="#footer-section" class="btn-ghost">Publicar propiedad</a>
     </div>
   </div>
-  <div class="hero-img">
-    <div class="hero-img-wrap">
-      <div class="prop-card-float">
-        <span class="pcf-tag">En venta</span>
-        <div class="pcf-title">Casa Campestre<br><span>Bogotá · El Chicó</span></div>
-        <div class="pcf-price">$2,850,000,000</div>
-      </div>
-      <div class="hero-house-svg">
-        <svg viewBox="0 0 520 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Sky gradient -->
-          <defs>
-            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.08"/>
-              <stop offset="100%" stop-color="var(--accent2)" stop-opacity="0.04"/>
-            </linearGradient>
-            <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--surface2)"/>
-              <stop offset="100%" stop-color="var(--surface)"/>
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          <rect width="520" height="420" fill="url(#sky)"/>
-          <!-- Ground -->
-          <ellipse cx="260" cy="400" rx="240" ry="20" fill="var(--accent)" opacity="0.04"/>
-          <!-- Main house body -->
-          <rect x="100" y="200" width="320" height="200" rx="4" fill="url(#wallGrad)" stroke="var(--border)" stroke-width="1.5"/>
-          <!-- Roof -->
-          <path d="M80 205 L260 90 L440 205 Z" fill="var(--surface2)" stroke="var(--accent)" stroke-width="1.5" filter="url(#glow)"/>
-          <!-- Roof ridge accent -->
-          <line x1="260" y1="90" x2="260" y2="200" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
-          <!-- Windows top floor -->
-          <rect x="140" y="230" width="70" height="55" rx="3" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1"/>
-          <line x1="175" y1="230" x2="175" y2="285" stroke="var(--accent)" stroke-width="0.8" opacity="0.5"/>
-          <rect x="310" y="230" width="70" height="55" rx="3" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1"/>
-          <line x1="345" y1="230" x2="345" y2="285" stroke="var(--accent)" stroke-width="0.8" opacity="0.5"/>
-          <!-- Window light effect -->
-          <rect x="141" y="231" width="68" height="25" rx="2" fill="var(--accent)" opacity="0.08"/>
-          <rect x="311" y="231" width="68" height="25" rx="2" fill="var(--accent)" opacity="0.08"/>
-          <!-- Door -->
-          <rect x="218" y="310" width="84" height="90" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
-          <rect x="225" y="318" width="30" height="45" rx="2" fill="var(--accent)" opacity="0.1" stroke="var(--accent)" stroke-width="0.8"/>
-          <rect x="264" y="318" width="30" height="45" rx="2" fill="var(--accent)" opacity="0.1" stroke="var(--accent)" stroke-width="0.8"/>
-          <!-- Door handle -->
-          <circle cx="255" cy="363" r="3" fill="var(--accent)" opacity="0.6"/>
-          <circle cx="265" cy="363" r="3" fill="var(--accent)" opacity="0.6"/>
-          <!-- Chimney -->
-          <rect x="330" y="115" width="28" height="60" rx="2" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
-          <!-- Smoke -->
-          <path d="M344 115 Q348 100 344 88 Q340 75 346 65" stroke="var(--text2)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
-          <path d="M350 112 Q355 98 351 85 Q347 73 353 62" stroke="var(--text2)" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.2"/>
-          <!-- Trees -->
-          <ellipse cx="65" cy="310" rx="32" ry="40" fill="var(--green)" opacity="0.12"/>
-          <rect x="61" y="340" width="8" height="50" rx="2" fill="var(--border)"/>
-          <ellipse cx="455" cy="295" rx="28" ry="36" fill="var(--green)" opacity="0.12"/>
-          <rect x="451" y="325" width="8" height="65" rx="2" fill="var(--border)"/>
-          <!-- Path to door -->
-          <path d="M260 400 L260 400 L240 400 L235 390 L260 390 L285 390 L280 400 Z" fill="var(--border)" opacity="0.4"/>
-          <!-- Stars/sparkles -->
-          <circle cx="80" cy="60" r="1.5" fill="var(--accent)" opacity="0.6"/>
-          <circle cx="430" cy="40" r="1" fill="var(--accent2)" opacity="0.5"/>
-          <circle cx="350" cy="50" r="1.5" fill="var(--accent)" opacity="0.4"/>
-          <circle cx="150" cy="35" r="1" fill="var(--yellow)" opacity="0.5"/>
-        </svg>
-      </div>
-    </div>
+  <div class="hero-stats">
+    <div><div class="stat-n" id="stat-n">—</div><div class="stat-l">Propiedades</div></div>
+    <div><div class="stat-n">100%</div><div class="stat-l">Precios directos</div></div>
   </div>
 </section>
 
-<!-- ── CATEGORÍAS ── -->
-<section class="section" id="categorias">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-tag">// Explorar</span>
-      <h2 class="section-title">Categorías <em>Destacadas</em></h2>
-      <p class="section-sub">Encuentra la propiedad perfecta según tu estilo de vida</p>
-    </div>
-    <div class="categories-grid">
-      <div class="cat-card" onclick="filtrarPorTipo('casa')">
-        <div class="cat-icon">🏠</div>
-        <h3 class="cat-name">Casas</h3>
-        <p class="cat-desc">Residencias independientes con jardín, garaje y amplios espacios para tu familia.</p>
-        <div class="cat-count">342 propiedades</div>
-        <div class="cat-arrow">→</div>
-      </div>
-      <div class="cat-card cat-card--accent" onclick="filtrarPorTipo('apartamento')">
-        <div class="cat-icon">🏢</div>
-        <h3 class="cat-name">Apartamentos</h3>
-        <p class="cat-desc">Unidades modernas en edificios con seguridad, zonas comunes y vista privilegiada.</p>
-        <div class="cat-count">589 propiedades</div>
-        <div class="cat-arrow">→</div>
-      </div>
-      <div class="cat-card" onclick="filtrarPorTipo('finca')">
-        <div class="cat-icon">🌿</div>
-        <h3 class="cat-name">Fincas</h3>
-        <p class="cat-desc">Propiedades rurales con terreno, naturaleza y tranquilidad a poca distancia de la ciudad.</p>
-        <div class="cat-count">271 propiedades</div>
-        <div class="cat-arrow">→</div>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="strip">
+  <div class="strip-inner" id="strip"></div>
+</div>
 
-<!-- ── PROPIEDADES ── -->
-<section class="section" id="propiedades">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-tag">// Listado</span>
-      <h2 class="section-title">Propiedades <em>en Venta</em></h2>
-    </div>
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="setFilter('todos', this)">Todos</button>
-      <button class="filter-btn" onclick="setFilter('casa', this)">Casas</button>
-      <button class="filter-btn" onclick="setFilter('apartamento', this)">Apartamentos</button>
-      <button class="filter-btn" onclick="setFilter('finca', this)">Fincas</button>
-      <div class="filter-sort">
-        <select class="filter-select" id="sortSelect" onchange="sortPropiedades()">
-          <option value="default">Ordenar por</option>
-          <option value="precio_asc">Menor precio</option>
-          <option value="precio_desc">Mayor precio</option>
-          <option value="area">Mayor área</option>
-        </select>
-      </div>
-    </div>
-    <div class="props-grid" id="propsGrid">
-      <!-- JS rendered -->
-    </div>
-    <div class="load-more-wrap">
-      <button class="btn-outline" id="btnLoadMore" onclick="loadMore()">Cargar más propiedades</button>
-    </div>
-  </div>
-</section>
-
-<!-- ── BANNER CTA ── -->
-<section class="banner-cta">
-  <div class="banner-bg">
-    <div class="banner-orb"></div>
-  </div>
-  <div class="container banner-content">
-    <div class="banner-text">
-      <h2>¿Tienes una propiedad<br>para <em>vender o arrendar</em>?</h2>
-      <p>Publica con nosotros y llega a miles de compradores calificados. Sin comisiones ocultas.</p>
-    </div>
-    <div class="banner-actions">
-      <a href="#contacto" class="btn-cta btn-cta-lg">Publicar propiedad</a>
-      <a href="tel:+573001234567" class="btn-ghost">📞 Llamar ahora</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── NOSOTROS ── -->
-<section class="section" id="nosotros">
-  <div class="container">
-    <div class="about-grid">
-      <div class="about-text">
-        <span class="section-tag">// Sobre Nosotros</span>
-        <h2 class="section-title">Más de 15 años<br>construyendo <em>confianza</em></h2>
-        <p>En VHome combinamos experiencia, tecnología y trato humano para que encontrar o vender una propiedad sea una experiencia memorable, no un dolor de cabeza.</p>
-        <p>Nuestro equipo de asesores especializados te acompaña en cada paso del proceso: desde la búsqueda inicial hasta la firma de escrituras.</p>
-        <div class="about-features">
-          <div class="feature">✦ Asesoría jurídica incluida</div>
-          <div class="feature">✦ Avalúos certificados</div>
-          <div class="feature">✦ Gestión de crédito hipotecario</div>
-          <div class="feature">✦ Fotografía y tour 360° gratis</div>
-        </div>
-      </div>
-      <div class="about-stats">
-        <div class="astat">
-          <div class="astat-num">+1,200</div>
-          <div class="astat-label">Propiedades vendidas</div>
-        </div>
-        <div class="astat">
-          <div class="astat-num">98%</div>
-          <div class="astat-label">Satisfacción de clientes</div>
-        </div>
-        <div class="astat">
-          <div class="astat-num">15+</div>
-          <div class="astat-label">Años en el mercado</div>
-        </div>
-        <div class="astat">
-          <div class="astat-num">12</div>
-          <div class="astat-label">Ciudades con cobertura</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── TESTIMONIOS ── -->
-<section class="section section-alt">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-tag">// Testimonios</span>
-      <h2 class="section-title">Lo que dicen<br>nuestros <em>clientes</em></h2>
-    </div>
-    <div class="testimonials-grid">
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"El proceso fue increíblemente fluido. Encontramos la casa de nuestros sueños en menos de un mes y el equipo de VHome estuvo presente en cada momento."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">MC</div>
-          <div>
-            <div class="testi-name">María Camila R.</div>
-            <div class="testi-city">Bogotá</div>
-          </div>
-        </div>
-      </div>
-      <div class="testi-card testi-card--featured">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"Vendí mi finca en tiempo récord a un excelente precio. La asesoría jurídica incluida fue clave para que todo saliera perfecto sin contratiempos."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">JA</div>
-          <div>
-            <div class="testi-name">Jorge Andrés M.</div>
-            <div class="testi-city">Medellín</div>
-          </div>
-        </div>
-      </div>
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"El apartamento que compré superó mis expectativas. El asesor entendió perfectamente lo que necesitaba y me mostró opciones que no encontré en ningún otro lado."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">LP</div>
-          <div>
-            <div class="testi-name">Laura Patricia V.</div>
-            <div class="testi-city">Cali</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── CONTACTO ── -->
-<section class="section" id="contacto">
-  <div class="container">
-    <div class="contact-grid">
-      <div class="contact-info">
-        <span class="section-tag">// Contacto</span>
-        <h2 class="section-title">Hablemos sobre<br>tu <em>próxima propiedad</em></h2>
-        <p>Nuestros asesores están disponibles para resolver todas tus dudas sin ningún compromiso.</p>
-        <div class="contact-items">
-          <div class="citem">
-            <span class="citem-icon">📍</span>
-            <div>
-              <div class="citem-label">Oficina principal</div>
-              <div class="citem-val">Cra. 15 #93-47 Of. 502, Bogotá</div>
-            </div>
-          </div>
-          <div class="citem">
-            <span class="citem-icon">📞</span>
-            <div>
-              <div class="citem-label">Teléfono</div>
-              <div class="citem-val">+57 300 123 4567</div>
-            </div>
-          </div>
-          <div class="citem">
-            <span class="citem-icon">✉️</span>
-            <div>
-              <div class="citem-label">Email</div>
-              <div class="citem-val">info@vhome.co</div>
-            </div>
-          </div>
-          <div class="citem">
-            <span class="citem-icon">🕐</span>
-            <div>
-              <div class="citem-label">Horario</div>
-              <div class="citem-val">Lun–Sáb: 8am – 6pm</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <form class="contact-form" onsubmit="enviarContacto(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nombre completo</label>
-            <input type="text" placeholder="Tu nombre" required>
-          </div>
-          <div class="form-group">
-            <label>Teléfono</label>
-            <input type="tel" placeholder="+57 300 000 0000">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Correo electrónico</label>
-          <input type="email" placeholder="correo@ejemplo.com" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Tipo de propiedad</label>
-            <select>
-              <option value="">Seleccionar</option>
-              <option>Casa</option>
-              <option>Apartamento</option>
-              <option>Finca</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Operación</label>
-            <select>
-              <option value="">Seleccionar</option>
-              <option>Comprar</option>
-              <option>Arrendar</option>
-              <option>Vender</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Mensaje</label>
-          <textarea placeholder="Cuéntanos qué estás buscando..." rows="4"></textarea>
-        </div>
-        <button type="submit" class="btn-cta btn-cta-full">Enviar consulta →</button>
-      </form>
-    </div>
-  </div>
-</section>
-
-<!-- ── FOOTER ── -->
-<footer class="footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="nav-brand" style="margin-bottom:1rem">
-          <span class="brand-v">V</span><span class="brand-home">HOME</span>
-        </div>
-        <p>Tu aliado de confianza en el mercado inmobiliario colombiano desde 2009.</p>
-        <div class="social-links">
-          <a href="#" class="social-link">Instagram</a>
-          <a href="#" class="social-link">Facebook</a>
-          <a href="#" class="social-link">LinkedIn</a>
-          <a href="#" class="social-link">WhatsApp</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Propiedades</h4>
-        <ul>
-          <li><a href="#">Casas en venta</a></li>
-          <li><a href="#">Apartamentos</a></li>
-          <li><a href="#">Fincas</a></li>
-          <li><a href="#">Proyectos nuevos</a></li>
-          <li><a href="#">Arriendos</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Ciudades</h4>
-        <ul>
-          <li><a href="#">Bogotá</a></li>
-          <li><a href="#">Medellín</a></li>
-          <li><a href="#">Cali</a></li>
-          <li><a href="#">Cartagena</a></li>
-          <li><a href="#">Barranquilla</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Servicios</h4>
-        <ul>
-          <li><a href="#">Asesoría gratuita</a></li>
-          <li><a href="#">Avalúos</a></li>
-          <li><a href="#">Crédito hipotecario</a></li>
-          <li><a href="#">Gestión jurídica</a></li>
-          <li><a href="#">Publicar propiedad</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2025 VHome Real Estate · Todos los derechos reservados</span>
-      <span>Hecho con ✦ en Colombia</span>
-    </div>
-  </div>
-</footer>
-
-<!-- ── MODAL PROPIEDAD ── -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
-  <div class="modal" id="propModal" onclick="event.stopPropagation()">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-body" id="modalBody"></div>
+<div class="filters-wrap" id="propiedades">
+  <div class="filters">
+    <button class="f-btn on" data-tipo="Todos">Todas las propiedades</button>
+    <button class="f-btn" data-tipo="Casa">Casas</button>
+    <button class="f-btn" data-tipo="Apartamento">Apartamentos</button>
+    <button class="f-btn" data-tipo="Local">Locales</button>
+    <button class="f-btn" data-tipo="Finca">Fincas</button>
   </div>
 </div>
 
-<!-- ── TOAST ── -->
-<div class="toast" id="toast"></div>
+<div class="count-bar">
+  <span class="count-txt"><span class="count-n" id="cnt">—</span> propiedades disponibles</span>
+  <span style="font-size:0.74rem;color:var(--ink3);letter-spacing:0.06em">Contacto directo con el vendedor</span>
+</div>
 
-<script src="js/data.js"></script>
-<script src="js/app.js"></script>
+<section class="props-section">
+  <div class="props-grid" id="grid"></div>
+</section>
+
+<div class="modal-bg" id="mbg">
+  <div class="modal" id="modal">
+    <button class="modal-x" id="mx">✕</button>
+    <div id="mc"></div>
+  </div>
+</div>
+
+<div class="lb-bg" id="lb">
+  <button class="lb-close" id="lbc">✕</button>
+  <img class="lb-img" id="lbi" src="" alt=""/>
+</div>
+
+<footer id="footer-section">
+  <div class="footer-grid">
+    <div>
+      <div class="f-logo">V<span>home</span></div>
+      <p>Propiedades en Cuba con visibilidad global. Conectamos vendedores y compradores de forma directa y transparente.</p>
+    </div>
+    <div>
+      <strong>¿Quieres publicar?</strong>
+      <p>¿Tienes una propiedad y quieres más visibilidad? Contáctanos y la añadimos al catálogo sin costo alguno.</p>
+    </div>
+    <div>
+      <strong>Aviso legal</strong>
+      <p>Los precios en USD son orientativos. Contacta directamente al vendedor para negociar condiciones y verificar disponibilidad.</p>
+    </div>
+  </div>
+  <div class="footer-copy">
+    <span>© 2025 VHome · Todos los derechos reservados</span>
+    <span>Cuba · Worldwide</span>
+  </div>
+</footer>
+
+<script>
+const ICO={Casa:'🏠',Apartamento:'🏢',Local:'🏪',Finca:'🌿'};
+const SUP_L={util:'Útil',construida:'Const.',total:'Total'};
+const SUP_FULL={util:'Superficie útil',construida:'Superficie construida',total:'Superficie total'};
+
+function money(v,m='USD'){return `${m} ${Number(v).toLocaleString('es-ES',{minimumFractionDigits:2})}`}
+
+let ALL=[], TIPO='Todos';
+
+/* Strip ticker */
+function buildStrip(props){
+  const items=props.map(p=>`<span class="strip-item">${p.nombre}&nbsp;&nbsp;·&nbsp;&nbsp;${money(p.precio,p.moneda)}</span>`).join('');
+  document.getElementById('strip').innerHTML=items+items;
+}
+
+/* Card */
+function card(p,i){
+  const sups=Object.entries(p.superficies||{}).filter(([,v])=>v);
+  return `<div class="card" style="animation-delay:${i*0.06}s" onclick="openModal(${p.id})">
+    <div class="card-photo">
+      ${p.fotoPrincipal
+        ?`<img src="${p.fotoPrincipal}" alt="${p.nombre}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'card-no-img\\'>${ICO[p.tipo]||'🏠'}</div>'">`
+        :`<div class="card-no-img">${ICO[p.tipo]||'🏠'}</div>`}
+      <div class="card-veil"><div class="card-veil-label">Ver detalles</div></div>
+    </div>
+    <span class="card-badge">${ICO[p.tipo]||'🏠'} ${p.tipo}</span>
+    ${p.negociable?'<span class="card-neg">Negociable</span>':''}
+    <div class="card-body">
+      <div class="card-sub">${p.tipo} · Cuba</div>
+      <h3 class="card-name">${p.nombre}</h3>
+      <div class="card-price">${money(p.precio,p.moneda)}</div>
+      <div class="card-dir"><span class="card-dir-dot">◆</span>${p.direccion}</div>
+      ${sups.length?`<div class="card-sups">${sups.map(([k,v])=>`<div class="c-sup"><span class="c-sup-v">${v} m²</span><span class="c-sup-l">${SUP_L[k]||k}</span></div>`).join('')}</div>`:''}
+      <div class="card-tags">${(p.amenidades||[]).map(a=>`<span class="ctag">✓ ${a}</span>`).join('')}</div>
+    </div>
+  </div>`;
+}
+
+/* Grid */
+function renderGrid(list){
+  document.getElementById('cnt').textContent=list.length;
+  const g=document.getElementById('grid');
+  if(!list.length){g.innerHTML='<div class="empty"><div class="empty-i">🔍</div><p>Sin propiedades en esta categoría.</p></div>';return;}
+  g.innerHTML=list.map((p,i)=>card(p,i)).join('');
+}
+
+/* Modal */
+window.openModal=function(id){
+  const p=ALL.find(x=>x.id===id);if(!p)return;
+  const sups=Object.entries(p.superficies||{}).filter(([,v])=>v);
+  const wa=p.contacto.telefono.replace(/\D/g,'');
+  document.getElementById('mc').innerHTML=`
+    <div class="modal-top">
+      ${p.fotoPrincipal
+        ?`<img src="${p.fotoPrincipal}" alt="${p.nombre}" onerror="this.parentElement.innerHTML='${ICO[p.tipo]||'🏠'}'">`
+        :ICO[p.tipo]||'🏠'}
+    </div>
+    <div class="modal-split">
+      <div class="modal-main">
+        <div class="m-eye">${p.tipo} · Cuba</div>
+        <h2 class="m-title">${p.nombre}</h2>
+        <div class="m-price">${money(p.precio,p.moneda)}</div>
+        ${p.negociable?'<div class="m-neg">Precio negociable</div>':''}
+        <div class="m-dir"><span class="m-dir-dot">◆</span><span>${p.direccion}</span></div>
+        <a href="${p.mapsUrl}" target="_blank" rel="noopener" class="maps-a">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Ver en Google Maps
+        </a>
+        ${sups.length?`<div class="m-sups">${sups.map(([k,v])=>`<div class="m-sup"><span class="m-sup-v">${v} m²</span><span class="m-sup-l">${SUP_FULL[k]||k}</span></div>`).join('')}</div>`:''}
+        <div class="m-lbl">Descripción</div>
+        <p class="m-desc">${p.descripcion}</p>
+        <div class="m-lbl">Características principales</div>
+        <div class="m-amenidades">${(p.amenidades||[]).map(a=>`<span class="m-tag">✓ ${a}</span>`).join('')}</div>
+        ${p.galeria&&p.galeria.length?`
+          <div class="m-lbl" style="margin-top:22px">Galería · fotos y planos</div>
+          <div class="m-galeria">
+            ${p.galeria.map(s=>`<div class="g-item" onclick="openLb('${s}')"><img src="${s}" loading="lazy" alt="foto" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;background:#f2ede3;font-size:1.8rem\\'>📷</div>'"></div>`).join('')}
+          </div>`:''}
+      </div>
+      <div class="modal-side">
+        <div class="contact-box">
+          <div class="contact-lbl">Contacto directo</div>
+          <div class="contact-name">${p.contacto.nombre}</div>
+          <div class="contact-tel">${p.contacto.telefono}${p.contacto.whatsapp?' · WhatsApp':''}</div>
+          <div class="contact-btns">
+            <a href="tel:${p.contacto.telefono}" class="btn-call">📞 Llamar ahora</a>
+            ${p.contacto.whatsapp?`<a href="https://wa.me/${wa}?text=${encodeURIComponent('Hola, me interesa: '+p.nombre)}" target="_blank" class="btn-wa">💬 WhatsApp</a>`:''}
+          </div>
+        </div>
+        ${sups.length?`<div class="aside-sups">
+          <div class="m-lbl">Superficies</div>
+          ${sups.map(([k,v])=>`<div class="aside-row"><span>${SUP_FULL[k]||k}</span><span>${v} m²</span></div>`).join('')}
+        </div>`:''}
+        <div class="aside-note">
+          <strong>Nota del vendedor</strong>
+          Dispuesto a negociar. Se escuchan todas las proposiciones razonables.
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('mbg').classList.add('show');
+  document.body.style.overflow='hidden';
+};
+
+window.openLb=function(src){
+  document.getElementById('lbi').src=src;
+  document.getElementById('lb').classList.add('show');
+};
+
+function closeMod(){document.getElementById('mbg').classList.remove('show');document.body.style.overflow='';}
+function closeLb(){document.getElementById('lb').classList.remove('show');}
+
+document.getElementById('mx').onclick=closeMod;
+document.getElementById('mbg').onclick=e=>{if(e.target.id==='mbg')closeMod();};
+document.getElementById('lbc').onclick=closeLb;
+document.getElementById('lb').onclick=e=>{if(e.target.id==='lb')closeLb();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMod();closeLb();}});
+
+document.querySelectorAll('.f-btn').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.f-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    TIPO=b.dataset.tipo;
+    renderGrid(TIPO==='Todos'?ALL:ALL.filter(p=>p.tipo===TIPO));
+  };
+});
+
+async function init(){
+  try{
+    const r=await fetch('data/propiedades.json');
+    if(!r.ok)throw 0;
+    ALL=await r.json();
+    document.getElementById('stat-n').textContent=ALL.length;
+    buildStrip(ALL);
+    renderGrid(ALL);
+  }catch{
+    document.getElementById('grid').innerHTML='<div class="empty"><div class="empty-i">⚠️</div><p>Error cargando <code>data/propiedades.json</code></p></div>';
+  }
+}
+init();
+</script>
 </body>
 </html>

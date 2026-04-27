@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "tipo": "Casa",
+    "nombre": "Casa en el Vedado",
+    "precio": 12000,
+    "moneda": "USD",
+    "negociable": true,
+    "direccion": "Calle 17 No. 1205 e/ 20 y 22, Vedado, La Habana, 10400",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Calle%2017%20No.%201205%20e%2F%2020%20y%2022%2C%20Vedado%2C%20La%20Habana%2C%20La%20Habana%2C%2010400",
+    "contacto": {
+      "nombre": "Alain Rodríguez",
+      "telefono": "+5353105037",
+      "whatsapp": true
+    },
+    "superficies": {
+      "util": 120,
+      "construida": 150,
+      "total": 200
+    },
+    "descripcion": "Hermosa casa en el corazón del Vedado, uno de los barrios más exclusivos de La Habana. Amplias habitaciones con buena iluminación natural y espacios bien distribuidos. Ideal para familia o inversión. El vendedor está dispuesto a negociar y escucha todas las proposiciones.",
+    "amenidades": ["Garaje", "Jardín", "Terraza", "3 Dormitorios", "2 Servicios Sanitarios"],
+    "fotoPrincipal": "img/casa1-principal.jpg",
+    "galeria": [
+      "img/casa1-foto1.jpg",
+      "img/casa1-foto2.jpg",
+      "img/casa1-foto3.jpg",
+      "img/casa1-plano1.jpg"
+    ]
+  }
+]
