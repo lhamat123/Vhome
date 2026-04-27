@@ -289,8 +289,7 @@ button{cursor:pointer;font-family:inherit;}input,select,textarea{font-family:inh
             <option>Casa</option><option>Apartamento</option><option>Local</option><option>Terreno</option>
           </select>
         </div>
-        <button class="hf-btn" onclick="filterProp()">🔍 Buscar</button>
-        <button class="hf-btn-clear" onclick="resetF()">✕</button>
+        <button class="hf-btn-clear" onclick="resetF()">✕ Limpiar</button>
       </div>
     </div>
   </div>
@@ -339,10 +338,8 @@ button{cursor:pointer;font-family:inherit;}input,select,textarea{font-family:inh
     <span class="abar-title">⚙️ Panel de Administración — CasasYa</span>
     <span class="abar-user" id="abarUser">👤 admin</span>
     <button class="ab ab-ghost" onclick="goPage('public')">🏠 Ver web</button>
-    <button class="ab ab-green" onclick="admSave()">✔ Guardar y aplicar</button>
-    <button class="ab ab-gold" onclick="admExport()">⬇ Exportar</button>
-    <label class="ab ab-blue" style="cursor:pointer">📂 Importar<input type="file" accept=".json" style="display:none" onchange="admImport(this)"></label>
-    <button class="ab ab-red" onclick="doLogout()">🚪 Cerrar sesión</button>
+    <button class="ab ab-green" onclick="admSave()">☁️ Guardar en GitHub</button>
+    <button class="ab ab-red" onclick="doLogout()">🚪 Salir</button>
   </div>
   <div class="abody">
 
@@ -420,22 +417,21 @@ button{cursor:pointer;font-family:inherit;}input,select,textarea{font-family:inh
     <!-- GITHUB CONFIG -->
     <div class="asec">
       <div class="asec-head">
-        <span>🐙 Configuración de GitHub</span>
-        <button class="ab ab-ghost" style="font-size:11px;" onclick="showGhConfig()">▼ Mostrar/Ocultar</button>
+        <span>🐙 Conexión GitHub (donde se guardan los datos)</span>
+        <span id="ghStatusBadge" style="font-size:11px;padding:3px 10px;border-radius:12px;background:#fee2e2;color:#991b1b;">⚠️ Sin configurar</span>
       </div>
-      <div id="ghConfigPanel" style="display:none;">
-        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#92400e;line-height:1.6;">
-          ⚠️ <strong>Importante:</strong> El Token de GitHub se guarda en memoria mientras la página esté abierta. Nunca lo compartas ni lo expongas públicamente. Usa un token con permisos mínimos (<code>repo</code> → <code>contents</code> read+write).
-        </div>
-        <div class="fgrid" style="max-width:600px;">
-          <div class="fg"><label>Usuario GitHub</label><input type="text" id="ghOwner" placeholder="tu-usuario"></div>
-          <div class="fg"><label>Repositorio</label><input type="text" id="ghRepo" placeholder="casasya-data"></div>
-          <div class="fg"><label>Archivo de datos</label><input type="text" id="ghFile" placeholder="data.json"></div>
-          <div class="fg"><label>Personal Access Token (PAT)</label><input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx"></div>
-        </div>
-        <div style="display:flex;gap:9px;margin-top:12px;">
-          <button class="ab ab-green" onclick="saveGhConfig()">✔ Conectar y recargar</button>
-        </div>
+      <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#92400e;line-height:1.6;">
+        ⚠️ El Token se guarda en tu navegador (localStorage). Nunca lo compartas públicamente. Permisos necesarios: <code>repo → contents</code> read+write.
+      </div>
+      <div class="fgrid" style="max-width:620px;">
+        <div class="fg"><label>Usuario GitHub</label><input type="text" id="ghOwner" placeholder="tu-usuario"></div>
+        <div class="fg"><label>Repositorio</label><input type="text" id="ghRepo" placeholder="casasya-data"></div>
+        <div class="fg"><label>Archivo de datos</label><input type="text" id="ghFile" placeholder="data.json"></div>
+        <div class="fg"><label>Personal Access Token (PAT)</label><input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx"></div>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:12px;align-items:center;">
+        <button class="ab ab-green" onclick="saveGhConfig()">✔ Conectar y guardar token</button>
+        <span style="font-size:11px;color:var(--mu);">El token se recordará en este navegador.</span>
       </div>
     </div>
 
@@ -465,16 +461,16 @@ button{cursor:pointer;font-family:inherit;}input,select,textarea{font-family:inh
 
    CONFIGURACIÓN (edita los 4 valores de abajo):
    ════════════════════════════════════════════════════════════════ */
-const GH_CONFIG = {
-  owner : 'TU_USUARIO_GITHUB',     // ← tu usuario de GitHub
-  repo  : 'casasya-data',          // ← nombre del repositorio
-  file  : 'data.json',             // ← archivo donde se guardan los datos
-  token : ''                       // ← tu GitHub Personal Access Token (PAT)
-                                   //   Permisos necesarios: repo (contents: read+write)
-};
-/* ════════════════════════════════════════════════════════════════
-   FIN DE CONFIGURACIÓN
-   ════════════════════════════════════════════════════════════════ */
+/* ─── GitHub config: persiste en localStorage ─── */
+function loadGhConfigFromStorage(){
+  return {
+    owner : localStorage.getItem('gh_owner') || '',
+    repo  : localStorage.getItem('gh_repo')  || 'casasya-data',
+    file  : localStorage.getItem('gh_file')  || 'data.json',
+    token : localStorage.getItem('gh_token') || ''
+  };
+}
+const GH_CONFIG = loadGhConfigFromStorage();
 
 const DEFAULT_SOCIAL = {wa:'',tg:'',ig:'',fb:'',em:'',city:''};
 
@@ -492,8 +488,12 @@ function ghHeaders(){
 function ghUrl(){ return `https://api.github.com/repos/${GH_CONFIG.owner}/${GH_CONFIG.repo}/contents/${GH_CONFIG.file}`; }
 
 async function ghLoad(){
-  /* Muestra spinner de carga */
   showLoadingOverlay(true);
+  if(!GH_CONFIG.owner || !GH_CONFIG.token){
+    useEmbeddedData();
+    showLoadingOverlay(false);
+    return;
+  }
   try {
     const res = await fetch(ghUrl() + '?t=' + Date.now(), {headers: ghHeaders()});
     if(res.status === 404){
@@ -519,12 +519,12 @@ async function ghLoad(){
   }
   /* Contar visita — guardar en background sin bloquear UI */
   VISITS++;
-  ghSave(false); // silent save
+  if(GH_CONFIG.token && GH_CONFIG.owner) ghSave(false); // silent save
 }
 
 async function ghSave(showToast=true){
-  if(!GH_CONFIG.token){
-    toast('⚠️ Configura el GitHub Token en GH_CONFIG para guardar cambios.','warn');
+  if(!GH_CONFIG.token || !GH_CONFIG.owner){
+    if(showToast) showTokenModal();
     return false;
   }
   const payload = {properties: DATA, social: SOCIAL, visits: VISITS};
@@ -602,25 +602,41 @@ function showLoadingOverlay(show){
   ov.style.display = show ? 'flex' : 'none';
 }
 
-/* ─── GitHub Config Panel (en Admin) ─── */
-function showGhConfig(){
-  document.getElementById('ghConfigPanel').style.display =
-    document.getElementById('ghConfigPanel').style.display==='none' ? 'block' : 'none';
-}
+/* ─── GitHub Config Panel ─── */
+function showGhConfig(){ /* no-op, panel is always visible now */ }
+
 function saveGhConfig(){
   GH_CONFIG.owner = document.getElementById('ghOwner').value.trim();
   GH_CONFIG.repo  = document.getElementById('ghRepo').value.trim();
   GH_CONFIG.file  = document.getElementById('ghFile').value.trim() || 'data.json';
   GH_CONFIG.token = document.getElementById('ghToken').value.trim();
-  _ghSha = null; // resetear sha para forzar reload
-  toast('Configuración guardada. Recargando datos…','');
-  ghLoad().then(()=>{ renderGrid(); renderSocial(); updateStats(); loadSocialForm(); renderTable(); updateAdminStats(); });
+  // Persistir en localStorage
+  localStorage.setItem('gh_owner', GH_CONFIG.owner);
+  localStorage.setItem('gh_repo',  GH_CONFIG.repo);
+  localStorage.setItem('gh_file',  GH_CONFIG.file);
+  localStorage.setItem('gh_token', GH_CONFIG.token);
+  _ghSha = null;
+  toast('Token guardado. Conectando con GitHub…','');
+  ghLoad().then(()=>{ renderGrid(); renderSocial(); updateStats(); loadSocialForm(); renderTable(); updateAdminStats(); updateGhStatusBadge(); });
+}
+
+function updateGhStatusBadge(){
+  const badge = document.getElementById('ghStatusBadge');
+  if(!badge) return;
+  if(GH_CONFIG.token && GH_CONFIG.owner){
+    badge.style.background='#d1fae5'; badge.style.color='#065f46';
+    badge.textContent='✅ Conectado: ' + GH_CONFIG.owner + '/' + GH_CONFIG.repo;
+  } else {
+    badge.style.background='#fee2e2'; badge.style.color='#991b1b';
+    badge.textContent='⚠️ Sin configurar';
+  }
 }
 function loadGhConfigForm(){
   document.getElementById('ghOwner').value = GH_CONFIG.owner;
   document.getElementById('ghRepo').value  = GH_CONFIG.repo;
   document.getElementById('ghFile').value  = GH_CONFIG.file;
   document.getElementById('ghToken').value = GH_CONFIG.token;
+  updateGhStatusBadge();
 }
 
 /* ═══ HELPERS ═══ */
@@ -938,31 +954,51 @@ function saveProp(){
   renderTable(); cancelEdit(); updateAdminStats();
 }
 
-/* ═══ SAVE / EXPORT / IMPORT ═══ */
+/* ═══ SAVE ═══ */
 async function admSave(){
+  if(!GH_CONFIG.token || !GH_CONFIG.owner){ showTokenModal(); return; }
   readSocialForm();
   const ok = await ghSave(true);
   if(ok){ renderGrid(); renderSocial(); updateStats(); updateAdminStats(); }
 }
-function admExport(){
-  const exp={properties:DATA,social:SOCIAL,visits:VISITS};
-  const blob=new Blob([JSON.stringify(exp,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='casasya-backup.json'; a.click(); URL.revokeObjectURL(a.href);
-  toast('Backup exportado','ok');
+
+/* ─── Modal rápido para configurar token si falta ─── */
+function showTokenModal(){
+  let ov = document.getElementById('tokenModalOv');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'tokenModalOv';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:500;';
+    ov.innerHTML=`<div style="background:#fff;border-radius:12px;padding:28px;width:340px;box-shadow:0 8px 30px rgba(0,0,0,.3);">
+      <h3 style="color:var(--pr);font-size:16px;margin-bottom:6px;">🔑 Configura GitHub para guardar</h3>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:16px;">Sin el token los cambios se pierden al recargar. Solo necesitas hacerlo una vez.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <input id="tmOwner" type="text" placeholder="Usuario GitHub" style="border:1.5px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:13px;outline:none;" value="${GH_CONFIG.owner||''}">
+        <input id="tmRepo"  type="text" placeholder="Repositorio (ej: casasya-data)" style="border:1.5px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:13px;outline:none;" value="${GH_CONFIG.repo||'casasya-data'}">
+        <input id="tmToken" type="password" placeholder="ghp_xxxxxxxxxxxx" style="border:1.5px solid var(--bd);border-radius:5px;padding:8px 11px;font-size:13px;outline:none;">
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="applyTokenModal()" style="flex:1;background:var(--pr);color:#fff;border:none;padding:9px;border-radius:7px;font-size:13px;font-weight:bold;cursor:pointer;">Guardar y conectar</button>
+        <button onclick="document.getElementById('tokenModalOv').style.display='none'" style="background:none;border:1px solid var(--bd);color:var(--mu);padding:9px 14px;border-radius:7px;font-size:13px;cursor:pointer;">Cancelar</button>
+      </div>
+    </div>`;
+    document.body.appendChild(ov);
+  }
+  ov.style.display='flex';
+  setTimeout(()=>{ const t=document.getElementById('tmToken'); if(t) t.focus(); },80);
 }
-function admImport(input){
-  const f=input.files[0]; if(!f) return;
-  const r=new FileReader(); r.onload=async ev=>{
-    try{
-      const imp=JSON.parse(ev.target.result);
-      if(imp.properties) DATA=imp.properties;
-      if(imp.social) SOCIAL=imp.social;
-      if(typeof imp.visits==='number') VISITS=imp.visits;
-      loadSocialForm(); renderTable(); updateAdminStats();
-      toast('Backup cargado. Guardando en GitHub…','');
-      await ghSave(true);
-    } catch(_){ toast('Error: archivo inválido','warn'); }
-  }; r.readAsText(f); input.value='';
+function applyTokenModal(){
+  const owner = document.getElementById('tmOwner').value.trim();
+  const repo  = document.getElementById('tmRepo').value.trim() || 'casasya-data';
+  const token = document.getElementById('tmToken').value.trim();
+  if(!owner||!token){ toast('Completa usuario y token','warn'); return; }
+  GH_CONFIG.owner=owner; GH_CONFIG.repo=repo; GH_CONFIG.file=GH_CONFIG.file||'data.json'; GH_CONFIG.token=token;
+  localStorage.setItem('gh_owner',owner); localStorage.setItem('gh_repo',repo);
+  localStorage.setItem('gh_file',GH_CONFIG.file); localStorage.setItem('gh_token',token);
+  document.getElementById('tokenModalOv').style.display='none';
+  loadGhConfigForm();
+  toast('Token guardado. Guardando en GitHub…','');
+  admSave();
 }
 
 /* ═══ TOAST ═══ */
