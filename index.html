@@ -293,7 +293,24 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
         <option value="150000-500000">$150k – $500k</option>
         <option value="500000-99999999">Más de $500k</option>
       </select>
-      <div class="vtog">
+      <select class="fsel" id="rooms-filter" onchange="renderProperties()">
+        <option value="">Todos los dormitorios</option>
+        <option value="1">1 dormitorio</option>
+        <option value="2">2 dormitorios</option>
+        <option value="3">3 dormitorios</option>
+        <option value="4">4 dormitorios</option>
+        <option value="5">5+ dormitorios</option>
+      </select>
+      <select class="fsel" id="sort-filter" onchange="renderProperties()">
+        <option value="">&#x2195; Ordenar por...</option>
+        <option value="price-desc">Mayor precio</option>
+        <option value="price-asc">Menor precio</option>
+        <option value="rooms-desc">M&#xE1;s dormitorios</option>
+        <option value="rooms-asc">Menos dormitorios</option>
+        <option value="surf-desc">Mayor sup. construida</option>
+        <option value="surf-asc">Menor sup. construida</option>
+      </select>
+            <div class="vtog">
         <button class="vbtn active" id="grid-btn" onclick="setView('grid')" title="Cuadrícula">⊞</button>
         <button class="vbtn"        id="list-btn" onclick="setView('list')" title="Lista">☰</button>
       </div>
@@ -388,6 +405,14 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
         <div class="form-group">
           <label class="form-label">Superficie total / solar (m²)</label>
           <input class="form-input" type="number" id="f-surf-total" placeholder="200">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dormitorios</label>
+          <input class="form-input" type="number" id="f-rooms" min="0" max="20" placeholder="3">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Servicios sanitarios</label>
+          <input class="form-input" type="number" id="f-baths" min="0" max="20" placeholder="2">
         </div>
 
         <div class="form-section">Descripción</div>
@@ -496,7 +521,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 const GH_USER  = 'lhamat123';     // ← tu usuario GitHub
 const GH_REPO  = 'Vhome';      // ← nombre del repo
 const GH_FILE  = 'data.json';
-const APP_PASS = '';      // ← cambia esta contraseña
+const APP_PASS = 'Vhome2025';      // ← cambia esta contraseña
 // ══════════════════════════════════════════════════
 
 const AMENITIES_LIST = [
@@ -563,7 +588,7 @@ function doLogin() {
   const pass  = document.getElementById('login-pass').value;
   const token = document.getElementById('login-token').value.trim();
   const errEl = document.getElementById('login-err');
-  if (APP_PASS !== '' && pass !== APP_PASS) { errEl.textContent = 'Contraseña incorrecta.'; return; }
+  if (pass !== APP_PASS) { errEl.textContent = 'Contraseña incorrecta.'; return; }
   if (!token || !token.startsWith('github_')) { errEl.textContent = 'Token inválido.'; return; }
   ghToken = token; isAuth = true;
   try { sessionStorage.setItem('lhim_tok', ghToken); } catch(e) {}
@@ -711,15 +736,29 @@ function getFiltered() {
   const q  = document.getElementById('search-input').value.toLowerCase();
   const tp = document.getElementById('type-filter').value;
   const pr = document.getElementById('price-filter').value;
-  return properties.filter(p => {
+  const rm = document.getElementById('rooms-filter').value;
+  const so = document.getElementById('sort-filter').value;
+  let list = properties.filter(p => {
     if (tp && p.type !== tp) return false;
     if (pr) {
       const [mn,mx] = pr.split('-').map(Number);
       if (p.price < mn || p.price > mx) return false;
     }
+    if (rm) {
+      const r = Number(rm);
+      if (r === 5) { if ((p.rooms||0) < 5) return false; }
+      else { if ((p.rooms||0) !== r) return false; }
+    }
     if (q && !p.name.toLowerCase().includes(q) && !(p.address||'').toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q)) return false;
     return true;
   });
+  if (so === 'price-desc') list.sort((a,b) => (b.price||0)-(a.price||0));
+  else if (so === 'price-asc') list.sort((a,b) => (a.price||0)-(b.price||0));
+  else if (so === 'rooms-desc') list.sort((a,b) => (b.rooms||0)-(a.rooms||0));
+  else if (so === 'rooms-asc') list.sort((a,b) => (a.rooms||0)-(b.rooms||0));
+  else if (so === 'surf-desc') list.sort((a,b) => (b.surfConst||0)-(a.surfConst||0));
+  else if (so === 'surf-asc') list.sort((a,b) => (a.surfConst||0)-(b.surfConst||0));
+  return list;
 }
 
 function renderProperties() {
@@ -758,6 +797,8 @@ function cardHTML(p) {
       <div class="card-name">${p.name}</div>
       <div class="card-addr">📍 ${p.address||'—'}</div>
       <div class="card-surfaces">
+        ${p.rooms?`<div class="surf-item">&#x1F6CC; <span>${p.rooms} dorm.</span></div>`:''}
+        ${p.baths?`<div class="surf-item">&#x1F6BF; <span>${p.baths} ba&#xF1;os</span></div>`:''}
         ${p.surfUtil?`<div class="surf-item">Útil: <span>${p.surfUtil} m²</span></div>`:''}
         ${p.surfConst?`<div class="surf-item">Const: <span>${p.surfConst} m²</span></div>`:''}
         ${p.surfTotal?`<div class="surf-item">Total: <span>${p.surfTotal} m²</span></div>`:''}
@@ -841,7 +882,9 @@ function openDetail(id) {
     ${(p.surfUtil||p.surfConst||p.surfTotal) ? `
     <div class="detail-section-title">Superficies</div>
     <div class="surfaces-grid">
-      ${p.surfUtil ? `<div class="surf-box"><div class="surf-label">Útil</div><div class="surf-value">${p.surfUtil}</div><div class="surf-unit">m²</div></div>` : ''}
+      ${p.rooms ? `<div class="surf-box"><div class="surf-label">Dormitorios</div><div class="surf-value">${p.rooms}</div><div class="surf-unit">camas</div></div>` : ''}
+      ${p.baths ? `<div class="surf-box"><div class="surf-label">Ba&#xF1;os</div><div class="surf-value">${p.baths}</div><div class="surf-unit">serv.</div></div>` : ''}
+      ${p.surfUtil ? `<div class="surf-box"><div class="surf-label">&#xDA;til</div><div class="surf-value">${p.surfUtil}</div><div class="surf-unit">m²</div></div>` : ''}
       ${p.surfConst ? `<div class="surf-box"><div class="surf-label">Construida</div><div class="surf-value">${p.surfConst}</div><div class="surf-unit">m²</div></div>` : ''}
       ${p.surfTotal ? `<div class="surf-box"><div class="surf-label">Total</div><div class="surf-value">${p.surfTotal}</div><div class="surf-unit">m²</div></div>` : ''}
     </div>` : ''}
@@ -913,6 +956,8 @@ function openFormModal(reset=true) {
     document.getElementById('f-surf-util').value = '';
     document.getElementById('f-surf-const').value = '';
     document.getElementById('f-surf-total').value = '';
+    document.getElementById('f-rooms').value = '';
+    document.getElementById('f-baths').value = '';
     document.getElementById('f-desc').value = '';
     const ua = document.getElementById('main-upload-area');
     ua.classList.remove('has-image');
@@ -942,6 +987,8 @@ function startEdit(id) {
   document.getElementById('f-surf-util').value = p.surfUtil||'';
   document.getElementById('f-surf-const').value = p.surfConst||'';
   document.getElementById('f-surf-total').value = p.surfTotal||'';
+  document.getElementById('f-rooms').value = p.rooms||'';
+  document.getElementById('f-baths').value = p.baths||'';
   document.getElementById('f-desc').value = p.description||'';
 
   // Foto principal
@@ -984,6 +1031,8 @@ async function saveProperty() {
     surfUtil: Number(document.getElementById('f-surf-util').value)||0,
     surfConst: Number(document.getElementById('f-surf-const').value)||0,
     surfTotal: Number(document.getElementById('f-surf-total').value)||0,
+    rooms: Number(document.getElementById('f-rooms').value)||0,
+    baths: Number(document.getElementById('f-baths').value)||0,
     description: document.getElementById('f-desc').value.trim(),
     amenities,
     mainImage: curMainImg,
