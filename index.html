@@ -234,6 +234,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 /* ── AUTH TAG ── */
 #auth-user-tag{padding:4px 10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);border-radius:20px;font-size:10px;color:var(--accent);display:none}
 
+.fav-btn{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:2px;transition:transform .2s;flex-shrink:0}
+.fav-btn:hover{transform:scale(1.25)}
+.fav-btn.on{filter:drop-shadow(0 0 4px gold)}
+.fav-filter-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.fav-filter-btn.active{background:rgba(255,215,64,.12);border-color:rgba(255,215,64,.4);color:var(--yellow)}
+.fav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:var(--yellow);color:#000;border-radius:999px;font-size:9px;font-weight:700;font-family:'Syne',sans-serif}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--sb);border-radius:10px}
@@ -293,7 +299,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
         <option value="150000-500000">$150k – $500k</option>
         <option value="500000-99999999">Más de $500k</option>
       </select>
-      <select class="fsel" id="rooms-filter" onchange="renderProperties()">
+      <button class="fav-filter-btn" id="fav-filter-btn" onclick="toggleFavFilter()">&#x2B50; Favoritos <span class="fav-badge" id="fav-count">0</span></button>
+            <select class="fsel" id="rooms-filter" onchange="renderProperties()">
         <option value="">Todos los dormitorios</option>
         <option value="1">1 dormitorio</option>
         <option value="2">2 dormitorios</option>
@@ -325,7 +332,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 <div class="modal-overlay" id="detail-overlay">
   <div class="modal" id="detail-modal">
     <div class="modal-header">
-      <div class="modal-title" id="detail-title">Detalle</div>
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+        <div class="modal-title" id="detail-title" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Detalle</div>
+        <button class="fav-btn" id="detail-fav-btn" onclick="toggleFavFromDetail()" title="Favorito" style="font-size:22px">&#x2606;</button>
+      </div>
       <button class="modal-close" onclick="closeDetail()">✕</button>
     </div>
     <div class="modal-body" id="detail-body"></div>
@@ -539,6 +549,8 @@ const THEME_KEY = 'lhim_theme';
 const THEMES = ['cyber','night','light','beige'];
 
 let properties = [], fileSHA = '';
+let favOnly = false;
+let favorites = (function(){ try { return JSON.parse(localStorage.getItem('lhim_favs')||'[]'); } catch(e){ return []; } })();
 let curView = 'grid';
 let editId = null;
 let curMainImg = '';
@@ -550,6 +562,38 @@ let ghToken = '', isAuth = false;
 let cropperImg = null, cropperTarget = null; // target: 'main' | 'gallery-N'
 let cropBox = {x:20,y:20,w:200,h:150};
 let dragging = false, resizing = null, dragStart = null;
+
+// ── FAVORITOS ──
+function isFav(id){ return favorites.includes(id); }
+function saveFavs(){ try{ localStorage.setItem('lhim_favs', JSON.stringify(favorites)); }catch(e){} updateFavUI(); }
+function toggleFav(id){
+  const i = favorites.indexOf(id);
+  if(i===-1) favorites.push(id); else favorites.splice(i,1);
+  saveFavs(); renderProperties();
+}
+function toggleFavFromDetail(){
+  if(!viewingId) return;
+  toggleFav(viewingId);
+  updateDetailFavBtn();
+}
+function updateDetailFavBtn(){
+  const btn = document.getElementById('detail-fav-btn');
+  if(!btn||!viewingId) return;
+  btn.innerHTML = isFav(viewingId) ? '&#x2B50;' : '&#x2606;';
+  btn.classList.toggle('on', isFav(viewingId));
+}
+function toggleFavFilter(){
+  favOnly = !favOnly;
+  const btn = document.getElementById('fav-filter-btn');
+  if(btn) btn.classList.toggle('active', favOnly);
+  renderProperties();
+}
+function updateFavUI(){
+  const cnt = document.getElementById('fav-count');
+  if(cnt) cnt.textContent = favorites.length;
+  const btn = document.getElementById('fav-filter-btn');
+  if(btn) btn.classList.toggle('active', favOnly);
+}
 
 // ── THEME ──
 function setTheme(t) {
@@ -749,6 +793,7 @@ function getFiltered() {
       if (r === 5) { if ((p.rooms||0) < 5) return false; }
       else { if ((p.rooms||0) !== r) return false; }
     }
+    if (favOnly && !isFav(p.id)) return false;
     if (q && !p.name.toLowerCase().includes(q) && !(p.address||'').toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q)) return false;
     return true;
   });
@@ -810,8 +855,9 @@ function cardHTML(p) {
           <div>${p.contactTel||''}</div>
         </div>
         <div class="card-actions">
+          <button class="fav-btn ${isFav(p.id)?'on':''}" onclick="event.stopPropagation();toggleFav('${p.id}')" title="Favorito">${isFav(p.id)?'&#x2B50;':'&#x2606;'}</button>
           ${editBtn}
-          <button class="icon-btn" onclick="event.stopPropagation();openDetail('${p.id}')" title="Ver detalle">👁</button>
+          <button class="icon-btn" onclick="event.stopPropagation();openDetail('${p.id}')" title="Ver detalle">&#x1F441;</button>
         </div>
       </div>
     </div>
@@ -827,7 +873,7 @@ function rowHTML(p) {
     <div class="row-type"><span class="card-type-badge type-${typeClass(p.type)}">${p.type}</span></div>
     <div class="row-price">${fmtPrice(p.price)}</div>
     <div class="row-contact">${p.contactName||'—'}<br>${p.contactTel||''}</div>
-    <div>${editBtn}</div>
+    <div style="display:flex;align-items:center;gap:4px"><button class="fav-btn ${isFav(p.id)?'on':''}" onclick="event.stopPropagation();toggleFav('${p.id}')" title="Favorito">${isFav(p.id)?'&#x2B50;':'&#x2606;'}</button>${editBtn}</div>
   </div>`;
 }
 
@@ -897,6 +943,7 @@ function openDetail(id) {
   `;
 
   document.getElementById('detail-overlay').classList.add('open');
+  updateDetailFavBtn();
 }
 
 function closeDetail() {
@@ -1235,6 +1282,7 @@ function updateQualityLabel() {
 // ── INIT ──
 loadData();
 updateAuthUI();
+updateFavUI();
 </script>
 </body>
 </html>
