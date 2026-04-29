@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LHAMAT Inmuebles</title>
+<title>LLAVE en Mano 🗝</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ── THEMES ── */
@@ -301,8 +301,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 
 <header>
   <div class="logo">
-    <div class="logo-icon">🏠</div>
-    <div class="logo-text">LHAMAT <span>Inmuebles</span></div>
+    <div class="logo-icon">🗝</div>
+    <div class="logo-text">LLAVE <span>en Mano</span> 🗝</div>
   </div>
   <div class="header-right">
     <div class="stat-pill"><div class="dot"></div><span id="total-count">0 propiedades</span></div>
@@ -786,7 +786,7 @@ async function saveData() {
   if (!ghToken) { toast('Inicia sesión para guardar', 'err'); return false; }
   showLoad(true);
   const content = btoa(unescape(encodeURIComponent(JSON.stringify({ properties }, null, 2))));
-  const body = { message: 'Actualizar inmuebles', content, committer: { name: 'LHAMAT Inmuebles', email: 'noreply@lhamat.com' } };
+  const body = { message: 'Actualizar inmuebles', content, committer: { name: 'LLAVE en Mano', email: 'noreply@lhavemano.com' } };
   if (fileSHA) body.sha = fileSHA;
   try {
     const res = await fetch(API, {
@@ -908,7 +908,6 @@ function cardHTML(p) {
         </div>
         <div class="card-actions">
           ${editBtn}
-          <button class="icon-btn" onclick="event.stopPropagation();openDetail('${p.id}')" title="Ver detalle">&#x1F441;</button>
         </div>
       </div>
     </div>
@@ -916,7 +915,7 @@ function cardHTML(p) {
 }
 
 function rowHTML(p) {
-  const editBtn = isAuth ? `<button class="icon-btn" onclick="event.stopPropagation();startEdit('${p.id}')" title="Editar">✏️</button>` : `<button class="icon-btn" onclick="event.stopPropagation();openDetail('${p.id}')" title="Ver">👁</button>`;
+  const editBtn = isAuth ? `<button class="icon-btn" onclick="event.stopPropagation();startEdit('${p.id}')" title="Editar">✏️</button>` : ``;
   return `
   <div class="prop-row" onclick="openDetail('${p.id}')">
     <div class="row-img">${p.mainImage ? `<img src="${p.mainImage}" alt="">` : typeEmoji(p.type)}</div>
