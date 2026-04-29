@@ -234,6 +234,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 /* ── AUTH TAG ── */
 #auth-user-tag{padding:4px 10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);border-radius:20px;font-size:10px;color:var(--accent);display:none}
 
+.room-bath-selector{display:flex;flex-wrap:wrap;gap:7px;grid-column:1/-1}
+.rb-bubble{position:relative;display:inline-flex;align-items:center;gap:0;border-radius:20px;overflow:visible}
+.rb-chip{display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap}
+.rb-chip:hover{border-color:var(--accent2)}
+.rb-chip.selected{background:rgba(124,77,255,.15);border-color:var(--accent2);color:var(--accent2);font-weight:600}
+.rb-qty{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;background:var(--accent2);color:#fff;border-radius:999px;font-size:9px;font-weight:700;margin-left:2px;padding:0 4px}
+.rb-dropdown{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px;display:none;flex-direction:column;gap:3px;z-index:50;min-width:120px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.rb-dropdown.open{display:flex}
+.rb-qty-opt{padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;transition:background .1s;white-space:nowrap}
+.rb-qty-opt:hover{background:var(--surface2)}
+.rb-qty-opt.active{background:rgba(124,77,255,.15);color:var(--accent2);font-weight:600}
 .fav-btn{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:2px;transition:transform .2s;flex-shrink:0}
 .fav-btn:hover{transform:scale(1.25)}
 .fav-btn.on{filter:drop-shadow(0 0 4px gold)}
@@ -416,13 +427,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
           <label class="form-label">Superficie total / solar (m²)</label>
           <input class="form-input" type="number" id="f-surf-total" placeholder="200">
         </div>
-        <div class="form-group">
-          <label class="form-label">Dormitorios</label>
-          <input class="form-input" type="number" id="f-rooms" min="0" max="20" placeholder="3">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Servicios sanitarios</label>
-          <input class="form-input" type="number" id="f-baths" min="0" max="20" placeholder="2">
+        <div class="form-section">Dormitorios y servicios sanitarios</div>
+        <div class="room-bath-selector" id="rb-selector">
+          <!-- generado por JS -->
         </div>
 
         <div class="form-section">Descripción</div>
@@ -976,6 +983,52 @@ function openLightbox(src) {
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
 // ── FORM MODAL ──
+// ── ROOMS / BATHS SELECTOR ──
+const RB_OPTIONS = [
+  { key:'rooms', label:'&#x1F6CC; Dormitorios', max:10 },
+  { key:'baths', label:'&#x1F6BF; Serv. sanitarios', max:6 },
+];
+let rbState = { rooms:0, baths:0 };
+
+function buildRoomBathSelector(initRooms=0, initBaths=0){
+  rbState = { rooms: initRooms, baths: initBaths };
+  const c = document.getElementById('rb-selector');
+  if(!c) return;
+  c.innerHTML = RB_OPTIONS.map(opt => {
+    const sel = rbState[opt.key] > 0;
+    const qty = rbState[opt.key];
+    return `<div class="rb-bubble" id="rb-bubble-${opt.key}">
+      <div class="rb-chip ${sel?'selected':''}" onclick="toggleRbChip('${opt.key}',event)">
+        ${opt.label}${sel?`<span class="rb-qty">${qty}</span>`:''}
+      </div>
+      <div class="rb-dropdown ${sel?'open':''}" id="rb-dd-${opt.key}">
+        ${Array.from({length:opt.max},(_,i)=>i+1).map(n=>`<div class="rb-qty-opt ${qty===n?'active':''}" onclick="selectRbQty('${opt.key}',${n},event)">${n} ${opt.label.replace(/&#x[^;]+; /,'')}</div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  // close dropdowns on outside click
+  document.addEventListener('click', closeAllRbDropdowns);
+}
+
+function toggleRbChip(key, e){
+  e.stopPropagation();
+  const dd = document.getElementById('rb-dd-'+key);
+  if(!dd) return;
+  const isOpen = dd.classList.contains('open');
+  closeAllRbDropdowns();
+  if(!isOpen) dd.classList.add('open');
+}
+
+function selectRbQty(key, qty, e){
+  e.stopPropagation();
+  rbState[key] = qty;
+  buildRoomBathSelector(rbState.rooms, rbState.baths);
+}
+
+function closeAllRbDropdowns(){
+  document.querySelectorAll('.rb-dropdown').forEach(d=>d.classList.remove('open'));
+}
+
 function buildAmenitiesChecks() {
   const container = document.getElementById('amenities-check-list');
   container.innerHTML = AMENITIES_LIST.map(a => `
@@ -1011,6 +1064,8 @@ function openFormModal(reset=true) {
     ua.querySelector('img.preview-img')?.remove();
     document.getElementById('main-img-hint').textContent = '';
     document.getElementById('gallery-previews').innerHTML = '';
+    rbState = {rooms:0, baths:0};
+    buildRoomBathSelector(0, 0);
     buildAmenitiesChecks();
   }
   document.getElementById('form-overlay').classList.add('open');
@@ -1034,8 +1089,7 @@ function startEdit(id) {
   document.getElementById('f-surf-util').value = p.surfUtil||'';
   document.getElementById('f-surf-const').value = p.surfConst||'';
   document.getElementById('f-surf-total').value = p.surfTotal||'';
-  document.getElementById('f-rooms').value = p.rooms||'';
-  document.getElementById('f-baths').value = p.baths||'';
+  buildRoomBathSelector(p.rooms||0, p.baths||0);
   document.getElementById('f-desc').value = p.description||'';
 
   // Foto principal
@@ -1078,8 +1132,8 @@ async function saveProperty() {
     surfUtil: Number(document.getElementById('f-surf-util').value)||0,
     surfConst: Number(document.getElementById('f-surf-const').value)||0,
     surfTotal: Number(document.getElementById('f-surf-total').value)||0,
-    rooms: Number(document.getElementById('f-rooms').value)||0,
-    baths: Number(document.getElementById('f-baths').value)||0,
+    rooms: rbState.rooms||0,
+    baths: rbState.baths||0,
     description: document.getElementById('f-desc').value.trim(),
     amenities,
     mainImage: curMainImg,
