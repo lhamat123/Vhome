@@ -6,19 +6,14 @@
       "name": "Casa Colonial en el Vedado",
       "address": "Calle 17 No.1205 e/ 20 y 22, Vedado, La Habana, 10400",
       "price": 85000,
-      "contactName": "Alain RodrÃ­guez",
+      "contactName": "Alain Rodríguez",
       "contactTel": "+5353105037",
       "negotiate": true,
       "surfUtil": 180,
       "surfConst": 210,
       "surfTotal": 300,
-      "description": "Hermosa casa colonial de dos plantas en el corazÃ³n del Vedado. Cuenta con amplios salones, patio interior con jardÃ­n, techos altos y excelente ventilaciÃ³n natural. Ideal para familia o negocio.",
-      "amenities": [
-        "garaje",
-        "jardin",
-        "terraza",
-        "cisterna"
-      ],
+      "description": "Hermosa casa colonial de dos plantas en el corazón del Vedado. Cuenta con amplios salones, patio interior con jardín, techos altos y excelente ventilación natural. Ideal para familia o negocio.",
+      "amenities": ["garaje", "jardin", "terraza", "cisterna"],
       "mainImage": "",
       "gallery": []
     },
@@ -28,19 +23,14 @@
       "name": "Apartamento moderno en Miramar",
       "address": "5ta Avenida e/ 42 y 44, Miramar, Playa, La Habana",
       "price": 42000,
-      "contactName": "MarÃ­a GonzÃ¡lez",
+      "contactName": "María González",
       "contactTel": "+5352871234",
       "negotiate": false,
       "surfUtil": 75,
       "surfConst": 80,
       "surfTotal": 80,
-      "rooms": 5,
-      "baths": 3,
-      "description": "Apartamento en planta alta, totalmente renovado. Cocina equipada, baÃ±o moderno, split de frÃ­o/calor. Vista al parque. Tranquilo y seguro.",
-      "amenities": [
-        "placa",
-        "wifi"
-      ],
+      "description": "Apartamento en planta alta, totalmente renovado. Cocina equipada, baño moderno, split de frío/calor. Vista al parque. Tranquilo y seguro.",
+      "amenities": ["wifi", "placa"],
       "mainImage": "",
       "gallery": []
     }
