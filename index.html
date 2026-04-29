@@ -258,6 +258,23 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .fav-filter-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
 .fav-filter-btn.active{background:rgba(255,215,64,.12);border-color:rgba(255,215,64,.4);color:var(--yellow)}
 .fav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:var(--yellow);color:#000;border-radius:999px;font-size:9px;font-weight:700;font-family:'Syne',sans-serif}
+.adv-filter-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:"DM Mono",monospace;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;position:relative}
+.adv-filter-btn:hover{color:var(--text);border-color:var(--text2)}
+.adv-filter-btn.active{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.4);color:var(--accent)}
+.adv-filter-btn .adv-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:var(--accent);color:#000;border-radius:999px;font-size:9px;font-weight:700;font-family:"Syne",sans-serif}
+[data-theme=light] .adv-filter-btn .adv-badge,[data-theme=beige] .adv-filter-btn .adv-badge{color:#fff}
+.adv-panel{position:absolute;top:calc(100% + 8px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;z-index:100;display:none;flex-direction:column;gap:10px;min-width:280px;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:su .18s ease}
+.adv-panel.open{display:flex}
+.adv-panel-title{font-family:"Syne",sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);padding-bottom:8px;border-bottom:1px solid var(--border)}
+.adv-row{display:flex;flex-direction:column;gap:5px}
+.adv-row-label{font-size:10px;color:var(--text);font-family:"Syne",sans-serif;font-weight:600;display:flex;align-items:center;gap:5px}
+.adv-row-opts{display:flex;gap:5px;flex-wrap:wrap}
+.adv-opt{padding:4px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:10px;cursor:pointer;transition:all .12s;white-space:nowrap;font-family:"DM Mono",monospace;color:var(--text2)}
+.adv-opt:hover{border-color:var(--accent2);color:var(--text)}
+.adv-opt.sel{background:rgba(124,77,255,.15);border-color:var(--accent2);color:var(--accent2);font-weight:600}
+.adv-clear{font-size:10px;color:var(--red);cursor:pointer;text-align:right;margin-top:2px;font-family:"DM Mono",monospace}
+.adv-clear:hover{text-decoration:underline}
+.adv-wrap{position:relative}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--sb);border-radius:10px}
@@ -318,15 +335,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
         <option value="500000-99999999">Más de $500k</option>
       </select>
       <button class="fav-filter-btn" id="fav-filter-btn" onclick="toggleFavFilter()" title="Filtrar favoritos" style="padding:6px 10px;font-size:16px;gap:4px">&#x2B50;<span class="fav-badge" id="fav-count">0</span></button>
-            <select class="fsel" id="rooms-filter" onchange="renderProperties()">
-        <option value="">Todos los dormitorios</option>
-        <option value="1">Hasta 1 dormitorio</option>
-        <option value="2">Hasta 2 dormitorios</option>
-        <option value="3">Hasta 3 dormitorios</option>
-        <option value="4">Hasta 4 dormitorios</option>
-        <option value="5">Hasta 5 dormitorios</option>
-        <option value="6">Hasta 6 dormitorios</option>
-      </select>
+      <div class="adv-wrap">
+        <button class="adv-filter-btn" id="adv-filter-btn" onclick="toggleAdvPanel(event)">
+          &#x1F50D; Filtros <span class="adv-badge" id="adv-badge" style="display:none">0</span>
+        </button>
+        <div class="adv-panel" id="adv-panel">
+          <div class="adv-panel-title">Filtros avanzados</div>
+          <div id="adv-rows-container"></div>
+          <div class="adv-clear" onclick="clearAdvFilters()">&#x2715; Limpiar filtros</div>
+        </div>
+      </div>
       <select class="fsel" id="sort-filter" onchange="renderProperties()">
         <option value="">&#x2195; Ordenar por...</option>
         <option value="price-desc">Mayor precio</option>
@@ -435,7 +453,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
           <label class="form-label">Superficie total / solar (m²)</label>
           <input class="form-input" type="number" id="f-surf-total" placeholder="200">
         </div>
-        <div class="form-section">Dormitorios y servicios sanitarios</div>
+        <div class="form-section">Locales</div>
         <div class="room-bath-selector" id="rb-selector">
           <!-- generado por JS -->
         </div>
@@ -790,12 +808,85 @@ function typeEmoji(t) {
   return m[t] || '🏠';
 }
 
+// ── FILTROS AVANZADOS ──
+const ADV_FIELDS = [
+  { key:'rooms',   label:'&#x1F6CC; Dormitorios',      max:10 },
+  { key:'baths',   label:'&#x1F6BF; Serv. sanitarios', max:6  },
+  { key:'comedor', label:'&#x1F37D; Comedor',           max:3  },
+  { key:'cocina',  label:'&#x1F373; Cocina/Pantry',     max:3  },
+  { key:'terraza', label:'&#x2600; Terraza',            max:3  },
+  { key:'portal',  label:'&#x1F6AA; Portal',            max:3  },
+];
+// advFilters[key] = { dir: 'gte'|'lte', val: number } | null
+let advFilters = {};
+
+function buildAdvPanel(){
+  const c = document.getElementById('adv-rows-container');
+  if(!c) return;
+  c.innerHTML = ADV_FIELDS.map(f => {
+    const cur = advFilters[f.key];
+    const gteOpts = Array.from({length:f.max-1},(_,i)=>i+2).map(n=>{
+      const sel = cur && cur.dir==='gte' && cur.val===n;
+      return `<span class="adv-opt${sel?' sel':''}" onclick="setAdvFilter('${f.key}','gte',${n},event)">&ge; ${n}</span>`;
+    }).join('');
+    const lteOpts = Array.from({length:f.max-1},(_,i)=>i+2).map(n=>{
+      const sel = cur && cur.dir==='lte' && cur.val===n;
+      return `<span class="adv-opt${sel?' sel':''}" onclick="setAdvFilter('${f.key}','lte',${n},event)">&le; ${n}</span>`;
+    }).join('');
+    return `<div class="adv-row">
+      <div class="adv-row-label">${f.label}${cur?` <span style="color:var(--accent);font-size:9px">${cur.dir==='gte'?'&#x2265;':'&#x2264;'} ${cur.val}</span>':''}</div>
+      <div class="adv-row-opts">${gteOpts}${lteOpts}</div>
+    </div>`;
+  }).join('');
+}
+
+function setAdvFilter(key, dir, val, e){
+  e && e.stopPropagation();
+  // toggle off if same
+  if(advFilters[key] && advFilters[key].dir===dir && advFilters[key].val===val){
+    delete advFilters[key];
+  } else {
+    advFilters[key] = { dir, val };
+  }
+  updateAdvBadge();
+  buildAdvPanel();
+  renderProperties();
+}
+
+function clearAdvFilters(){
+  advFilters = {};
+  updateAdvBadge();
+  buildAdvPanel();
+  renderProperties();
+}
+
+function updateAdvBadge(){
+  const n = Object.keys(advFilters).length;
+  const badge = document.getElementById('adv-badge');
+  const btn   = document.getElementById('adv-filter-btn');
+  if(badge){ badge.textContent=n; badge.style.display = n>0?'inline-flex':'none'; }
+  if(btn)  btn.classList.toggle('active', n>0);
+}
+
+function toggleAdvPanel(e){
+  e && e.stopPropagation();
+  const panel = document.getElementById('adv-panel');
+  if(!panel) return;
+  const opening = !panel.classList.contains('open');
+  closeAdvPanel();
+  if(opening){ buildAdvPanel(); panel.classList.add('open'); }
+}
+
+function closeAdvPanel(){
+  const panel = document.getElementById('adv-panel');
+  if(panel) panel.classList.remove('open');
+}
+
 // ── RENDER ──
 function getFiltered() {
   const q  = document.getElementById('search-input').value.toLowerCase();
   const tp = document.getElementById('type-filter').value;
   const pr = document.getElementById('price-filter').value;
-  const rm = document.getElementById('rooms-filter').value;
   const so = document.getElementById('sort-filter').value;
   let list = properties.filter(p => {
     if (tp && p.type !== tp) return false;
@@ -803,9 +894,10 @@ function getFiltered() {
       const [mn,mx] = pr.split('-').map(Number);
       if (p.price < mn || p.price > mx) return false;
     }
-    if (rm) {
-      const r = Number(rm);
-      if ((p.rooms||0) > r) return false;
+    for(const [key,f] of Object.entries(advFilters)){
+      const v = p[key]||0;
+      if(f.dir==='gte' && v < f.val) return false;
+      if(f.dir==='lte' && v > f.val) return false;
     }
     if (favOnly && !isFav(p.id)) return false;
     if (q && !p.name.toLowerCase().includes(q) && !(p.address||'').toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q)) return false;
@@ -1023,12 +1115,11 @@ function buildRoomBathSelector(init={}){
         ${opt.label}${sel?`<span class="rb-qty">${qty}</span>`:''}
       </div>
       <div class="rb-dropdown ${sel?'open':''}" id="rb-dd-${opt.key}">
-        ${Array.from({length:opt.max},(_,i)=>i+1).map(n=>`<div class="rb-qty-opt ${qty===n?'active':''}" onclick="selectRbQty('${opt.key}',${n},event)">${n} ${opt.label.replace(/&#x[^;]+; /,'')}</div>`).join('')}
+        ${Array.from({length:opt.max-1},(_,i)=>i+2).map(n=>`<div class="rb-qty-opt ${qty===n?'active':''}" onclick="selectRbQty('${opt.key}',${n},event)">${n} ${opt.label.replace(/&#x[^;]+; /,'')}</div>`).join('')}
       </div>
     </div>`;
   }).join('');
-  // close dropdowns on outside click
-  document.addEventListener('click', closeAllRbDropdowns);
+  // dropdowns closed via global listener below
 }
 
 function toggleRbChip(key, e){
@@ -1358,6 +1449,12 @@ function updateQualityLabel() {
 })();
 
 // ── INIT ──
+// ── GLOBAL CLICK: cerrar dropdowns y panel ──
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.adv-wrap')) closeAdvPanel();
+  if(!e.target.closest('.rb-bubble')) closeAllRbDropdowns();
+});
+
 loadData();
 updateAuthUI();
 updateFavUI();
