@@ -320,11 +320,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
       <button class="fav-filter-btn" id="fav-filter-btn" onclick="toggleFavFilter()" title="Filtrar favoritos" style="padding:6px 10px;font-size:16px;gap:4px">&#x2B50;<span class="fav-badge" id="fav-count">0</span></button>
             <select class="fsel" id="rooms-filter" onchange="renderProperties()">
         <option value="">Todos los dormitorios</option>
-        <option value="1">1 dormitorio</option>
-        <option value="2">2 dormitorios</option>
-        <option value="3">3 dormitorios</option>
-        <option value="4">4 dormitorios</option>
-        <option value="5">5+ dormitorios</option>
+        <option value="1">Hasta 1 dormitorio</option>
+        <option value="2">Hasta 2 dormitorios</option>
+        <option value="3">Hasta 3 dormitorios</option>
+        <option value="4">Hasta 4 dormitorios</option>
+        <option value="5">Hasta 5 dormitorios</option>
+        <option value="6">Hasta 6 dormitorios</option>
       </select>
       <select class="fsel" id="sort-filter" onchange="renderProperties()">
         <option value="">&#x2195; Ordenar por...</option>
@@ -804,8 +805,7 @@ function getFiltered() {
     }
     if (rm) {
       const r = Number(rm);
-      if (r === 5) { if ((p.rooms||0) < 5) return false; }
-      else { if ((p.rooms||0) !== r) return false; }
+      if ((p.rooms||0) > r) return false;
     }
     if (favOnly && !isFav(p.id)) return false;
     if (q && !p.name.toLowerCase().includes(q) && !(p.address||'').toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q)) return false;
@@ -861,6 +861,10 @@ function cardHTML(p) {
       <div class="card-surfaces">
         ${p.rooms?`<div class="surf-item">&#x1F6CC; <span>${p.rooms} dorm.</span></div>`:''}
         ${p.baths?`<div class="surf-item">&#x1F6BF; <span>${p.baths} ba&#xF1;os</span></div>`:''}
+        ${p.comedor?`<div class="surf-item">&#x1F37D; <span>${p.comedor} comedor</span></div>`:''}
+        ${p.cocina?`<div class="surf-item">&#x1F373; <span>${p.cocina} cocina</span></div>`:''}
+        ${p.terraza?`<div class="surf-item">&#x2600; <span>${p.terraza} terraza</span></div>`:''}
+        ${p.portal?`<div class="surf-item">&#x1F6AA; <span>${p.portal} portal</span></div>`:''}
         ${p.surfUtil?`<div class="surf-item">Útil: <span>${p.surfUtil} m²</span></div>`:''}
         ${p.surfConst?`<div class="surf-item">Const: <span>${p.surfConst} m²</span></div>`:''}
         ${p.surfTotal?`<div class="surf-item">Total: <span>${p.surfTotal} m²</span></div>`:''}
@@ -946,6 +950,10 @@ function openDetail(id) {
     <div class="surfaces-grid">
       ${p.rooms ? `<div class="surf-box"><div class="surf-label">Dormitorios</div><div class="surf-value">${p.rooms}</div><div class="surf-unit">camas</div></div>` : ''}
       ${p.baths ? `<div class="surf-box"><div class="surf-label">Ba&#xF1;os</div><div class="surf-value">${p.baths}</div><div class="surf-unit">serv.</div></div>` : ''}
+      ${p.comedor ? `<div class="surf-box"><div class="surf-label">Comedor</div><div class="surf-value">${p.comedor}</div><div class="surf-unit">uds.</div></div>` : ''}
+      ${p.cocina ? `<div class="surf-box"><div class="surf-label">Cocina/Pantry</div><div class="surf-value">${p.cocina}</div><div class="surf-unit">uds.</div></div>` : ''}
+      ${p.terraza ? `<div class="surf-box"><div class="surf-label">Terraza</div><div class="surf-value">${p.terraza}</div><div class="surf-unit">uds.</div></div>` : ''}
+      ${p.portal ? `<div class="surf-box"><div class="surf-label">Portal</div><div class="surf-value">${p.portal}</div><div class="surf-unit">uds.</div></div>` : ''}
       ${p.surfUtil ? `<div class="surf-box"><div class="surf-label">&#xDA;til</div><div class="surf-value">${p.surfUtil}</div><div class="surf-unit">m²</div></div>` : ''}
       ${p.surfConst ? `<div class="surf-box"><div class="surf-label">Construida</div><div class="surf-value">${p.surfConst}</div><div class="surf-unit">m²</div></div>` : ''}
       ${p.surfTotal ? `<div class="surf-box"><div class="surf-label">Total</div><div class="surf-value">${p.surfTotal}</div><div class="surf-unit">m²</div></div>` : ''}
@@ -994,13 +1002,17 @@ function closeLightbox() { document.getElementById('lightbox').classList.remove(
 // ── FORM MODAL ──
 // ── ROOMS / BATHS SELECTOR ──
 const RB_OPTIONS = [
-  { key:'rooms', label:'&#x1F6CC; Dormitorios', max:10 },
-  { key:'baths', label:'&#x1F6BF; Serv. sanitarios', max:6 },
+  { key:'rooms',   label:'&#x1F6CC; Dormitorios',      icon:'&#x1F6CC;', max:10 },
+  { key:'baths',   label:'&#x1F6BF; Serv. sanitarios', icon:'&#x1F6BF;', max:6  },
+  { key:'comedor', label:'&#x1F37D; Comedor',           icon:'&#x1F37D;', max:3  },
+  { key:'cocina',  label:'&#x1F373; Cocina/Pantry',     icon:'&#x1F373;', max:3  },
+  { key:'terraza', label:'&#x2600;&#xFE0F; Terraza',    icon:'&#x2600;&#xFE0F;', max:3 },
+  { key:'portal',  label:'&#x1F6AA; Portal',            icon:'&#x1F6AA;', max:3  },
 ];
-let rbState = { rooms:0, baths:0 };
+let rbState = { rooms:0, baths:0, comedor:0, cocina:0, terraza:0, portal:0 };
 
-function buildRoomBathSelector(initRooms=0, initBaths=0){
-  rbState = { rooms: initRooms, baths: initBaths };
+function buildRoomBathSelector(init={}){
+  rbState = { rooms:0, baths:0, comedor:0, cocina:0, terraza:0, portal:0, ...init };
   const c = document.getElementById('rb-selector');
   if(!c) return;
   c.innerHTML = RB_OPTIONS.map(opt => {
@@ -1031,7 +1043,7 @@ function toggleRbChip(key, e){
 function selectRbQty(key, qty, e){
   e.stopPropagation();
   rbState[key] = qty;
-  buildRoomBathSelector(rbState.rooms, rbState.baths);
+  buildRoomBathSelector({...rbState});
 }
 
 function closeAllRbDropdowns(){
@@ -1065,16 +1077,15 @@ function openFormModal(reset=true) {
     document.getElementById('f-surf-util').value = '';
     document.getElementById('f-surf-const').value = '';
     document.getElementById('f-surf-total').value = '';
-    document.getElementById('f-rooms').value = '';
-    document.getElementById('f-baths').value = '';
+
     document.getElementById('f-desc').value = '';
     const ua = document.getElementById('main-upload-area');
     ua.classList.remove('has-image');
     ua.querySelector('img.preview-img')?.remove();
     document.getElementById('main-img-hint').textContent = '';
     document.getElementById('gallery-previews').innerHTML = '';
-    rbState = {rooms:0, baths:0};
-    buildRoomBathSelector(0, 0);
+    rbState = {rooms:0, baths:0, comedor:0, cocina:0, terraza:0, portal:0};
+    buildRoomBathSelector();
     buildAmenitiesChecks();
   }
   document.getElementById('form-overlay').classList.add('open');
@@ -1098,7 +1109,7 @@ function startEdit(id) {
   document.getElementById('f-surf-util').value = p.surfUtil||'';
   document.getElementById('f-surf-const').value = p.surfConst||'';
   document.getElementById('f-surf-total').value = p.surfTotal||'';
-  buildRoomBathSelector(p.rooms||0, p.baths||0);
+  buildRoomBathSelector({rooms:p.rooms||0, baths:p.baths||0, comedor:p.comedor||0, cocina:p.cocina||0, terraza:p.terraza||0, portal:p.portal||0});
   document.getElementById('f-desc').value = p.description||'';
 
   // Foto principal
@@ -1143,6 +1154,10 @@ async function saveProperty() {
     surfTotal: Number(document.getElementById('f-surf-total').value)||0,
     rooms: rbState.rooms||0,
     baths: rbState.baths||0,
+    comedor: rbState.comedor||0,
+    cocina: rbState.cocina||0,
+    terraza: rbState.terraza||0,
+    portal: rbState.portal||0,
     description: document.getElementById('f-desc').value.trim(),
     amenities,
     mainImage: curMainImg,
