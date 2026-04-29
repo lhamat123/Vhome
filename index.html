@@ -882,10 +882,6 @@ function closeAdvPanel(){
   if(panel) panel.classList.remove('open');
 }
 
-document.addEventListener('click', e => {
-  if(!e.target.closest('.adv-wrap')) closeAdvPanel();
-});
-
 // ── RENDER ──
 function getFiltered() {
   const q  = document.getElementById('search-input').value.toLowerCase();
@@ -1123,8 +1119,7 @@ function buildRoomBathSelector(init={}){
       </div>
     </div>`;
   }).join('');
-  // close dropdowns on outside click
-  document.addEventListener('click', closeAllRbDropdowns);
+  // dropdowns closed via global listener below
 }
 
 function toggleRbChip(key, e){
@@ -1454,6 +1449,12 @@ function updateQualityLabel() {
 })();
 
 // ── INIT ──
+// ── GLOBAL CLICK: cerrar dropdowns y panel ──
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.adv-wrap')) closeAdvPanel();
+  if(!e.target.closest('.rb-bubble')) closeAllRbDropdowns();
+});
+
 loadData();
 updateAuthUI();
 updateFavUI();
