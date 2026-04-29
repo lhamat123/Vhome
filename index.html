@@ -248,6 +248,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .fav-btn{background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:2px;transition:transform .2s;flex-shrink:0}
 .fav-btn:hover{transform:scale(1.25)}
 .fav-btn.on{filter:drop-shadow(0 0 4px gold)}
+.card-fav-btn{position:absolute;top:8px;right:8px;z-index:2;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .18s,background .18s;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);line-height:1}
+.card-fav-btn:hover{transform:scale(1.18)}
+.card-fav-btn.on{background:rgba(255,200,0,.18)}
+.card-fav-btn .star-off{color:rgba(255,255,255,.7);font-style:normal}
+.card-fav-btn.on .star-off{display:none}
+.card-fav-btn .star-on{color:gold;display:none;text-shadow:0 0 8px rgba(255,200,0,.8);font-style:normal}
+.card-fav-btn.on .star-on{display:block}
 .fav-filter-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
 .fav-filter-btn.active{background:rgba(255,215,64,.12);border-color:rgba(255,215,64,.4);color:var(--yellow)}
 .fav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:var(--yellow);color:#000;border-radius:999px;font-size:9px;font-weight:700;font-family:'Syne',sans-serif}
@@ -843,6 +850,9 @@ function cardHTML(p) {
     <div class="card-image">
       ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}">` : `<div class="no-img">${typeEmoji(p.type)}</div>`}
       <span class="card-type-badge type-${typeClass(p.type)}">${p.type}</span>
+      <button class="card-fav-btn ${isFav(p.id)?'on':''}" onclick="event.stopPropagation();toggleFav('${p.id}')" title="${isFav(p.id)?'Quitar de favoritos':'Agregar a favoritos'}">
+        <i class="star-off">&#x2606;</i><i class="star-on">&#x2605;</i>
+      </button>
     </div>
     <div class="card-body">
       <div class="card-price">${fmtPrice(p.price)}</div>
@@ -862,7 +872,6 @@ function cardHTML(p) {
           <div>${p.contactTel||''}</div>
         </div>
         <div class="card-actions">
-          <button class="fav-btn ${isFav(p.id)?'on':''}" onclick="event.stopPropagation();toggleFav('${p.id}')" title="Favorito">${isFav(p.id)?'&#x2B50;':'&#x2606;'}</button>
           ${editBtn}
           <button class="icon-btn" onclick="event.stopPropagation();openDetail('${p.id}')" title="Ver detalle">&#x1F441;</button>
         </div>
