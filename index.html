@@ -275,6 +275,19 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .adv-clear{font-size:10px;color:var(--red);cursor:pointer;text-align:right;margin-top:2px;font-family:'DM Mono',monospace}
 .adv-clear:hover{text-decoration:underline}
 .adv-wrap{position:relative}
+.doc-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-family:'Syne',sans-serif;font-weight:700;font-size:9px;letter-spacing:.5px;text-transform:uppercase;border:1px solid;white-space:nowrap}
+.doc-transferible{background:rgba(0,230,118,.15);color:#00e676;border-color:rgba(0,230,118,.35)}
+.doc-sindoc{background:rgba(255,82,82,.15);color:#ff5252;border-color:rgba(255,82,82,.35)}
+.doc-tramites{background:rgba(255,215,64,.15);color:#ffd740;border-color:rgba(255,215,64,.35)}
+.doc-desactualizado{background:rgba(180,100,255,.15);color:#ce93d8;border-color:rgba(180,100,255,.35)}
+[data-theme=light] .doc-transferible{background:rgba(0,168,84,.1);color:#007a3d;border-color:rgba(0,168,84,.3)}
+[data-theme=light] .doc-sindoc{background:rgba(211,47,47,.1);color:#c62828;border-color:rgba(211,47,47,.3)}
+[data-theme=light] .doc-tramites{background:rgba(180,130,0,.1);color:#7a5800;border-color:rgba(180,130,0,.3)}
+[data-theme=light] .doc-desactualizado{background:rgba(120,60,200,.1);color:#6a1b9a;border-color:rgba(120,60,200,.3)}
+[data-theme=beige] .doc-transferible{background:rgba(0,140,70,.1);color:#005c2e;border-color:rgba(0,140,70,.3)}
+[data-theme=beige] .doc-sindoc{background:rgba(180,40,40,.1);color:#8b1a1a;border-color:rgba(180,40,40,.3)}
+[data-theme=beige] .doc-tramites{background:rgba(140,100,0,.1);color:#5c4000;border-color:rgba(140,100,0,.3)}
+[data-theme=beige] .doc-desactualizado{background:rgba(100,40,160,.1);color:#4a0e7a;border-color:rgba(100,40,160,.3)}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--sb);border-radius:10px}
@@ -355,6 +368,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
           <div class="adv-clear" onclick="clearComFilters()">&#x2715; Limpiar</div>
         </div>
       </div>
+      <div class="adv-wrap" id="adv-wrap-doc">
+        <button class="adv-filter-btn" id="doc-filter-btn" onclick="toggleAdvPanel('doc',event)">
+          &#x1F4C4; Docs <span class="adv-badge" id="doc-badge" style="display:none">0</span>
+        </button>
+        <div class="adv-panel" id="adv-panel-doc">
+          <div class="adv-panel-title">Estado documentación</div>
+          <div id="doc-rows-container"></div>
+          <div class="adv-clear" onclick="clearDocFilters()">&#x2715; Limpiar</div>
+        </div>
+      </div>
       <select class="fsel" id="sort-filter" onchange="renderProperties()">
         <option value="">&#x2195; Ordenar por...</option>
         <option value="price-desc">Mayor precio</option>
@@ -433,6 +456,15 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
         <div class="form-group">
           <label class="form-label">Valor de venta (USD)</label>
           <input class="form-input" type="number" id="f-price" placeholder="12000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado documentación</label>
+          <select class="form-select" id="f-docstatus">
+            <option value="Transferible">✅ Transferible</option>
+            <option value="En Trámites">⏳ En Trámites</option>
+            <option value="Desactualizado">⚠️ Desactualizado</option>
+            <option value="Sin Documento">❌ Sin Documento</option>
+          </select>
         </div>
         <div class="form-group">
           <label class="form-label">Nombre del contacto</label>
@@ -731,55 +763,294 @@ async function loadData() {
 
 function loadDemoData() {
   properties = [
-    {
-      id: 'p1', type: 'Casa', name: 'Casa Colonial en el Vedado',
-      address: 'Calle 17 No.1205 e/ 20 y 22, Vedado, La Habana, 10400',
-      price: 85000,
-      contactName: 'Alain Rodríguez', contactTel: '+5353105037',
-      negotiate: true,
-      surfUtil: 180, surfConst: 210, surfTotal: 300,
-      description: 'Hermosa casa colonial de dos plantas en el corazón del Vedado. Cuenta con amplios salones, patio interior con jardín, techos altos y excelente ventilación natural. Ideal para familia o negocio.',
-      amenities: ['garaje','jardin','terraza','cisterna'],
-      mainImage: '',
-      gallery: []
-    },
-    {
-      id: 'p2', type: 'Apartamento', name: 'Apartamento moderno en Miramar',
-      address: '5ta Avenida e/ 42 y 44, Miramar, Playa, La Habana',
-      price: 42000,
-      contactName: 'María González', contactTel: '+5352871234',
-      negotiate: false,
-      surfUtil: 75, surfConst: 80, surfTotal: 80,
-      description: 'Apartamento en planta alta, totalmente renovado. Cocina equipada, baño moderno, split de frío/calor. Vista al parque. Tranquilo y seguro.',
-      amenities: ['wifi','placa'],
-      mainImage: '',
-      gallery: []
-    },
-    {
-      id: 'p3', type: 'Finca', name: 'Finca Recreativa en Artemisa',
-      address: 'Carretera de Güira km 14, Artemisa',
-      price: 120000,
-      contactName: 'Roberto Sánchez', contactTel: '+5355901122',
-      negotiate: true,
-      surfUtil: 500, surfConst: 200, surfTotal: 15000,
-      description: 'Finca de 1.5 hectáreas con casa principal de 4 habitaciones, piscina, barbacoa y árboles frutales. Pozo propio, placa solar. Acceso por carretera asfaltada.',
-      amenities: ['garaje','jardin','piscina','barbacoa','cisterna','placa'],
-      mainImage: '',
-      gallery: []
-    },
-    {
-      id: 'p4', type: 'Local', name: 'Local Comercial en Obispo',
-      address: 'Calle Obispo No.408 e/ Compostela y Aguacate, Habana Vieja',
-      price: 55000,
-      contactName: 'Yanet Pérez', contactTel: '+5354003344',
-      negotiate: true,
-      surfUtil: 60, surfConst: 60, surfTotal: 60,
-      description: 'Local de esquina en la calle más transitada de La Habana Vieja. Apto para tienda, restaurante, oficina o galería. Alto flujo turístico.',
-      amenities: ['wifi'],
-      mainImage: '',
-      gallery: []
-    }
-  ];
+  {
+    "id": "p1",
+    "type": "Casa",
+    "name": "Casa Colonial en el Vedado",
+    "address": "Calle 17 No.1205 e/ 20 y 22, Vedado, La Habana",
+    "price": 85000,
+    "docStatus": "Transferible",
+    "contactName": "Alain Rodríguez",
+    "contactTel": "+5353105037",
+    "negotiate": true,
+    "surfUtil": 180,
+    "surfConst": 210,
+    "surfTotal": 300,
+    "rooms": 3,
+    "baths": 2,
+    "comedor": 1,
+    "cocina": 1,
+    "terraza": 1,
+    "portal": 1,
+    "description": "Hermosa casa colonial de dos plantas en el corazón del Vedado. Amplios salones, patio interior con jardín, techos altos y excelente ventilación natural.",
+    "amenities": [
+      "garaje",
+      "jardin",
+      "cisterna"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p2",
+    "type": "Apartamento",
+    "name": "Apartamento moderno en Miramar",
+    "address": "5ta Avenida e/ 42 y 44, Miramar, Playa, La Habana",
+    "price": 42000,
+    "docStatus": "En Trámites",
+    "contactName": "María González",
+    "contactTel": "+5352871234",
+    "negotiate": false,
+    "surfUtil": 75,
+    "surfConst": 80,
+    "surfTotal": 80,
+    "rooms": 2,
+    "baths": 2,
+    "comedor": 1,
+    "cocina": 1,
+    "terraza": 0,
+    "portal": 0,
+    "description": "Apartamento en planta alta totalmente renovado. Cocina equipada, baño moderno, split de frío/calor. Vista al parque.",
+    "amenities": [
+      "wifi",
+      "placa"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p3",
+    "type": "Finca",
+    "name": "Finca Recreativa en Artemisa",
+    "address": "Carretera de Güira km 14, Artemisa",
+    "price": 120000,
+    "docStatus": "Transferible",
+    "contactName": "Roberto Sánchez",
+    "contactTel": "+5355901122",
+    "negotiate": true,
+    "surfUtil": 500,
+    "surfConst": 200,
+    "surfTotal": 15000,
+    "rooms": 4,
+    "baths": 3,
+    "comedor": 2,
+    "cocina": 2,
+    "terraza": 2,
+    "portal": 1,
+    "description": "Finca de 1.5 hectáreas con casa principal, piscina, barbacoa y árboles frutales. Pozo propio y placa solar.",
+    "amenities": [
+      "garaje",
+      "jardin",
+      "piscina",
+      "barbacoa",
+      "cisterna",
+      "placa"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p4",
+    "type": "Local",
+    "name": "Local Comercial en Obispo",
+    "address": "Calle Obispo No.408 e/ Compostela y Aguacate, Habana Vieja",
+    "price": 55000,
+    "docStatus": "Desactualizado",
+    "contactName": "Yanet Pérez",
+    "contactTel": "+5354003344",
+    "negotiate": true,
+    "surfUtil": 60,
+    "surfConst": 60,
+    "surfTotal": 60,
+    "rooms": 0,
+    "baths": 2,
+    "comedor": 0,
+    "cocina": 0,
+    "terraza": 0,
+    "portal": 1,
+    "description": "Local de esquina en la calle más transitada de La Habana Vieja. Apto para tienda, restaurante u oficina.",
+    "amenities": [
+      "wifi",
+      "telefono"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p5",
+    "type": "Casa",
+    "name": "Casa con Jardín en Siboney",
+    "address": "Calle 216 No.3105, Siboney, Playa, La Habana",
+    "price": 210000,
+    "docStatus": "Transferible",
+    "contactName": "Carlos Montoya",
+    "contactTel": "+5358771234",
+    "negotiate": true,
+    "surfUtil": 320,
+    "surfConst": 280,
+    "surfTotal": 600,
+    "rooms": 5,
+    "baths": 3,
+    "comedor": 2,
+    "cocina": 2,
+    "terraza": 3,
+    "portal": 2,
+    "description": "Espectacular residencia en Siboney con jardín amplio, garaje doble y piscina. Acabados de lujo, completamente remodelada.",
+    "amenities": [
+      "garaje",
+      "jardin",
+      "piscina",
+      "barbacoa",
+      "cisterna",
+      "placa",
+      "wifi",
+      "telefono"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p6",
+    "type": "Apartamento",
+    "name": "Penthouse en Vedado",
+    "address": "Calle 23 No.856 e/ 4 y 6, Vedado, La Habana",
+    "price": 98000,
+    "docStatus": "En Trámites",
+    "contactName": "Lidia Fuentes",
+    "contactTel": "+5353440099",
+    "negotiate": false,
+    "surfUtil": 130,
+    "surfConst": 140,
+    "surfTotal": 140,
+    "rooms": 3,
+    "baths": 2,
+    "comedor": 1,
+    "cocina": 1,
+    "terraza": 2,
+    "portal": 0,
+    "description": "Penthouse con vista panorámica al mar. Terraza privada, cocina moderna integrada y dos habitaciones en suite.",
+    "amenities": [
+      "placa",
+      "wifi",
+      "telefono"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p7",
+    "type": "Casa",
+    "name": "Casa en Lawton",
+    "address": "Calle Dolores No.512, Lawton, 10 de Octubre, La Habana",
+    "price": 28000,
+    "docStatus": "Sin Documento",
+    "contactName": "Ernesto Vidal",
+    "contactTel": "+5352119988",
+    "negotiate": true,
+    "surfUtil": 90,
+    "surfConst": 110,
+    "surfTotal": 150,
+    "rooms": 3,
+    "baths": 2,
+    "comedor": 1,
+    "cocina": 1,
+    "terraza": 0,
+    "portal": 1,
+    "description": "Casa de mampostería en buen estado. Patio trasero amplio con posibilidad de ampliación. Cerca de comercios y transporte.",
+    "amenities": [
+      "cisterna",
+      "telefono"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p8",
+    "type": "Local",
+    "name": "Cafetería en Habana del Este",
+    "address": "Ave. 1ra No.4412, Habana del Este, La Habana",
+    "price": 18500,
+    "docStatus": "Transferible",
+    "contactName": "Miriam Castillo",
+    "contactTel": "+5355623311",
+    "negotiate": true,
+    "surfUtil": 45,
+    "surfConst": 45,
+    "surfTotal": 45,
+    "rooms": 0,
+    "baths": 2,
+    "comedor": 2,
+    "cocina": 2,
+    "terraza": 0,
+    "portal": 1,
+    "description": "Local acondicionado como cafetería con barra, cocina equipada y licencia de operación. Zona de alto tránsito.",
+    "amenities": [
+      "wifi",
+      "telefono",
+      "cisterna"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p9",
+    "type": "Finca",
+    "name": "Finca Ganadera en Pinar del Río",
+    "address": "Km 22 Carretera de Viñales, Pinar del Río",
+    "price": 175000,
+    "docStatus": "Desactualizado",
+    "contactName": "Ángel Reyes",
+    "contactTel": "+5358002277",
+    "negotiate": true,
+    "surfUtil": 800,
+    "surfConst": 350,
+    "surfTotal": 50000,
+    "rooms": 4,
+    "baths": 2,
+    "comedor": 2,
+    "cocina": 2,
+    "terraza": 2,
+    "portal": 2,
+    "description": "Finca con 5 hectáreas, casa principal remodelada, casa de aperos, pozo artesiano y río en el lindero.",
+    "amenities": [
+      "garaje",
+      "jardin",
+      "cisterna",
+      "placa",
+      "barbacoa"
+    ],
+    "mainImage": "",
+    "gallery": []
+  },
+  {
+    "id": "p10",
+    "type": "Apartamento",
+    "name": "Apartamento en Nuevo Vedado",
+    "address": "Calle 26 No.360 e/ 35 y 37, Nuevo Vedado, Plaza, La Habana",
+    "price": 36000,
+    "docStatus": "Transferible",
+    "contactName": "Sonia Herrera",
+    "contactTel": "+5354887755",
+    "negotiate": false,
+    "surfUtil": 65,
+    "surfConst": 70,
+    "surfTotal": 70,
+    "rooms": 2,
+    "baths": 2,
+    "comedor": 1,
+    "cocina": 1,
+    "terraza": 0,
+    "portal": 0,
+    "description": "Apartamento en primer piso con acceso fácil. Remodelado totalmente, ventanas de aluminio y rejas de seguridad.",
+    "amenities": [
+      "cisterna",
+      "wifi",
+      "telefono"
+    ],
+    "mainImage": "",
+    "gallery": []
+  }
+];
 }
 
 async function saveData() {
@@ -802,6 +1073,18 @@ async function saveData() {
 }
 
 // ── HELPERS ──
+function docClass(d){
+  const m = {'Transferible':'transferible','Sin Documento':'sindoc','En Trámites':'tramites','Desactualizado':'desactualizado'};
+  return m[d]||'sindoc';
+}
+function docEmoji(d){
+  const m = {'Transferible':'✅','Sin Documento':'❌','En Trámites':'⏳','Desactualizado':'⚠️'};
+  return m[d]||'❓';
+}
+function docBadgeHTML(d){
+  if(!d) return '';
+  return `<span class="doc-badge doc-${docClass(d)}">${docEmoji(d)} ${d}</span>`;
+}
 function fmtPrice(n) {
   if (!n) return '—';
   return '$ ' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -839,6 +1122,7 @@ function getFiltered() {
     if (comFilters.size > 0) {
       for(const k of comFilters){ if(!(p.amenities||[]).includes(k)) return false; }
     }
+    if (docFilters.size > 0 && !docFilters.has(p.docStatus||'')) return false;
     if (q && !p.name.toLowerCase().includes(q) && !(p.address||'').toLowerCase().includes(q) && !(p.description||'').toLowerCase().includes(q)) return false;
     return true;
   });
@@ -886,7 +1170,10 @@ function cardHTML(p) {
       </button>
     </div>
     <div class="card-body">
-      <div class="card-price">${fmtPrice(p.price)}</div>
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
+        <div class="card-price" style="margin-bottom:0">${fmtPrice(p.price)}</div>
+        ${docBadgeHTML(p.docStatus)}
+      </div>
       <div class="card-name">${p.name}</div>
       <div class="card-addr">📍 ${p.address||'—'}</div>
       <div class="card-surfaces">
@@ -960,7 +1247,10 @@ function openDetail(id) {
       ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}">` : `<div class="detail-hero-empty">${typeEmoji(p.type)}</div>`}
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-      <div class="detail-price">${fmtPrice(p.price)}</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div class="detail-price" style="margin-bottom:0">${fmtPrice(p.price)}</div>
+        ${docBadgeHTML(p.docStatus)}
+      </div>
       <span class="card-type-badge type-${typeClass(p.type)}" style="font-size:11px;padding:4px 11px">${typeEmoji(p.type)} ${p.type}</span>
     </div>
     <div class="detail-name">${p.name}</div>
@@ -1100,6 +1390,7 @@ function openFormModal(reset=true) {
     document.getElementById('f-name').value = '';
     document.getElementById('f-addr').value = '';
     document.getElementById('f-price').value = '';
+    document.getElementById('f-docstatus').value = 'Transferible';
     document.getElementById('f-contact-name').value = '';
     document.getElementById('f-contact-tel').value = '';
     document.getElementById('f-negotiate').value = '1';
@@ -1132,6 +1423,7 @@ function startEdit(id) {
   document.getElementById('f-name').value = p.name||'';
   document.getElementById('f-addr').value = p.address||'';
   document.getElementById('f-price').value = p.price||'';
+  document.getElementById('f-docstatus').value = p.docStatus||'Transferible';
   document.getElementById('f-contact-name').value = p.contactName||'';
   document.getElementById('f-contact-tel').value = p.contactTel||'';
   document.getElementById('f-negotiate').value = p.negotiate ? '1' : '0';
@@ -1175,6 +1467,7 @@ async function saveProperty() {
     name,
     address: document.getElementById('f-addr').value.trim(),
     price: Number(document.getElementById('f-price').value)||0,
+    docStatus: document.getElementById('f-docstatus').value||'Transferible',
     contactName: document.getElementById('f-contact-name').value.trim(),
     contactTel: document.getElementById('f-contact-tel').value.trim(),
     negotiate: document.getElementById('f-negotiate').value === '1',
@@ -1459,6 +1752,46 @@ function clearComFilters(){
   updateComBadge(); buildComPanel(); renderProperties();
 }
 
+// ── FILTRO DOCUMENTACIÓN ──
+let docFilters = new Set();
+const DOC_OPTS = [
+  {key:'Transferible',  label:'✅ Transferible'},
+  {key:'En Trámites',   label:'⏳ En Trámites'},
+  {key:'Desactualizado',label:'⚠️ Desactualizado'},
+  {key:'Sin Documento', label:'❌ Sin Documento'},
+];
+
+function buildDocPanel(){
+  const c = document.getElementById('doc-rows-container');
+  if(!c) return;
+  c.innerHTML = DOC_OPTS.map(o => {
+    const sel = docFilters.has(o.key);
+    return `<div class="adv-row" style="flex-direction:row;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0" onclick="toggleDocFilter('${o.key}')">
+      <div class="adv-row-label" style="font-size:11px">${o.label}</div>
+      <div style="width:20px;height:20px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:11px;background:${sel?'var(--accent2)':'transparent'};border-color:${sel?'var(--accent2)':'var(--border)'};color:${sel?'#fff':'transparent'};transition:all .15s">&#x2713;</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDocFilter(key){
+  if(docFilters.has(key)) docFilters.delete(key);
+  else docFilters.add(key);
+  updateDocBadge(); buildDocPanel(); renderProperties();
+}
+
+function clearDocFilters(){
+  docFilters.clear();
+  updateDocBadge(); buildDocPanel(); renderProperties();
+}
+
+function updateDocBadge(){
+  const n = docFilters.size;
+  const badge = document.getElementById('doc-badge');
+  const btn   = document.getElementById('doc-filter-btn');
+  if(badge){ badge.textContent=n; badge.style.display=n>0?'inline-flex':'none'; }
+  if(btn) btn.classList.toggle('active', n>0);
+}
+
 function updateComBadge(){
   const n = comFilters.size;
   const badge = document.getElementById('com-badge');
@@ -1477,13 +1810,14 @@ function updateAdvBadge(){
 
 function toggleAdvPanel(which, e){
   e && e.stopPropagation();
-  const panelId = which==='loc' ? 'adv-panel-loc' : 'adv-panel-com';
+  const panelId = which==='loc' ? 'adv-panel-loc' : which==='doc' ? 'adv-panel-doc' : 'adv-panel-com';
   const panel = document.getElementById(panelId);
   if(!panel) return;
   const opening = !panel.classList.contains('open');
   closeAllAdvPanels();
   if(opening){
     if(which==='loc') buildAdvPanel();
+    else if(which==='doc') buildDocPanel();
     else buildComPanel();
     panel.classList.add('open');
   }
