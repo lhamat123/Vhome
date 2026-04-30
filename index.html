@@ -521,6 +521,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeFormModal()">Cancelar</button>
+      <button class="btn btn-ghost" id="btn-duplicate" onclick="duplicateProperty()" style="display:none">⧉ Duplicar</button>
       <button class="btn btn-primary" onclick="saveProperty()">💾 Guardar</button>
     </div>
   </div>
@@ -563,6 +564,31 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
     <div class="dialog-footer">
       <button class="btn btn-ghost" onclick="closeLogin()">Cancelar</button>
       <button class="btn btn-primary" onclick="doLogin()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DUPLICAR DIALOG ══ -->
+<div class="dialog-overlay" id="dup-overlay" onclick="if(event.target===this)closeDupDialog()">
+  <div class="dialog-box">
+    <div class="dialog-head">
+      <div class="dialog-icon info">⧉</div>
+      <div class="dialog-title">Duplicar propiedad</div>
+    </div>
+    <div class="dialog-body">
+      <p class="dialog-msg">Cambia el nombre y la dirección para la copia. El resto de los datos se mantienen.</p>
+      <div class="form-group">
+        <label class="form-label">Nuevo nombre</label>
+        <input class="form-input" id="dup-name" placeholder="Nombre de la copia" onkeydown="if(event.key==='Enter')document.getElementById('dup-addr').focus()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nueva dirección</label>
+        <input class="form-input" id="dup-addr" placeholder="Dirección" onkeydown="if(event.key==='Enter')confirmDuplicate()">
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn btn-ghost" onclick="closeDupDialog()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmDuplicate()">⧉ Crear copia</button>
     </div>
   </div>
 </div>
@@ -1339,7 +1365,7 @@ function buildRoomBathSelector(init={}){
     const sel = rbState[opt.key] > 0;
     const qty = rbState[opt.key];
     return `<div class="rb-bubble" id="rb-bubble-${opt.key}">
-      <div class="rb-chip ${sel?'selected':''}" onclick="toggleRbChip('${opt.key}',event)">
+      <div class="rb-chip ${sel?'selected':''}" onclick="toggleRbChip('${opt.key}',event)" title="${sel?'Clic para desmarcar':''}">
         ${opt.label}${sel?`<span class="rb-qty">${qty}</span>`:''}
       </div>
       <div class="rb-dropdown ${sel?'open':''}" id="rb-dd-${opt.key}">
@@ -1352,6 +1378,13 @@ function buildRoomBathSelector(init={}){
 
 function toggleRbChip(key, e){
   e.stopPropagation();
+  // Si ya tiene valor y hacen clic en el chip → desmarca directamente
+  if(rbState[key] > 0){
+    rbState[key] = 0;
+    buildRoomBathSelector({...rbState});
+    return;
+  }
+  // Si no tiene valor → abrir dropdown para elegir cantidad
   const dd = document.getElementById('rb-dd-'+key);
   if(!dd) return;
   const isOpen = dd.classList.contains('open');
@@ -1386,6 +1419,7 @@ function openFormModal(reset=true) {
   if (reset) {
     editId = null; curMainImg = ''; curGalleryImgs = [];
     document.getElementById('form-title').textContent = 'Nueva Propiedad';
+    const dupBtn = document.getElementById('btn-duplicate'); if(dupBtn) dupBtn.style.display='none';
     document.getElementById('f-type').value = 'Casa';
     document.getElementById('f-name').value = '';
     document.getElementById('f-addr').value = '';
@@ -1419,6 +1453,7 @@ function startEdit(id) {
   editId = id; curMainImg = p.mainImage||''; curGalleryImgs = [...(p.gallery||[])];
   buildAmenitiesChecks();
   document.getElementById('form-title').textContent = 'Editar Propiedad';
+  const dupBtn = document.getElementById('btn-duplicate'); if(dupBtn) dupBtn.style.display='flex';
   document.getElementById('f-type').value = p.type||'Casa';
   document.getElementById('f-name').value = p.name||'';
   document.getElementById('f-addr').value = p.address||'';
@@ -1455,6 +1490,54 @@ function startEdit(id) {
   renderGalleryPreviews();
 
   openFormModal(false);
+}
+
+function duplicateProperty(){
+  const name = document.getElementById('f-name').value.trim();
+  const addr = document.getElementById('f-addr').value.trim();
+  // Abrir mini-diálogo de confirmación de nombre/dirección
+  document.getElementById('dup-name').value = name + ' (copia)';
+  document.getElementById('dup-addr').value = addr;
+  document.getElementById('dup-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('dup-name').select(),100);
+}
+
+function closeDupDialog(){ document.getElementById('dup-overlay').classList.remove('open'); }
+
+async function confirmDuplicate(){
+  const newName = document.getElementById('dup-name').value.trim();
+  const newAddr = document.getElementById('dup-addr').value.trim();
+  if(!newName){ toast('El nombre es obligatorio','err'); return; }
+  const amenities = [...document.querySelectorAll('#amenities-check-list input:checked')].map(x=>x.value);
+  const obj = {
+    id: 'p' + Date.now(),
+    type: document.getElementById('f-type').value,
+    name: newName,
+    address: newAddr,
+    price: Number(document.getElementById('f-price').value)||0,
+    docStatus: document.getElementById('f-docstatus').value||'Transferible',
+    contactName: document.getElementById('f-contact-name').value.trim(),
+    contactTel: document.getElementById('f-contact-tel').value.trim(),
+    negotiate: document.getElementById('f-negotiate').value === '1',
+    surfUtil: Number(document.getElementById('f-surf-util').value)||0,
+    surfConst: Number(document.getElementById('f-surf-const').value)||0,
+    surfTotal: Number(document.getElementById('f-surf-total').value)||0,
+    rooms: rbState.rooms||0, baths: rbState.baths||0,
+    comedor: rbState.comedor||0, cocina: rbState.cocina||0,
+    terraza: rbState.terraza||0, portal: rbState.portal||0,
+    description: document.getElementById('f-desc').value.trim(),
+    amenities,
+    mainImage: curMainImg,
+    gallery: [...curGalleryImgs],
+  };
+  properties.push(obj);
+  const ok = await saveData();
+  if(ok){
+    toast('⧉ Propiedad duplicada');
+    closeDupDialog(); closeFormModal(); renderProperties();
+  } else {
+    properties.pop();
+  }
 }
 
 async function saveProperty() {
