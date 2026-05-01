@@ -813,6 +813,11 @@ async function loadData() {
     loadDemoData();
   }
   showLoad(false);
+  // Limpiar favoritos que ya no corresponden a propiedades existentes
+  const ids = new Set(properties.map(p=>p.id));
+  const before = favorites.length;
+  favorites = favorites.filter(id => ids.has(id));
+  if(favorites.length !== before) saveFavs();
   renderProperties();
   updateAuthUI();
 }
