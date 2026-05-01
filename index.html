@@ -359,7 +359,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
         <option value="150000-500000">$150k – $500k</option>
         <option value="500000-99999999">Más de $500k</option>
       </select>
-      <button class="fav-filter-btn" id="fav-filter-btn" onclick="toggleFavFilter()" title="Filtrar favoritos" style="padding:6px 10px;font-size:16px;gap:4px">&#x2B50;<span class="fav-badge" id="fav-count">0</span></button>
+      <button class="fav-filter-btn" id="fav-filter-btn" onclick="toggleFavFilter()" title="Filtrar favoritos" style="padding:6px 10px;font-size:16px;gap:4px">&#x2B50;<span class="fav-badge" id="fav-count" style="display:none">0</span></button>
       <div class="adv-wrap" id="adv-wrap-loc">
         <button class="adv-filter-btn" id="adv-filter-btn" onclick="toggleAdvPanel('loc',event)">
           &#x1F3E0; Locales <span class="adv-badge" id="adv-badge" style="display:none">0</span>
@@ -713,9 +713,17 @@ function toggleFavFilter(){
 }
 function updateFavUI(){
   const cnt = document.getElementById('fav-count');
-  if(cnt) cnt.textContent = favorites.length;
+  if(cnt){
+    cnt.textContent = favorites.length;
+    cnt.style.display = favorites.length > 0 ? 'inline-flex' : 'none';
+  }
   const btn = document.getElementById('fav-filter-btn');
-  if(btn) btn.classList.toggle('active', favOnly);
+  if(btn) btn.classList.toggle('active', favOnly && favorites.length > 0);
+  // Si estaba filtrando favoritos y ya no hay ninguno, desactivar filtro
+  if(favorites.length === 0 && favOnly){
+    favOnly = false;
+    renderProperties();
+  }
 }
 
 // ── THEME ──
