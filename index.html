@@ -203,10 +203,22 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 #toast.err{border-color:var(--red);color:var(--red)}
 
 /* ── LIGHTBOX ── */
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;display:none;align-items:center;justify-content:center}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:500;display:none;align-items:center;justify-content:center;overflow:hidden;touch-action:none}
 .lightbox.open{display:flex}
-.lightbox img{max-width:94vw;max-height:92vh;border-radius:10px;object-fit:contain}
-.lightbox-close{position:absolute;top:14px;right:14px;width:36px;height:36px;background:rgba(255,255,255,.12);border:none;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lightbox-canvas{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;touch-action:none}
+.lightbox img{border-radius:10px;object-fit:contain;max-width:94vw;max-height:92vh;transform-origin:center center;transition:none;will-change:transform;user-select:none;-webkit-user-drag:none;cursor:grab;touch-action:none}
+.lightbox img.grabbing{cursor:grabbing}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:#fff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .15s;line-height:1}
+.lightbox-nav:hover{background:rgba(255,255,255,.28)}
+.lb-prev{left:14px}
+.lb-next{right:14px}
+.lightbox-close{position:absolute;top:14px;right:14px;width:36px;height:36px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .15s}
+.lightbox-close:hover{background:rgba(255,255,255,.28)}
+.lightbox-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;pointer-events:none;white-space:nowrap}
+.lightbox-zoom-btns{position:absolute;bottom:14px;right:14px;display:flex;gap:7px;z-index:10}
+.lz-btn{width:34px;height:34px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.lz-btn:hover{background:rgba(255,255,255,.28)}
+.lightbox-counter{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;background:rgba(0,0,0,.3);padding:3px 10px;border-radius:20px}
 
 /* ── IMAGE CROPPER ── */
 .cropper-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:16px}
@@ -594,9 +606,19 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 </div>
 
 <!-- ══ LIGHTBOX ══ -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-canvas" id="lightbox-canvas">
+    <img id="lightbox-img" src="" alt="" ondragstart="return false">
+  </div>
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="" alt="">
+  <button class="lightbox-nav lb-prev" id="lb-prev" onclick="lbNav(-1)" style="display:none">&#x2039;</button>
+  <button class="lightbox-nav lb-next" id="lb-next" onclick="lbNav(1)" style="display:none">&#x203a;</button>
+  <div class="lightbox-counter" id="lightbox-counter" style="display:none"></div>
+  <div class="lightbox-zoom-btns">
+    <button class="lz-btn" onclick="lbZoom(-0.3)" title="Reducir">&#x2212;</button>
+    <button class="lz-btn" onclick="lbZoom(0.3)"  title="Ampliar">&#x2B;</button>
+  </div>
+  <div class="lightbox-hint">Pellizca para zoom &bull; arrastra para mover &bull; doble toque para resetear</div>
 </div>
 
 <!-- ══ CROPPER ══ -->
@@ -1265,12 +1287,14 @@ function openDetail(id) {
   }).join('');
 
   const gallery = (p.gallery||[]).map((img,i) =>
-    `<div class="gallery-thumb" onclick="openLightbox('${img}')"><img src="${img}" alt="Foto ${i+1}"></div>`
+    `<div class="gallery-thumb" onclick="openLightboxGallery(lbImages,${i+1})"><img src="${img}" alt="Foto ${i+1}"></div>`
   ).join('');
 
+  const _allImgs = [p.mainImage,...(p.gallery||[])].filter(Boolean);
+  window.lbImages = _allImgs;
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-hero">
-      ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}">` : `<div class="detail-hero-empty">${typeEmoji(p.type)}</div>`}
+      ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}" style="cursor:zoom-in" onclick="openLightboxGallery(${JSON.stringify([p.mainImage,...(p.gallery||[])])},0)">` : `<div class="detail-hero-empty">${typeEmoji(p.type)}</div>`}
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
       <div style="display:flex;flex-direction:column;gap:5px">
@@ -1339,11 +1363,190 @@ function deleteProperty() {
 function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); }
 
 // ── LIGHTBOX ──
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
+// ── LIGHTBOX con zoom, pan, pinch ──
+let lbScale = 2, lbMinScale = 1, lbMaxScale = 10;
+let lbTx = 0, lbTy = 0;
+let lbDragging = false, lbDragStart = null;
+let lbPinchDist = null;
+let lbGallery = [], lbIdx = 0;
+
+function openLightboxGallery(imgs, idx){
+  lbGallery = (imgs||[]).filter(Boolean);
+  lbIdx = idx || 0;
+  if(!lbGallery.length) return;
+  _lbLoad(lbGallery[lbIdx]);
   document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  _lbUpdateCounter();
 }
-function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+function openLightbox(src){
+  openLightboxGallery([src], 0);
+}
+
+function _lbLoad(src){
+  lbScale = 2; lbTx = 0; lbTy = 0;
+  const img = document.getElementById('lightbox-img');
+  img.style.opacity = '0';
+  img.src = src;
+  img.onload = () => {
+    img.style.transition = 'opacity .18s ease';
+    img.style.opacity = '1';
+    setTimeout(()=>img.style.transition='none', 220);
+  };
+  _lbApply();
+}
+
+function _lbApply(){
+  const img = document.getElementById('lightbox-img');
+  img.style.transform = `translate(${lbTx}px,${lbTy}px) scale(${lbScale})`;
+}
+
+function _lbUpdateCounter(){
+  const el = document.getElementById('lightbox-counter');
+  const prev = document.getElementById('lb-prev');
+  const next = document.getElementById('lb-next');
+  if(!el) return;
+  if(lbGallery.length > 1){
+    el.style.display = 'block';
+    el.textContent = (lbIdx+1) + ' / ' + lbGallery.length;
+    if(prev) prev.style.display = 'flex';
+    if(next) next.style.display = 'flex';
+  } else {
+    el.style.display = 'none';
+    if(prev) prev.style.display = 'none';
+    if(next) next.style.display = 'none';
+  }
+}
+
+function lbNav(dir){
+  if(!lbGallery.length) return;
+  lbIdx = (lbIdx + dir + lbGallery.length) % lbGallery.length;
+  _lbLoad(lbGallery[lbIdx]); _lbUpdateCounter();
+}
+
+function lbZoom(delta){
+  lbScale = Math.min(lbMaxScale, Math.max(lbMinScale, lbScale + delta));
+  _lbApply();
+}
+
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+  lbGallery = []; lbIdx = 0;
+}
+
+// ── Lightbox events ──
+(function(){
+  const lb = () => document.getElementById('lightbox');
+  const img = () => document.getElementById('lightbox-img');
+
+  // Cerrar al clic en fondo (no en imagen)
+  document.addEventListener('click', e => {
+    const lbEl = document.getElementById('lightbox');
+    if(!lbEl || !lbEl.classList.contains('open')) return;
+    if(e.target === lbEl || e.target.id === 'lightbox-canvas') closeLightbox();
+  });
+
+  // Rueda de ratón para zoom
+  document.addEventListener('wheel', e => {
+    if(!lb() || !lb().classList.contains('open')) return;
+    e.preventDefault();
+    lbZoom(e.deltaY < 0 ? 0.2 : -0.2);
+  }, {passive:false});
+
+  // Doble clic / doble toque → resetear zoom
+  let lbLastTap = 0;
+  document.addEventListener('dblclick', e => {
+    if(!lb() || !lb().classList.contains('open')) return;
+    lbScale = 2; lbTx = 0; lbTy = 0; _lbApply();
+  });
+
+  // Arrastrar con mouse
+  document.addEventListener('mousedown', e => {
+    if(!lb() || !lb().classList.contains('open')) return;
+    if(e.target.closest('.lightbox-close') || e.target.closest('.lightbox-zoom-btns')) return;
+    lbDragging = true;
+    lbDragStart = {x: e.clientX - lbTx, y: e.clientY - lbTy};
+    img() && img().classList.add('grabbing');
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if(!lbDragging || !lbDragStart) return;
+    lbTx = e.clientX - lbDragStart.x;
+    lbTy = e.clientY - lbDragStart.y;
+    _lbApply();
+  });
+  document.addEventListener('mouseup', () => {
+    lbDragging = false; lbDragStart = null;
+    const i = document.getElementById('lightbox-img');
+    if(i) i.classList.remove('grabbing');
+  });
+
+  // Touch: pan + pinch
+  document.addEventListener('touchstart', e => {
+    if(!lb() || !lb().classList.contains('open')) return;
+    if(e.target.closest('.lightbox-close') || e.target.closest('.lightbox-zoom-btns')) return;
+
+    // Doble tap
+    const now = Date.now();
+    if(now - lbLastTap < 300){
+      lbScale = 2; lbTx = 0; lbTy = 0; _lbApply();
+      lbLastTap = 0; return;
+    }
+    lbLastTap = now;
+
+    if(e.touches.length === 1){
+      lbDragging = true;
+      lbDragStart = {x: e.touches[0].clientX - lbTx, y: e.touches[0].clientY - lbTy};
+    } else if(e.touches.length === 2){
+      lbDragging = false;
+      lbPinchDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+    e.preventDefault();
+  }, {passive:false});
+
+  document.addEventListener('touchmove', e => {
+    if(!lb() || !lb().classList.contains('open')) return;
+    if(e.touches.length === 1 && lbDragging && lbDragStart){
+      lbTx = e.touches[0].clientX - lbDragStart.x;
+      lbTy = e.touches[0].clientY - lbDragStart.y;
+      _lbApply();
+    } else if(e.touches.length === 2 && lbPinchDist !== null){
+      const newDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const delta = (newDist - lbPinchDist) * 0.02;
+      lbScale = Math.min(lbMaxScale, Math.max(lbMinScale, lbScale + delta));
+      lbPinchDist = newDist;
+      _lbApply();
+    }
+    e.preventDefault();
+  }, {passive:false});
+
+  document.addEventListener('touchend', e => {
+    if(e.touches.length < 2) lbPinchDist = null;
+    if(e.touches.length === 0){ lbDragging = false; lbDragStart = null; }
+  });
+
+  // Teclado: Escape, flechas para galería
+  document.addEventListener('keydown', e => {
+    if(!lb() || !lb().classList.contains('open')) return;
+    if(e.key === 'Escape') closeLightbox();
+    if(e.key === 'ArrowRight' && lbGallery.length > 1){
+      lbIdx = (lbIdx+1) % lbGallery.length;
+      _lbLoad(lbGallery[lbIdx]); _lbUpdateCounter();
+    }
+    if(e.key === 'ArrowLeft' && lbGallery.length > 1){
+      lbIdx = (lbIdx-1+lbGallery.length) % lbGallery.length;
+      _lbLoad(lbGallery[lbIdx]); _lbUpdateCounter();
+    }
+  });
+})();
 
 // ── FORM MODAL ──
 // ── ROOMS / BATHS SELECTOR ──
