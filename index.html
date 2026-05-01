@@ -270,6 +270,25 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .fav-filter-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
 .fav-filter-btn.active{background:rgba(255,215,64,.12);border-color:rgba(255,215,64,.4);color:var(--yellow)}
 .fav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:var(--yellow);color:#000;border-radius:999px;font-size:9px;font-weight:700;font-family:'Syne',sans-serif}
+.price-panel-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.price-panel-btn:hover{color:var(--text);border-color:var(--text2)}
+.price-panel-btn.active{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.4);color:var(--accent)}
+.price-panel{position:absolute;top:calc(100% + 8px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;z-index:100;display:none;flex-direction:column;gap:12px;min-width:240px;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:su .18s ease}
+.price-panel.open{display:flex}
+.price-panel-section{display:flex;flex-direction:column;gap:7px}
+.price-panel-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);font-family:'Syne',sans-serif;font-weight:700}
+.price-panel-divider{border:none;border-top:1px solid var(--border);margin:2px 0}
+.price-quick-btns{display:flex;flex-wrap:wrap;gap:5px}
+.price-quick-btn{padding:4px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--text2);transition:all .12s;white-space:nowrap}
+.price-quick-btn:hover{border-color:var(--accent);color:var(--accent)}
+.price-quick-btn.sel{background:rgba(0,229,255,.12);border-color:var(--accent);color:var(--accent);font-weight:600}
+.price-input-row{display:flex;align-items:center;gap:7px}
+.price-input-row span{font-size:11px;color:var(--text2);white-space:nowrap}
+.price-input{padding:6px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;width:100%;transition:border-color .15s}
+.price-input:focus{border-color:var(--accent)}
+.price-clear{font-size:10px;color:var(--red);cursor:pointer;text-align:right;font-family:'DM Mono',monospace}
+.price-clear:hover{text-decoration:underline}
+.price-wrap{position:relative}
 .adv-filter-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
 .adv-filter-btn:hover{color:var(--text);border-color:var(--text2)}
 .adv-filter-btn.active{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.4);color:var(--accent)}
@@ -350,13 +369,31 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
         <option value="">Todos los tipos</option>
         <option>Casa</option><option>Apartamento</option><option>Finca</option><option>Local</option>
       </select>
-      <select class="fsel" id="price-filter" onchange="renderProperties()">
-        <option value="">Cualquier precio</option>
-        <option value="0-50000">Hasta $50k</option>
-        <option value="50000-150000">$50k – $150k</option>
-        <option value="150000-500000">$150k – $500k</option>
-        <option value="500000-99999999">Más de $500k</option>
-      </select>
+      <div class="price-wrap">
+        <button class="price-panel-btn" id="price-panel-btn" onclick="togglePricePanel(event)">
+          &#x1F4B2; Precio <span class="adv-badge" id="price-badge" style="display:none">&#x2713;</span>
+        </button>
+        <div class="price-panel" id="price-panel">
+          <div class="price-panel-section">
+            <div class="price-panel-label">Mayor de ($)</div>
+            <div class="price-quick-btns" id="gte-quick"></div>
+            <div class="price-input-row">
+              <span>$</span>
+              <input class="price-input" type="number" id="price-gte" placeholder="Valor mínimo" oninput="onPriceInput()" min="0">
+            </div>
+          </div>
+          <hr class="price-panel-divider">
+          <div class="price-panel-section">
+            <div class="price-panel-label">Menor de ($)</div>
+            <div class="price-quick-btns" id="lte-quick"></div>
+            <div class="price-input-row">
+              <span>$</span>
+              <input class="price-input" type="number" id="price-lte" placeholder="Valor máximo" oninput="onPriceInput()" min="0">
+            </div>
+          </div>
+          <div class="price-clear" onclick="clearPriceFilter()">&#x2715; Limpiar precio</div>
+        </div>
+      </div>
       <button class="fav-filter-btn" id="fav-filter-btn" onclick="toggleFavFilter()" title="Filtrar favoritos" style="padding:6px 10px;font-size:16px;gap:4px">&#x2B50;<span class="fav-badge" id="fav-count" style="display:none">0</span></button>
       <div class="adv-wrap" id="adv-wrap-loc">
         <button class="adv-filter-btn" id="adv-filter-btn" onclick="toggleAdvPanel('loc',event)">
@@ -1164,14 +1201,11 @@ function typeEmoji(t) {
 function getFiltered() {
   const q  = document.getElementById('search-input').value.toLowerCase();
   const tp = document.getElementById('type-filter').value;
-  const pr = document.getElementById('price-filter').value;
   const so = document.getElementById('sort-filter').value;
   let list = properties.filter(p => {
     if (tp && p.type !== tp) return false;
-    if (pr) {
-      const [mn,mx] = pr.split('-').map(Number);
-      if (p.price < mn || p.price > mx) return false;
-    }
+    if (priceGte !== null && (p.price||0) < priceGte) return false;
+    if (priceLte !== null && (p.price||0) > priceLte) return false;
     for(const [key,f] of Object.entries(advFilters)){
       const v = p[key]||0;
       if(f.dir==='gte' && v < f.val) return false;
@@ -1977,6 +2011,79 @@ function updateQualityLabel() {
 })();
 
 // ── INIT ──
+// ── FILTRO PRECIO ──
+const PRICE_QUICK = [6000, 12000, 30000, 50000];
+let priceGte = null, priceLte = null;
+
+function buildPriceQuickBtns(){
+  const gteC = document.getElementById('gte-quick');
+  const lteC = document.getElementById('lte-quick');
+  if(!gteC || !lteC) return;
+  gteC.innerHTML = PRICE_QUICK.map(v => {
+    const sel = priceGte === v;
+    return `<span class="price-quick-btn${sel?' sel':''}" onclick="setPriceGte(${v},event)">$${v.toLocaleString()}</span>`;
+  }).join('');
+  lteC.innerHTML = PRICE_QUICK.map(v => {
+    const sel = priceLte === v;
+    return `<span class="price-quick-btn${sel?' sel':''}" onclick="setPriceLte(${v},event)">$${v.toLocaleString()}</span>`;
+  }).join('');
+}
+
+function setPriceGte(val, e){
+  e && e.stopPropagation();
+  priceGte = (priceGte === val) ? null : val;
+  const inp = document.getElementById('price-gte');
+  if(inp) inp.value = priceGte !== null ? priceGte : '';
+  buildPriceQuickBtns(); updatePriceBadge(); renderProperties();
+}
+
+function setPriceLte(val, e){
+  e && e.stopPropagation();
+  priceLte = (priceLte === val) ? null : val;
+  const inp = document.getElementById('price-lte');
+  if(inp) inp.value = priceLte !== null ? priceLte : '';
+  buildPriceQuickBtns(); updatePriceBadge(); renderProperties();
+}
+
+function onPriceInput(){
+  const gv = document.getElementById('price-gte').value;
+  const lv = document.getElementById('price-lte').value;
+  priceGte = gv !== '' ? Number(gv) : null;
+  priceLte = lv !== '' ? Number(lv) : null;
+  buildPriceQuickBtns(); updatePriceBadge(); renderProperties();
+}
+
+function clearPriceFilter(){
+  priceGte = null; priceLte = null;
+  const gi = document.getElementById('price-gte');
+  const li = document.getElementById('price-lte');
+  if(gi) gi.value = ''; if(li) li.value = '';
+  buildPriceQuickBtns(); updatePriceBadge(); renderProperties();
+}
+
+function updatePriceBadge(){
+  const badge = document.getElementById('price-badge');
+  const btn   = document.getElementById('price-panel-btn');
+  const active = priceGte !== null || priceLte !== null;
+  if(badge) badge.style.display = active ? 'inline-flex' : 'none';
+  if(btn)   btn.classList.toggle('active', active);
+}
+
+function togglePricePanel(e){
+  e && e.stopPropagation();
+  const panel = document.getElementById('price-panel');
+  if(!panel) return;
+  const opening = !panel.classList.contains('open');
+  closeAllAdvPanels();
+  document.getElementById('price-panel')?.classList.remove('open');
+  if(opening){ buildPriceQuickBtns(); panel.classList.add('open'); }
+}
+
+function closePricePanel(){
+  const p = document.getElementById('price-panel');
+  if(p) p.classList.remove('open');
+}
+
 // ── FILTROS AVANZADOS ──
 const ADV_FIELDS = [
   { key:'rooms',   label:'&#x1F6CC; Dormitorios',      max:10 },
@@ -2129,6 +2236,7 @@ function closeAdvPanel(){ closeAllAdvPanels(); }
 // ── LISTENER GLOBAL ÚNICO ──
 document.addEventListener('click', function(e){
   if(!e.target.closest('.adv-wrap')) closeAllAdvPanels();
+  if(!e.target.closest('.price-wrap')) closePricePanel();
   if(!e.target.closest('.rb-bubble')) closeAllRbDropdowns();
 });
 
