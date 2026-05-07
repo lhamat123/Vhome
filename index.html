@@ -319,6 +319,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 [data-theme=beige] .doc-sindoc{background:rgba(180,40,40,.1);color:#8b1a1a;border-color:rgba(180,40,40,.3)}
 [data-theme=beige] .doc-tramites{background:rgba(140,100,0,.1);color:#5c4000;border-color:rgba(140,100,0,.3)}
 [data-theme=beige] .doc-desactualizado{background:rgba(100,40,160,.1);color:#4a0e7a;border-color:rgba(100,40,160,.3)}
+.qr-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
+.qr-modal-overlay.open{display:flex}
+.qr-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;width:100%;animation:su .22s ease}
+.qr-modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;text-align:center;line-height:1.4}
+.qr-canvas-wrap{background:#fff;border-radius:10px;padding:12px}
+.qr-url-box{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;width:100%}
+.qr-url-text{font-family:'DM Mono',monospace;font-size:9px;color:var(--text2);flex:1;word-break:break-all;line-height:1.4}
+.qr-copy-btn{padding:5px 10px;background:var(--accent);color:#000;border:none;border-radius:6px;font-family:'Syne',sans-serif;font-weight:700;font-size:10px;cursor:pointer;flex-shrink:0;transition:transform .15s}
+.qr-copy-btn:hover{transform:scale(1.05)}
+.qr-close-btn{padding:8px 24px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;color:var(--text)}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--sb);border-radius:10px}
@@ -458,6 +468,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
     <div class="modal-body" id="detail-body"></div>
     <div class="modal-footer" id="detail-footer">
       <button class="btn btn-danger" id="detail-delete-btn" style="margin-right:auto;display:none" onclick="deleteProperty()">🗑 Eliminar</button>
+      <button class="btn btn-ghost" onclick="showQR(viewingId)">&#x1F4F1; QR</button>
       <button class="btn btn-ghost" onclick="closeDetail()">Cerrar</button>
       <button class="btn btn-primary" id="detail-edit-btn" style="display:none" onclick="editCurrent()">✏️ Editar</button>
     </div>
@@ -489,6 +500,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
           <select class="form-select" id="f-type">
             <option>Casa</option><option>Apartamento</option><option>Finca</option><option>Local</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Código ﹡</label>
+          <input class="form-input" id="f-code" placeholder="Ej: VH-001, CASA-VEDADO…" style="font-family:'Syne',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase">
+          <span style="font-size:9px;color:var(--text2)">Único e irrepetible — se usa en el QR y el enlace directo</span>
         </div>
         <div class="form-group">
           <label class="form-label">Nombre / Título</label>
@@ -687,7 +703,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 //  CONFIGURACIÓN
 // ══════════════════════════════════════════════════
 const GH_USER  = 'lhamat123';     // ← tu usuario GitHub
-const GH_REPO  = 'Vhome';      // ← nombre del repo
+const GH_REPO  = 'Vhome';
+const BASE_URL = `https://${GH_USER}.github.io/${GH_REPO}`;      // ← nombre del repo
 const GH_FILE  = 'data.json';
 const APP_PASS = 'Vhome2025';      // ← cambia esta contraseña
 // ══════════════════════════════════════════════════
@@ -861,6 +878,7 @@ function loadDemoData() {
   properties = [
   {
     "id": "p1",
+      "code": "VH-001",
     "type": "Casa",
     "name": "Casa Colonial en el Vedado",
     "address": "Calle 17 No.1205 e/ 20 y 22, Vedado, La Habana",
@@ -889,6 +907,7 @@ function loadDemoData() {
   },
   {
     "id": "p2",
+      "code": "VH-002",
     "type": "Apartamento",
     "name": "Apartamento moderno en Miramar",
     "address": "5ta Avenida e/ 42 y 44, Miramar, Playa, La Habana",
@@ -916,6 +935,7 @@ function loadDemoData() {
   },
   {
     "id": "p3",
+      "code": "VH-003",
     "type": "Finca",
     "name": "Finca Recreativa en Artemisa",
     "address": "Carretera de Güira km 14, Artemisa",
@@ -947,6 +967,7 @@ function loadDemoData() {
   },
   {
     "id": "p4",
+      "code": "VH-004",
     "type": "Local",
     "name": "Local Comercial en Obispo",
     "address": "Calle Obispo No.408 e/ Compostela y Aguacate, Habana Vieja",
@@ -974,6 +995,7 @@ function loadDemoData() {
   },
   {
     "id": "p5",
+      "code": "VH-005",
     "type": "Casa",
     "name": "Casa con Jardín en Siboney",
     "address": "Calle 216 No.3105, Siboney, Playa, La Habana",
@@ -1007,6 +1029,7 @@ function loadDemoData() {
   },
   {
     "id": "p6",
+      "code": "VH-006",
     "type": "Apartamento",
     "name": "Penthouse en Vedado",
     "address": "Calle 23 No.856 e/ 4 y 6, Vedado, La Habana",
@@ -1035,6 +1058,7 @@ function loadDemoData() {
   },
   {
     "id": "p7",
+      "code": "VH-007",
     "type": "Casa",
     "name": "Casa en Lawton",
     "address": "Calle Dolores No.512, Lawton, 10 de Octubre, La Habana",
@@ -1062,6 +1086,7 @@ function loadDemoData() {
   },
   {
     "id": "p8",
+      "code": "VH-008",
     "type": "Local",
     "name": "Cafetería en Habana del Este",
     "address": "Ave. 1ra No.4412, Habana del Este, La Habana",
@@ -1090,6 +1115,7 @@ function loadDemoData() {
   },
   {
     "id": "p9",
+      "code": "VH-009",
     "type": "Finca",
     "name": "Finca Ganadera en Pinar del Río",
     "address": "Km 22 Carretera de Viñales, Pinar del Río",
@@ -1120,6 +1146,7 @@ function loadDemoData() {
   },
   {
     "id": "p10",
+      "code": "VH-010",
     "type": "Apartamento",
     "name": "Apartamento en Nuevo Vedado",
     "address": "Calle 26 No.360 e/ 35 y 37, Nuevo Vedado, Plaza, La Habana",
@@ -1263,6 +1290,7 @@ function cardHTML(p) {
       </button>
     </div>
     <div class="card-body">
+      ${p.code?`<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:9px;letter-spacing:1.5px;color:var(--text2);margin-bottom:2px">${p.code}</div>`:''}
       <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
         <div class="card-price" style="margin-bottom:0">${fmtPrice(p.price)}</div>
         ${docBadgeHTML(p.docStatus)}
@@ -1349,6 +1377,7 @@ function openDetail(id) {
       <span class="card-type-badge type-${typeClass(p.type)}" style="font-size:11px;padding:4px 11px">${typeEmoji(p.type)} ${p.type}</span>
     </div>
     <div class="detail-name">${p.name}</div>
+    ${p.code?`<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:6px">&#x1F4CB; ${p.code}</div>`:''}
     <div class="detail-addr">📍 ${p.address||'—'}</div>
     ${p.address ? `<a href="${mapsUrl(p.address)}" target="_blank" class="maps-link" style="margin-bottom:14px;display:inline-flex">🗺 Ver en Google Maps</a>` : ''}
 
@@ -1669,6 +1698,8 @@ function openFormModal(reset=true) {
     document.getElementById('form-title').textContent = 'Nueva Propiedad';
     const dupBtn = document.getElementById('btn-duplicate'); if(dupBtn) dupBtn.style.display='none';
     document.getElementById('f-type').value = 'Casa';
+    const ci = document.getElementById('f-code');
+    ci.value = ''; ci.readOnly = false; ci.style.opacity = '1'; ci.title = '';
     document.getElementById('f-name').value = '';
     document.getElementById('f-addr').value = '';
     document.getElementById('f-price').value = '';
@@ -1703,6 +1734,11 @@ function startEdit(id) {
   document.getElementById('form-title').textContent = 'Editar Propiedad';
   const dupBtn = document.getElementById('btn-duplicate'); if(dupBtn) dupBtn.style.display='flex';
   document.getElementById('f-type').value = p.type||'Casa';
+  const codeInp = document.getElementById('f-code');
+  codeInp.value = p.code||p.id||'';
+  codeInp.readOnly = true;
+  codeInp.style.opacity = '0.6';
+  codeInp.title = 'El código no se puede cambiar una vez creada la propiedad';
   document.getElementById('f-name').value = p.name||'';
   document.getElementById('f-addr').value = p.address||'';
   document.getElementById('f-price').value = p.price||'';
@@ -1758,7 +1794,8 @@ async function confirmDuplicate(){
   if(!newName){ toast('El nombre es obligatorio','err'); return; }
   const amenities = [...document.querySelectorAll('#amenities-check-list input:checked')].map(x=>x.value);
   const obj = {
-    id: 'p' + Date.now(),
+    id: ('DUP-' + Date.now()),
+    code: 'DUP-' + Date.now(),
     type: document.getElementById('f-type').value,
     name: newName,
     address: newAddr,
@@ -1790,10 +1827,16 @@ async function confirmDuplicate(){
 
 async function saveProperty() {
   const name = document.getElementById('f-name').value.trim();
+  const rawCode = document.getElementById('f-code').value.trim().toUpperCase().replace(/\s+/g,'-');
   if (!name) { toast('El nombre es obligatorio', 'err'); return; }
+  if (!rawCode) { toast('El código es obligatorio', 'err'); return; }
+  // Verificar que el código no esté en uso por otra propiedad
+  const duplicate = properties.find(p => p.code === rawCode && p.id !== editId);
+  if (duplicate) { toast('Ese código ya existe: ' + duplicate.name, 'err'); return; }
   const amenities = [...document.querySelectorAll('#amenities-check-list input:checked')].map(x=>x.value);
   const obj = {
-    id: editId || ('p' + Date.now()),
+    id: editId || rawCode,
+    code: rawCode,
     type: document.getElementById('f-type').value,
     name,
     address: document.getElementById('f-addr').value.trim(),
@@ -2233,6 +2276,63 @@ function closeAllAdvPanels(){
 
 function closeAdvPanel(){ closeAllAdvPanels(); }
 
+// ── QR CODE ──
+let qrCurrentUrl = '', qrLibLoaded = false;
+
+function showQR(propId){
+  const p = properties.find(x=>x.id===propId);
+  if(!p) return;
+  const url = BASE_URL + '?p=' + propId;
+  qrCurrentUrl = url;
+  document.getElementById('qr-title').textContent = p.name;
+  document.getElementById('qr-url-text').textContent = url;
+  generateQR(url);
+  document.getElementById('qr-overlay').classList.add('open');
+}
+
+function closeQR(){ document.getElementById('qr-overlay').classList.remove('open'); }
+
+function copyQRUrl(){
+  navigator.clipboard.writeText(qrCurrentUrl)
+    .then(()=>toast('Enlace copiado'))
+    .catch(()=>{ const t=document.createElement('textarea');t.value=qrCurrentUrl;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);toast('Enlace copiado'); });
+}
+
+function generateQR(text){
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,200,200);
+  ctx.fillStyle='#aaa'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Generando...', 100, 100);
+  if(!qrLibLoaded){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload=()=>{ qrLibLoaded=true; _renderQR(text, canvas); };
+    document.head.appendChild(s);
+  } else { _renderQR(text, canvas); }
+}
+
+function _renderQR(text, canvas){
+  const tmp=document.createElement('div'); tmp.style.display='none'; document.body.appendChild(tmp);
+  try {
+    new QRCode(tmp,{text,width:200,height:200,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+    setTimeout(()=>{
+      const el=tmp.querySelector('canvas')||tmp.querySelector('img');
+      if(el){
+        const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,200,200);
+        if(el.tagName==='CANVAS'){ ctx.drawImage(el,0,0,200,200); }
+        else { const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0,200,200); i.src=el.src; }
+      }
+      document.body.removeChild(tmp);
+    },150);
+  } catch(e){ document.body.removeChild(tmp); }
+}
+
+function checkDeepLink(){
+  const pid=new URLSearchParams(window.location.search).get('p');
+  if(pid && properties.find(x=>x.id===pid)) setTimeout(()=>openDetail(pid),300);
+}
+
 // ── LISTENER GLOBAL ÚNICO ──
 document.addEventListener('click', function(e){
   if(!e.target.closest('.adv-wrap')) closeAllAdvPanels();
@@ -2243,6 +2343,21 @@ document.addEventListener('click', function(e){
 loadData();
 updateAuthUI();
 updateFavUI();
+setTimeout(checkDeepLink,800);
 </script>
+
+<!-- ══ QR MODAL ══ -->
+<div class="qr-modal-overlay" id="qr-overlay" onclick="if(event.target===this)closeQR()">
+  <div class="qr-modal">
+    <div class="qr-modal-title" id="qr-title"></div>
+    <div class="qr-canvas-wrap"><canvas id="qr-canvas" width="200" height="200"></canvas></div>
+    <div class="qr-url-box">
+      <div class="qr-url-text" id="qr-url-text"></div>
+      <button class="qr-copy-btn" onclick="copyQRUrl()">Copiar</button>
+    </div>
+    <p style="font-size:10px;color:var(--text2);text-align:center;margin:0">Escanea para abrir esta propiedad</p>
+    <button class="qr-close-btn" onclick="closeQR()">Cerrar</button>
+  </div>
+</div>
 </body>
 </html>
