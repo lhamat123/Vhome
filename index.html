@@ -56,6 +56,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .properties-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .prop-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
 .prop-card:hover{border-color:rgba(0,229,255,.4);box-shadow:var(--card-shadow);transform:translateY(-2px)}
+.card-qr-strip{display:flex;align-items:center;gap:10px;padding:9px 14px 10px;border-top:1px solid var(--border);background:var(--surface2)}
+.card-qr-canvas{border-radius:5px;background:#fff;display:block;flex-shrink:0}
+.card-qr-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.card-qr-code{font-family:'Syne',sans-serif;font-weight:800;font-size:11px;letter-spacing:1px;color:var(--text)}
+.card-qr-hint{font-size:9px;color:var(--text2);line-height:1.4}
+.card-qr-copy{font-size:9px;color:var(--accent);cursor:pointer;background:none;border:none;padding:0;font-family:'DM Mono',monospace;text-align:left;margin-top:2px}
+.card-qr-copy:hover{text-decoration:underline}
 .card-image{position:relative;height:190px;background:var(--surface2);overflow:hidden}
 .card-image img{width:100%;height:100%;object-fit:cover}
 .no-img{display:flex;align-items:center;justify-content:center;height:100%;font-size:48px;opacity:.3}
@@ -1265,6 +1272,7 @@ function renderProperties() {
   }
   if (curView === 'grid') {
     area.innerHTML = `<div class="properties-grid">${list.map(cardHTML).join('')}</div>`;
+    requestAnimationFrame(()=>renderCardQRs(list));
   } else {
     area.innerHTML = `
       <div class="list-header">
@@ -1317,6 +1325,14 @@ function cardHTML(p) {
         <div class="card-actions">
           ${editBtn}
         </div>
+      </div>
+    </div>
+    <div class="card-qr-strip" onclick="event.stopPropagation()">
+      <canvas class="card-qr-canvas" id="qrc-${p.id}" width="60" height="60"></canvas>
+      <div class="card-qr-info">
+        <div class="card-qr-code">${p.code||p.id}</div>
+        <div class="card-qr-hint">Escanea para ver<br>esta propiedad</div>
+        <button class="card-qr-copy" onclick="copyCardUrl('${p.id}')">Copiar enlace</button>
       </div>
     </div>
   </div>`;
@@ -2275,6 +2291,42 @@ function closeAllAdvPanels(){
 }
 
 function closeAdvPanel(){ closeAllAdvPanels(); }
+
+// ── QR TARJETAS ──
+function renderCardQRs(list){
+  if(!qrLibLoaded){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload=()=>{ qrLibLoaded=true; _drawCardQRs(list); };
+    document.head.appendChild(s);
+  } else { _drawCardQRs(list); }
+}
+function _drawCardQRs(list){
+  list.forEach(p=>{
+    const canvas=document.getElementById('qrc-'+p.id);
+    if(!canvas) return;
+    const url=BASE_URL+'?p='+p.id;
+    const tmp=document.createElement('div'); tmp.style.display='none'; document.body.appendChild(tmp);
+    try {
+      new QRCode(tmp,{text:url,width:60,height:60,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+      setTimeout(()=>{
+        const el=tmp.querySelector('canvas')||tmp.querySelector('img');
+        if(el){
+          const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,60,60);
+          if(el.tagName==='CANVAS'){ ctx.drawImage(el,0,0,60,60); }
+          else { const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0,60,60); i.src=el.src; }
+        }
+        if(document.body.contains(tmp)) document.body.removeChild(tmp);
+      },100);
+    } catch(e){ if(document.body.contains(tmp)) document.body.removeChild(tmp); }
+  });
+}
+function copyCardUrl(id){
+  const url=BASE_URL+'?p='+id;
+  navigator.clipboard.writeText(url)
+    .then(()=>toast('Enlace copiado'))
+    .catch(()=>{ const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);toast('Enlace copiado'); });
+}
 
 // ── QR CODE ──
 let qrCurrentUrl = '', qrLibLoaded = false;
