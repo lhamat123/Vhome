@@ -56,13 +56,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .properties-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .prop-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
 .prop-card:hover{border-color:rgba(0,229,255,.4);box-shadow:var(--card-shadow);transform:translateY(-2px)}
-.card-qr-strip{display:flex;align-items:center;gap:10px;padding:9px 14px 10px;border-top:1px solid var(--border);background:var(--surface2)}
-.card-qr-canvas{border-radius:5px;background:#fff;display:block;flex-shrink:0}
-.card-qr-info{display:flex;flex-direction:column;gap:2px;min-width:0}
-.card-qr-code{font-family:'Syne',sans-serif;font-weight:800;font-size:11px;letter-spacing:1px;color:var(--text)}
-.card-qr-hint{font-size:9px;color:var(--text2);line-height:1.4}
-.card-qr-copy{font-size:9px;color:var(--accent);cursor:pointer;background:none;border:none;padding:0;font-family:'DM Mono',monospace;text-align:left;margin-top:2px}
-.card-qr-copy:hover{text-decoration:underline}
+
+
+
+
+
+
+
 .card-image{position:relative;height:190px;background:var(--surface2);overflow:hidden}
 .card-image img{width:100%;height:100%;object-fit:cover}
 .no-img{display:flex;align-items:center;justify-content:center;height:100%;font-size:48px;opacity:.3}
@@ -879,6 +879,7 @@ async function loadData() {
   if(favorites.length !== before) saveFavs();
   renderProperties();
   updateAuthUI();
+  checkDeepLink();
 }
 
 function loadDemoData() {
@@ -1272,7 +1273,6 @@ function renderProperties() {
   }
   if (curView === 'grid') {
     area.innerHTML = `<div class="properties-grid">${list.map(cardHTML).join('')}</div>`;
-    requestAnimationFrame(()=>renderCardQRs(list));
   } else {
     area.innerHTML = `
       <div class="list-header">
@@ -1325,14 +1325,6 @@ function cardHTML(p) {
         <div class="card-actions">
           ${editBtn}
         </div>
-      </div>
-    </div>
-    <div class="card-qr-strip" onclick="event.stopPropagation()">
-      <canvas class="card-qr-canvas" id="qrc-${p.id}" width="60" height="60"></canvas>
-      <div class="card-qr-info">
-        <div class="card-qr-code">${p.code||p.id}</div>
-        <div class="card-qr-hint">Escanea para ver<br>esta propiedad</div>
-        <button class="card-qr-copy" onclick="copyCardUrl('${p.id}')">Copiar enlace</button>
       </div>
     </div>
   </div>`;
@@ -1424,10 +1416,25 @@ function openDetail(id) {
     ${amen ? `<div class="detail-section-title">Características</div><div class="amenities-bubbles">${amen}</div>` : ''}
 
     ${gallery ? `<div class="detail-section-title">Galería de fotos y planos</div><div class="gallery-grid">${gallery}</div>` : ''}
+  <div class="detail-section-title" style="margin-top:16px">Código QR de acceso directo</div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;background:var(--surface2);border-radius:12px;border:1px solid var(--border)">
+    <div style="background:#fff;border-radius:10px;padding:12px;display:inline-block" id="detail-qr-wrap">
+      <canvas id="detail-qr-canvas" width="220" height="220"></canvas>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.5px;color:var(--text)">${p.code||p.id}</div>
+    <div style="font-size:10px;color:var(--text2);text-align:center;line-height:1.5">Escanea para abrir esta propiedad directamente</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="font-size:11px;padding:6px 14px" onclick="copyDetailUrl('${p.id}')">Copiar enlace</button>
+    </div>
+  </div>
   `;
 
   document.getElementById('detail-overlay').classList.add('open');
   updateDetailFavBtn();
+  setTimeout(()=>{
+    const c = document.getElementById('detail-qr-canvas');
+    if(c && id) _renderDetailQR(id);
+  }, 80);
 }
 
 function closeDetail() {
@@ -2292,36 +2299,34 @@ function closeAllAdvPanels(){
 
 function closeAdvPanel(){ closeAllAdvPanels(); }
 
-// ── QR TARJETAS ──
-function renderCardQRs(list){
-  if(!qrLibLoaded){
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-    s.onload=()=>{ qrLibLoaded=true; _drawCardQRs(list); };
-    document.head.appendChild(s);
-  } else { _drawCardQRs(list); }
-}
-function _drawCardQRs(list){
-  list.forEach(p=>{
-    const canvas=document.getElementById('qrc-'+p.id);
-    if(!canvas) return;
-    const url=BASE_URL+'?p='+p.id;
-    const tmp=document.createElement('div'); tmp.style.display='none'; document.body.appendChild(tmp);
-    try {
-      new QRCode(tmp,{text:url,width:60,height:60,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+function _renderDetailQR(propId){
+  const canvas = document.getElementById('detail-qr-canvas');
+  if(!canvas) return;
+  const url = BASE_URL+'?p='+propId;
+  const tmp=document.createElement('div'); tmp.style.display='none'; document.body.appendChild(tmp);
+  const draw = ()=>{
+    try{
+      new QRCode(tmp,{text:url,width:220,height:220,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
       setTimeout(()=>{
         const el=tmp.querySelector('canvas')||tmp.querySelector('img');
         if(el){
-          const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,60,60);
-          if(el.tagName==='CANVAS'){ ctx.drawImage(el,0,0,60,60); }
-          else { const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0,60,60); i.src=el.src; }
+          const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,220,220);
+          if(el.tagName==='CANVAS') ctx.drawImage(el,0,0,220,220);
+          else { const i=new Image(); i.onload=()=>ctx.drawImage(i,0,0,220,220); i.src=el.src; }
         }
         if(document.body.contains(tmp)) document.body.removeChild(tmp);
-      },100);
-    } catch(e){ if(document.body.contains(tmp)) document.body.removeChild(tmp); }
-  });
+      },120);
+    }catch(e){ if(document.body.contains(tmp)) document.body.removeChild(tmp); }
+  };
+  if(!qrLibLoaded){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload=()=>{ qrLibLoaded=true; draw(); };
+    document.head.appendChild(s);
+  } else { draw(); }
 }
-function copyCardUrl(id){
+
+function copyDetailUrl(id){
   const url=BASE_URL+'?p='+id;
   navigator.clipboard.writeText(url)
     .then(()=>toast('Enlace copiado'))
@@ -2355,7 +2360,7 @@ function generateQR(text){
   const ctx = canvas.getContext('2d');
   ctx.fillStyle='#fff'; ctx.fillRect(0,0,200,200);
   ctx.fillStyle='#aaa'; ctx.font='11px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('Generando...', 100, 100);
+  ctx.fillText('Generando...', 130, 130);
   if(!qrLibLoaded){
     const s=document.createElement('script');
     s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
@@ -2367,7 +2372,7 @@ function generateQR(text){
 function _renderQR(text, canvas){
   const tmp=document.createElement('div'); tmp.style.display='none'; document.body.appendChild(tmp);
   try {
-    new QRCode(tmp,{text,width:200,height:200,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+    new QRCode(tmp,{text,width:260,height:260,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
     setTimeout(()=>{
       const el=tmp.querySelector('canvas')||tmp.querySelector('img');
       if(el){
@@ -2381,8 +2386,11 @@ function _renderQR(text, canvas){
 }
 
 function checkDeepLink(){
-  const pid=new URLSearchParams(window.location.search).get('p');
-  if(pid && properties.find(x=>x.id===pid)) setTimeout(()=>openDetail(pid),300);
+  const pid = new URLSearchParams(window.location.search).get('p');
+  if(!pid) return;
+  // Buscar por id exacto o por code
+  const prop = properties.find(x => x.id === pid || x.code === pid);
+  if(prop) setTimeout(()=>openDetail(prop.id), 200);
 }
 
 // ── LISTENER GLOBAL ÚNICO ──
@@ -2395,14 +2403,13 @@ document.addEventListener('click', function(e){
 loadData();
 updateAuthUI();
 updateFavUI();
-setTimeout(checkDeepLink,800);
 </script>
 
 <!-- ══ QR MODAL ══ -->
 <div class="qr-modal-overlay" id="qr-overlay" onclick="if(event.target===this)closeQR()">
   <div class="qr-modal">
     <div class="qr-modal-title" id="qr-title"></div>
-    <div class="qr-canvas-wrap"><canvas id="qr-canvas" width="200" height="200"></canvas></div>
+    <div class="qr-canvas-wrap"><canvas id="qr-canvas" width="260" height="260"></canvas></div>
     <div class="qr-url-box">
       <div class="qr-url-text" id="qr-url-text"></div>
       <button class="qr-copy-btn" onclick="copyQRUrl()">Copiar</button>
