@@ -125,7 +125,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .maps-link{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);border-radius:7px;font-size:11px;color:var(--accent);text-decoration:none;transition:all .15s;font-family:'DM Mono',monospace}
 .maps-link:hover{background:rgba(0,229,255,.18)}
 [data-theme=light] .maps-link,[data-theme=beige] .maps-link{background:rgba(0,119,204,.08);border-color:rgba(0,119,204,.25);color:var(--accent)}
-.detail-addr{font-size:12px;color:var(--text2);margin-bottom:14px}
+.detail-addr{font-size:12px;color:var(--text2);margin-bottom:10px}
+.map-embed-wrap{width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:14px;background:var(--surface2);position:relative}
+.map-embed-wrap iframe{width:100%;height:220px;border:none;display:block}
+.map-embed-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:120px;gap:6px;font-size:11px;color:var(--text2)}
+.map-embed-hint{font-size:9px;color:var(--text2);text-align:center;line-height:1.5;padding:0 4px}
 .detail-contact-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px}
 .detail-contact-title{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:6px}
 .detail-contact-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px}
@@ -520,6 +524,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
         <div class="form-group full">
           <label class="form-label">Dirección completa</label>
           <input class="form-input" id="f-addr" placeholder="Calle 17 No.1205 e/ 20 y 22, Vedado, La Habana">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Embed de Google Maps (iframe)</label>
+          <textarea class="form-textarea" id="f-mapembed" placeholder='Pega aquí el código iframe de Google Maps&#10;Ejemplo: &lt;iframe src="https://www.google.com/maps/embed?..." ...&gt;&lt;/iframe&gt;' style="min-height:70px;font-size:10px"></textarea>
+          <span style="font-size:9px;color:var(--text2)">En Google Maps → Compartir → Incorporar mapa → Copiar HTML</span>
         </div>
 
         <div class="form-section">Precio y contacto</div>
@@ -1220,6 +1229,16 @@ function fmtPrice(n) {
   if (!n) return '—';
   return '$ ' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
+function sanitizeEmbed(raw){
+  if(!raw) return '';
+  // Solo permitir iframes de Google Maps
+  const m = raw.match(/<iframe[^>]+src=["']([^"']+google\.com\/maps\/embed[^"']*)["'][^>]*>/i);
+  if(!m) return '<div class="map-embed-placeholder"><span>⚠️ Solo se permiten iframes de Google Maps</span></div>';
+  // Extraer src y construir iframe seguro
+  const src = m[1];
+  return `<iframe src="${src}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+}
+
 function mapsUrl(addr) {
   return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(addr||'');
 }
@@ -1387,6 +1406,7 @@ function openDetail(id) {
     <div class="detail-name">${p.name}</div>
     ${p.code?`<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:var(--text2);margin-bottom:6px">&#x1F4CB; ${p.code}</div>`:''}
     <div class="detail-addr">📍 ${p.address||'—'}</div>
+    ${p.mapEmbed ? `<div class="map-embed-wrap">${sanitizeEmbed(p.mapEmbed)}</div>` : (p.address ? `<div class="map-embed-wrap"><div class="map-embed-placeholder"><span style="font-size:22px">🗺</span><span>Sin mapa incorporado</span></div></div>` : '')}
     ${p.address ? `<a href="${mapsUrl(p.address)}" target="_blank" class="maps-link" style="margin-bottom:14px;display:inline-flex">🗺 Ver en Google Maps</a>` : ''}
 
     <div class="detail-contact-box">
@@ -1725,6 +1745,7 @@ function openFormModal(reset=true) {
     ci.value = ''; ci.readOnly = false; ci.style.opacity = '1'; ci.title = '';
     document.getElementById('f-name').value = '';
     document.getElementById('f-addr').value = '';
+    document.getElementById('f-mapembed').value = '';
     document.getElementById('f-price').value = '';
     document.getElementById('f-docstatus').value = 'Transferible';
     document.getElementById('f-contact-name').value = '';
@@ -1764,6 +1785,7 @@ function startEdit(id) {
   codeInp.title = 'El código no se puede cambiar una vez creada la propiedad';
   document.getElementById('f-name').value = p.name||'';
   document.getElementById('f-addr').value = p.address||'';
+  document.getElementById('f-mapembed').value = p.mapEmbed||'';
   document.getElementById('f-price').value = p.price||'';
   document.getElementById('f-docstatus').value = p.docStatus||'Transferible';
   document.getElementById('f-contact-name').value = p.contactName||'';
@@ -1822,6 +1844,7 @@ async function confirmDuplicate(){
     type: document.getElementById('f-type').value,
     name: newName,
     address: newAddr,
+    mapEmbed: document.getElementById('f-mapembed').value.trim(),
     price: Number(document.getElementById('f-price').value)||0,
     docStatus: document.getElementById('f-docstatus').value||'Transferible',
     contactName: document.getElementById('f-contact-name').value.trim(),
@@ -1863,6 +1886,7 @@ async function saveProperty() {
     type: document.getElementById('f-type').value,
     name,
     address: document.getElementById('f-addr').value.trim(),
+    mapEmbed: document.getElementById('f-mapembed').value.trim(),
     price: Number(document.getElementById('f-price').value)||0,
     docStatus: document.getElementById('f-docstatus').value||'Transferible',
     contactName: document.getElementById('f-contact-name').value.trim(),
