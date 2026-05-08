@@ -303,7 +303,7 @@
       "type": "Casa",
       "name": "ASDASDA",
       "address": "ASDASD",
-      "mapEmbed": "<iframe src=\"https://maps.google.com/maps?q=20.873742,-76.252933&z=15&output=embed&hl=es\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"> </iframe>",
+      "mapEmbed": "<iframe src=\"https://maps.google.com/maps?q=20.873742,-76.252933&z=15&output=embed&hl=es\"> </iframe>",
       "price": 3454,
       "docStatus": "En Trámites",
       "contactName": "SDFSDF",
