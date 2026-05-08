@@ -274,7 +274,7 @@
       "type": "Apartamento",
       "name": "Apartamento en Nuevo Vedado",
       "address": "Calle 26 No.360 e/ 35 y 37, Nuevo Vedado, Plaza, La Habana",
-      "mapEmbed": "<iframe\n  width=\"600\"\n  height=\"450\"\n  style=\"border:0;\"\n  src=\"https://maps.google.com/maps?q=20.875381,-76.247731&z=15&output=embed&hl=es\"\n  allowfullscreen=\"\"\n  loading=\"lazy\"\n  referrerpolicy=\"no-referrer-when-downgrade\">\n</iframe>",
+      "mapEmbed": "<iframe\n  width=\"600\"\n  height=\"450\"\n  style=\"border:0;\"\n  src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1221!2d-76.255897!3d20.883549!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0:0x0!2zMCow!5e0!3m2!1ses!2s!4v1\"\n  allowfullscreen=\"\"\n  loading=\"lazy\"\n  referrerpolicy=\"no-referrer-when-downgrade\">\n</iframe>",
       "price": 36000,
       "docStatus": "Transferible",
       "contactName": "Sonia Herrera",
