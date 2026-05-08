@@ -270,9 +270,11 @@
     },
     {
       "id": "p10",
+      "code": "VH-010",
       "type": "Apartamento",
       "name": "Apartamento en Nuevo Vedado",
       "address": "Calle 26 No.360 e/ 35 y 37, Nuevo Vedado, Plaza, La Habana",
+      "mapEmbed": "<iframe\n  width=\"600\"\n  height=\"450\"\n  style=\"border:0;\"\n  src=\"https://maps.google.com/maps?q=20.875381,-76.247731&z=15&output=embed&hl=es\"\n  allowfullscreen=\"\"\n  loading=\"lazy\"\n  referrerpolicy=\"no-referrer-when-downgrade\">\n</iframe>",
       "price": 36000,
       "docStatus": "Transferible",
       "contactName": "Sonia Herrera",
@@ -294,8 +296,7 @@
         "telefono"
       ],
       "mainImage": "",
-      "gallery": [],
-      "code": "VH-010"
+      "gallery": []
     },
     {
       "id": "AASDSDA",
