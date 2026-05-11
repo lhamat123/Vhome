@@ -126,7 +126,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .detail-contact-neg{font-size:11px;color:var(--green);margin-top:4px}
 .whatsapp-btn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:7px 14px;background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.3);border-radius:7px;font-size:11px;color:var(--green);text-decoration:none;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s}
 .whatsapp-btn:hover{background:rgba(0,230,118,.2)}
-.surfaces-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+#qr-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);align-items:center;justify-content:center}
+#qr-overlay.open{display:flex}
+#qr-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 24px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:300px;width:88%;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+#qr-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.4px;text-align:center;width:100%}
+#qr-white-box{background:#fff;border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center;width:220px;height:220px;flex-shrink:0}
+#qr-img{width:200px;height:200px;display:block;object-fit:contain}
+#qr-url{font-size:10px;color:var(--text2);text-align:center;font-family:'DM Mono',monospace;word-break:break-all;max-width:240px}
+#qr-download{padding:7px 16px;border-radius:8px;background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.3);color:var(--accent);font-size:11px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;text-decoration:none}
+#qr-card button{padding:7px 16px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);font-size:11px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer}
+.feat-chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;white-space:nowrap}
+.feat-chip span{color:var(--text);font-weight:500}
 .surf-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 9px;text-align:center}
 .surf-label{font-size:8px;text-transform:uppercase;letter-spacing:.9px;color:var(--text2);font-family:'Syne',sans-serif;font-weight:600;margin-bottom:2px}
 .surf-value{font-family:'Syne',sans-serif;font-weight:700;font-size:12px}
@@ -539,7 +549,7 @@ canvas#opt-canvas{display:none}
           </select>
         </div>
 
-        <div class="form-section">Superficies</div>
+        <div class="form-section">Características</div>
         <div class="form-group">
           <label class="form-label">Superficie útil (m²)</label>
           <input class="form-input" type="number" id="f-surf-util" placeholder="120">
@@ -756,16 +766,16 @@ canvas#opt-canvas{display:none}
 </div>
 
 <!-- ══ QR OVERLAY ══ -->
-<div id="qr-overlay" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.88);align-items:center;justify-content:center;" onclick="if(event.target===this)closeQR()">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 28px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,.6)">
-    <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.4px;text-align:center" id="qr-title">QR de la propiedad</div>
-    <div style="background:#fff;border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center;width:220px;height:220px">
-      <img id="qr-img" src="" alt="QR" style="width:200px;height:200px;display:block;object-fit:contain">
+<div id="qr-overlay" onclick="if(event.target===this)closeQR()">
+  <div id="qr-card">
+    <div id="qr-title">QR de la propiedad</div>
+    <div id="qr-white-box">
+      <img id="qr-img" src="" alt="QR">
     </div>
-    <div style="font-size:10px;color:var(--text2);text-align:center;font-family:'DM Mono',monospace;word-break:break-all;max-width:260px" id="qr-url"></div>
+    <div id="qr-url"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-      <a id="qr-download" download="qr-propiedad.png" style="padding:7px 16px;border-radius:8px;background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.3);color:var(--accent);font-size:11px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;text-decoration:none">⬇ Descargar</a>
-      <button onclick="closeQR()" style="padding:7px 16px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);font-size:11px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer">Cerrar</button>
+      <a id="qr-download" download="qr-propiedad.png">⬇ Descargar</a>
+      <button onclick="closeQR()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -1460,22 +1470,22 @@ function openDetail(id) {
     </div>
 
     ${(p.surfUtil||p.surfConst||p.surfTotal) ? `
-    <div class="detail-section-title">Destacados:</div>
-    <div class="surfaces-grid">
-      ${p.rooms ? `<div class="surf-box"><div class="surf-label">Dormitorios</div><div class="surf-value">${p.rooms}</div><div class="surf-unit">camas</div></div>` : ''}
-      ${p.baths ? `<div class="surf-box"><div class="surf-label">Baños</div><div class="surf-value">${p.baths}</div><div class="surf-unit">serv.</div></div>` : ''}
-      ${p.comedor ? `<div class="surf-box"><div class="surf-label">Comedor</div><div class="surf-value">${p.comedor}</div><div class="surf-unit">uds.</div></div>` : ''}
-      ${p.cocina ? `<div class="surf-box"><div class="surf-label">Cocina/Pantry</div><div class="surf-value">${p.cocina}</div><div class="surf-unit">uds.</div></div>` : ''}
-      ${p.terraza ? `<div class="surf-box"><div class="surf-label">Terraza</div><div class="surf-value">${p.terraza}</div><div class="surf-unit">uds.</div></div>` : ''}
-      ${p.portal ? `<div class="surf-box"><div class="surf-label">Portal</div><div class="surf-value">${p.portal}</div><div class="surf-unit">uds.</div></div>` : ''}
-      ${p.surfUtil ? `<div class="surf-box"><div class="surf-label">Útil</div><div class="surf-value">${p.surfUtil}</div><div class="surf-unit">m²</div></div>` : ''}
-      ${p.surfConst ? `<div class="surf-box"><div class="surf-label">Construida</div><div class="surf-value">${p.surfConst}</div><div class="surf-unit">m²</div></div>` : ''}
-      ${p.surfTotal ? `<div class="surf-box"><div class="surf-label">Total</div><div class="surf-value">${p.surfTotal}</div><div class="surf-unit">m²</div></div>` : ''}
+    <div class="detail-section-title">Características</div>
+    <div class="feat-chips">
+      ${p.rooms    ? `<div class="feat-chip">🛏 <span>${p.rooms} dorm.</span></div>` : ''}
+      ${p.baths    ? `<div class="feat-chip">🛁 <span>${p.baths} baños</span></div>` : ''}
+      ${p.comedor  ? `<div class="feat-chip">🍽 <span>${p.comedor} comedor</span></div>` : ''}
+      ${p.cocina   ? `<div class="feat-chip">🍳 <span>${p.cocina} cocina</span></div>` : ''}
+      ${p.terraza  ? `<div class="feat-chip">☀️ <span>${p.terraza} terraza</span></div>` : ''}
+      ${p.portal   ? `<div class="feat-chip">🚪 <span>${p.portal} portal</span></div>` : ''}
+      ${p.surfUtil  ? `<div class="feat-chip">📐 <span>${p.surfUtil} m² útil</span></div>` : ''}
+      ${p.surfConst ? `<div class="feat-chip">🏗 <span>${p.surfConst} m² const.</span></div>` : ''}
+      ${p.surfTotal ? `<div class="feat-chip">📏 <span>${p.surfTotal} m² total</span></div>` : ''}
     </div>` : ''}
 
     ${p.description ? `<div class="detail-section-title">Descripción</div><div class="detail-desc">${p.description.replace(/\n/g,'<br>')}</div>` : ''}
 
-    ${amen ? `<div class="detail-section-title">Características</div><div class="amenities-bubbles">${amen}</div>` : ''}
+    ${amen ? `<div class="detail-section-title">Particularidades</div><div class="amenities-bubbles">${amen}</div>` : ''}
 
     ${gallery ? `<div class="detail-section-title">Galería de fotos y planos</div><div class="gallery-grid">${gallery}</div>` : ''}
   `;
@@ -1763,10 +1773,10 @@ function showPropertyQR() {
   document.getElementById('qr-url').textContent = url;
   document.getElementById('qr-download').href = qrApiUrl;
   const ov = document.getElementById('qr-overlay');
-  ov.style.display = 'flex';
+  ov.classList.add('open');
 }
 function closeQR() {
-  document.getElementById('qr-overlay').style.display = 'none';
+  document.getElementById('qr-overlay').classList.remove('open');
 }
 
 function renderGalleryPreviews() {
