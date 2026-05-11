@@ -1398,6 +1398,7 @@ function cardHTML(p) {
           <div>${p.contactTel||''}</div>
         </div>
         <div class="card-actions">
+          <button class="icon-btn" onclick="event.stopPropagation();cardQR('${p.id}')" title="Ver QR">🔲</button>
           ${editBtn}
         </div>
       </div>
@@ -1762,18 +1763,28 @@ async function saveProperty() {
 // ── GALLERY PREVIEWS + DRAG & DROP + EDIT ──
 let _galleryDragIdx = null;
 
+function cardQR(id) {
+  const p = properties.find(x=>x.id===id);
+  if(!p) return;
+  const url = location.href.split('#')[0] + '?p=' + p.id;
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+  document.getElementById('qr-title').textContent = p.name || 'QR de la propiedad';
+  document.getElementById('qr-img').src = qrApiUrl;
+  document.getElementById('qr-url').textContent = url;
+  document.getElementById('qr-download').href = qrApiUrl;
+  document.getElementById('qr-overlay').classList.add('open');
+}
+
 function showPropertyQR() {
   const p = properties.find(x=>x.id===viewingId);
   if(!p) return;
-  const url = location.href.split('#')[0] + '#prop-' + p.id;
-  const qrApiUrl = `https://chart.googleapis.com/chart?chs=400x400&cht=qr&chl=${encodeURIComponent(url)}&choe=UTF-8`;
-  document.getElementById('qr-title').textContent = p.title || p.name || 'QR de la propiedad';
-  const img = document.getElementById('qr-img');
-  img.src = qrApiUrl;
+  const url = location.href.split('#')[0] + '?p=' + p.id;
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+  document.getElementById('qr-title').textContent = p.name || 'QR de la propiedad';
+  document.getElementById('qr-img').src = qrApiUrl;
   document.getElementById('qr-url').textContent = url;
   document.getElementById('qr-download').href = qrApiUrl;
-  const ov = document.getElementById('qr-overlay');
-  ov.classList.add('open');
+  document.getElementById('qr-overlay').classList.add('open');
 }
 function closeQR() {
   document.getElementById('qr-overlay').classList.remove('open');
