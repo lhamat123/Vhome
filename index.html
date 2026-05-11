@@ -759,8 +759,8 @@ canvas#opt-canvas{display:none}
 <div id="qr-overlay" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.88);align-items:center;justify-content:center;" onclick="if(event.target===this)closeQR()">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 28px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,.6)">
     <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.4px;text-align:center" id="qr-title">QR de la propiedad</div>
-    <div style="background:#fff;border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center">
-      <img id="qr-img" src="" alt="QR" style="width:200px;height:200px;display:block">
+    <div style="background:#fff;border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center;width:220px;height:220px">
+      <img id="qr-img" src="" alt="QR" style="width:200px;height:200px;display:block;object-fit:contain">
     </div>
     <div style="font-size:10px;color:var(--text2);text-align:center;font-family:'DM Mono',monospace;word-break:break-all;max-width:260px" id="qr-url"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
