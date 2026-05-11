@@ -153,10 +153,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .image-upload-area:hover .upload-overlay{opacity:1}
 .gallery-upload-area{border:2px dashed var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);font-size:11px;color:var(--text2)}
 .gallery-upload-area:hover{border-color:var(--accent);color:var(--accent)}
-.gallery-previews{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
-.gallery-prev-item{position:relative;width:68px;height:52px;border-radius:7px;overflow:hidden}
-.gallery-prev-item img{width:100%;height:100%;object-fit:cover}
-.gallery-prev-del{position:absolute;top:2px;right:2px;width:16px;height:16px;background:rgba(255,82,82,.85);border:none;border-radius:3px;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.gallery-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.gallery-prev-item{position:relative;width:80px;height:62px;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:border-color .15s,opacity .15s,transform .15s;cursor:grab;flex-shrink:0}
+.gallery-prev-item:hover{border-color:var(--accent)}
+.gallery-prev-item.dragging-item{opacity:.3;transform:scale(.93)}
+.gallery-prev-item.drag-over{border-color:var(--accent2);box-shadow:0 0 0 2px var(--accent2)}
+.gallery-prev-item img{width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none}
+.gallery-prev-del{position:absolute;top:2px;right:2px;width:17px;height:17px;background:rgba(255,82,82,.9);border:none;border-radius:3px;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.gallery-prev-edit{position:absolute;bottom:2px;right:2px;width:17px;height:17px;background:rgba(0,0,0,.7);border:none;border-radius:3px;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;opacity:0;transition:opacity .15s}
+.gallery-prev-item:hover .gallery-prev-edit{opacity:1}
+.gallery-prev-drag-hint{position:absolute;bottom:2px;left:2px;font-size:9px;color:rgba(255,255,255,.6);pointer-events:none;opacity:0;transition:opacity .15s;background:rgba(0,0,0,.45);border-radius:3px;padding:1px 3px;line-height:1.4}
+.gallery-prev-item:hover .gallery-prev-drag-hint{opacity:1}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
 .form-group{display:flex;flex-direction:column;gap:6px}
 .form-group.full{grid-column:1/-1}
@@ -1728,19 +1735,70 @@ async function saveProperty() {
   }
 }
 
-// ── GALLERY PREVIEWS ──
+// ── GALLERY PREVIEWS + DRAG & DROP + EDIT ──
+let _galleryDragIdx = null;
+
 function renderGalleryPreviews() {
   const c = document.getElementById('gallery-previews');
   c.innerHTML = curGalleryImgs.map((img,i) => `
-    <div class="gallery-prev-item">
+    <div class="gallery-prev-item" id="gprev-${i}"
+         draggable="true"
+         ondragstart="galleryDragStart(event,${i})"
+         ondragover="galleryDragOver(event,${i})"
+         ondragleave="galleryDragLeave(event,${i})"
+         ondrop="galleryDrop(event,${i})"
+         ondragend="galleryDragEnd()">
       <img src="${img}" alt="">
-      <button class="gallery-prev-del" onclick="removeGalleryImg(${i})">✕</button>
+      <button class="gallery-prev-del" onclick="event.stopPropagation();removeGalleryImg(${i})" title="Eliminar">✕</button>
+      <button class="gallery-prev-edit" onclick="event.stopPropagation();editGalleryImg(${i})" title="Recortar / optimizar / cambiar">✏️</button>
+      <span class="gallery-prev-drag-hint">⠿</span>
     </div>`).join('');
 }
 
 function removeGalleryImg(i) {
   curGalleryImgs.splice(i,1);
   renderGalleryPreviews();
+}
+
+function editGalleryImg(i) {
+  const src = curGalleryImgs[i];
+  // Reusar smartImagePick: si hay imagen muestra el modal edit/nueva
+  smartImagePick(src, 'gallery-edit', function(dataUrl) {
+    if(dataUrl) {
+      curGalleryImgs[i] = dataUrl;
+      renderGalleryPreviews();
+    }
+  });
+}
+
+// ── Drag & drop reorder ──
+function galleryDragStart(e, i) {
+  _galleryDragIdx = i;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(()=>{ const el=document.getElementById('gprev-'+i); if(el) el.classList.add('dragging-item'); }, 0);
+}
+function galleryDragOver(e, i) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.gallery-prev-item').forEach(el=>el.classList.remove('drag-over'));
+  if(i !== _galleryDragIdx) { const el=document.getElementById('gprev-'+i); if(el) el.classList.add('drag-over'); }
+}
+function galleryDragLeave(e, i) {
+  const el=document.getElementById('gprev-'+i); if(el) el.classList.remove('drag-over');
+}
+function galleryDrop(e, i) {
+  e.preventDefault();
+  if(_galleryDragIdx === null || _galleryDragIdx === i) return;
+  const moved = curGalleryImgs.splice(_galleryDragIdx, 1)[0];
+  curGalleryImgs.splice(i, 0, moved);
+  _galleryDragIdx = null;
+  renderGalleryPreviews();
+}
+function galleryDragEnd() {
+  _galleryDragIdx = null;
+  document.querySelectorAll('.gallery-prev-item').forEach(el=>{
+    el.classList.remove('dragging-item','drag-over');
+  });
 }
 
 // ── IMAGE UPLOAD ──
@@ -2047,7 +2105,10 @@ function _deliverResult(dataUrl, sizeStr){
   // Save the result to the right destination
   if(target==='main'){
     onMainImageDone(dataUrl, sizeStr);
+  } else if(target==='gallery-edit'){
+    // callback handles the update (editGalleryImg sets curGalleryImgs[i])
   } else {
+    // target==='gallery' — batch add
     curGalleryImgs.push(dataUrl);
     renderGalleryPreviews();
   }
