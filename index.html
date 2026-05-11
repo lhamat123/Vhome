@@ -77,9 +77,31 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .surf-item span{color:var(--text);font-weight:500}
 .card-amenities{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
 .amenity-tag{padding:3px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:9px;color:var(--text2);white-space:nowrap}
-.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border)}
-.contact-info{font-size:10px;color:var(--text2)}
-.contact-name{font-weight:600;color:var(--text);font-size:11px}
+.detail-hero-actions{position:absolute;bottom:10px;right:10px;display:flex;flex-direction:column;gap:5px;z-index:2}
+.detail-act-btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;border:none;text-decoration:none;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);color:#fff;transition:background .15s;white-space:nowrap}
+.detail-act-btn:hover{background:rgba(0,0,0,.75)}
+.detail-act-wa{background:rgba(0,100,50,.75);color:#fff}
+.detail-act-wa:hover{background:rgba(0,140,70,.85)}
+.detail-act-qr{background:rgba(0,80,100,.75);color:#fff}
+.detail-act-qr:hover{background:rgba(0,120,150,.85)}
+.detail-top-left{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.detail-price-inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.detail-top-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+.detail-act-btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;border:none;text-decoration:none;background:rgba(255,255,255,.08);color:var(--text);transition:background .15s;white-space:nowrap}
+.detail-act-btn:hover{background:rgba(255,255,255,.16)}
+.detail-act-wa{background:rgba(0,230,118,.12);color:var(--green)}
+.detail-act-wa:hover{background:rgba(0,230,118,.22)}
+.detail-act-qr{background:rgba(0,229,255,.1);color:var(--accent)}
+.detail-act-qr:hover{background:rgba(0,229,255,.2)}
+.card-price-row .card-price{margin-bottom:0}
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border);gap:6px}
+.card-contact-name{font-size:10px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-action-btns{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.card-act-btn{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;border:none;text-decoration:none;transition:background .15s;background:rgba(255,255,255,.07)}
+.card-act-btn:hover{background:rgba(255,255,255,.15)}
+.card-act-maps{background:rgba(0,229,255,.1)}
+.card-act-wa{background:rgba(0,230,118,.1)}
+.card-act-qr{background:rgba(255,255,255,.07)}.contact-name{font-weight:600;color:var(--text);font-size:11px}
 .card-actions{display:flex;gap:5px}
 .icon-btn{width:28px;height:28px;border:1px solid var(--border);background:var(--surface2);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;color:var(--text)}
 .icon-btn:hover{border-color:var(--accent);background:rgba(0,229,255,.08)}
@@ -1374,9 +1396,9 @@ function cardHTML(p) {
       </button>
     </div>
     <div class="card-body">
-      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
-        <div class="card-price" style="margin-bottom:0">${fmtPrice(p.price)}</div>
-        ${docBadgeHTML(p.docStatus)}
+      <div class="card-price-row">
+        <div class="card-price">${fmtPrice(p.price)}</div>
+        ${p.docStatus ? `<span class="doc-badge doc-${docClass(p.docStatus)}">${docEmoji(p.docStatus)} ${p.docStatus}</span>` : ''}
       </div>
       <div class="card-name">${p.name}</div>
       <div class="card-addr">📍 ${p.address||'—'}</div>
@@ -1393,12 +1415,11 @@ function cardHTML(p) {
       </div>
       ${amen ? `<div class="card-amenities">${amen}</div>` : ''}
       <div class="card-footer">
-        <div class="contact-info">
-          <div class="contact-name">${p.contactName||'—'}</div>
-          <div>${p.contactTel||''}</div>
-        </div>
-        <div class="card-actions">
-          <button class="icon-btn" onclick="event.stopPropagation();cardQR('${p.id}')" title="Ver QR">🔲</button>
+        <div class="card-contact-name">${p.contactName||''}</div>
+        <div class="card-action-btns">
+          ${p.address ? `<a class="card-act-btn card-act-maps" href="${mapsUrl(p.address)}" target="_blank" onclick="event.stopPropagation()" title="Ver en Google Maps">🗺</a>` : ''}
+          ${p.contactTel ? `<a class="card-act-btn card-act-wa" href="https://wa.me/${p.contactTel.replace(/\D/g,'')}" target="_blank" onclick="event.stopPropagation()" title="Contactar por WhatsApp">💬</a>` : ''}
+          <button class="card-act-btn card-act-qr" onclick="event.stopPropagation();cardQR('${p.id}')" title="Ver QR">🔲</button>
           ${editBtn}
         </div>
       </div>
@@ -1448,29 +1469,27 @@ function openDetail(id) {
   ).join('');
 
   document.getElementById('detail-body').innerHTML = `
-    <div class="detail-hero">
+    <div class="detail-hero" style="position:relative">
       ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}">` : `<div class="detail-hero-empty">${typeEmoji(p.type)}</div>`}
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-      <div style="display:flex;flex-direction:column;gap:5px">
-        <div class="detail-price" style="margin-bottom:0">${fmtPrice(p.price)}</div>
-        ${docBadgeHTML(p.docStatus)}
+      <div class="detail-hero-actions">
+        ${p.address ? `<a class="detail-act-btn" href="${mapsUrl(p.address)}" target="_blank" title="Ver en Google Maps">🗺<span>Maps</span></a>` : ''}
+        ${p.contactTel ? `<a class="detail-act-btn detail-act-wa" href="https://wa.me/${p.contactTel.replace(/\D/g,'')}" target="_blank" title="WhatsApp">💬<span>Chat</span></a>` : ''}
+        <button class="detail-act-btn detail-act-qr" onclick="showPropertyQR()" title="Ver QR">🔲<span>QR</span></button>
       </div>
-      <span class="card-type-badge type-${typeClass(p.type)}" style="font-size:11px;padding:4px 11px">${typeEmoji(p.type)} ${p.type}</span>
     </div>
-    <div class="detail-name">${p.name}</div>
+
+    <div class="detail-top-row">
+      <div class="detail-top-left">
+        <div class="detail-price-inline">
+          <span class="detail-price" style="margin-bottom:0">${fmtPrice(p.price)}</span>
+          ${p.docStatus ? `<span class="doc-badge doc-${docClass(p.docStatus)}">${docEmoji(p.docStatus)} ${p.docStatus}</span>` : ''}
+        </div>
+        <span class="card-type-badge type-${typeClass(p.type)}" style="font-size:11px;padding:3px 10px;margin-top:4px;display:inline-block">${typeEmoji(p.type)} ${p.type}</span>
+      </div>
+    </div>
     <div class="detail-addr">📍 ${p.address||'—'}</div>
-    ${p.address ? `<a href="${mapsUrl(p.address)}" target="_blank" class="maps-link" style="margin-bottom:14px;display:inline-flex">🗺 Ver en Google Maps</a>` : ''}
 
-    <div class="detail-contact-box">
-      <div class="detail-contact-title">Contacto directo</div>
-      <div class="detail-contact-name">${p.contactName||'—'}</div>
-      <div class="detail-contact-tel">Tel: ${p.contactTel||'—'}</div>
-      ${p.negotiate ? '<div class="detail-contact-neg">✅ Dispuesto a negociar · se escuchan proposiciones</div>' : '<div style="font-size:11px;color:var(--yellow);margin-top:4px">💰 Precio fijo</div>'}
-      ${p.contactTel ? `<a class="whatsapp-btn" href="https://wa.me/${p.contactTel.replace(/\D/g,'')}" target="_blank">💬 Contactar por WhatsApp</a>` : ''}
-    </div>
-
-    ${(p.surfUtil||p.surfConst||p.surfTotal) ? `
+    ${(p.rooms||p.baths||p.comedor||p.cocina||p.terraza||p.portal||p.surfUtil||p.surfConst||p.surfTotal) ? `
     <div class="detail-section-title">Características</div>
     <div class="feat-chips">
       ${p.rooms    ? `<div class="feat-chip">🛏 <span>${p.rooms} dorm.</span></div>` : ''}
@@ -1484,11 +1503,19 @@ function openDetail(id) {
       ${p.surfTotal ? `<div class="feat-chip">📏 <span>${p.surfTotal} m² total</span></div>` : ''}
     </div>` : ''}
 
-    ${p.description ? `<div class="detail-section-title">Descripción</div><div class="detail-desc">${p.description.replace(/\n/g,'<br>')}</div>` : ''}
-
     ${amen ? `<div class="detail-section-title">Particularidades</div><div class="amenities-bubbles">${amen}</div>` : ''}
 
+    ${p.description ? `<div class="detail-section-title">Descripción</div><div class="detail-desc">${p.description.replace(/\n/g,'<br>')}</div>` : ''}
+
     ${gallery ? `<div class="detail-section-title">Galería de fotos y planos</div><div class="gallery-grid">${gallery}</div>` : ''}
+
+    <div class="detail-contact-box">
+      <div class="detail-contact-title">Contacto directo</div>
+      <div class="detail-contact-name">${p.contactName||'—'}</div>
+      <div class="detail-contact-tel">Tel: ${p.contactTel||'—'}</div>
+      ${p.negotiate ? '<div class="detail-contact-neg">✅ Dispuesto a negociar · se escuchan proposiciones</div>' : '<div style="font-size:11px;color:var(--yellow);margin-top:4px">💰 Precio fijo</div>'}
+      ${p.contactTel ? `<a class="whatsapp-btn" href="https://wa.me/${p.contactTel.replace(/\D/g,'')}" target="_blank">💬 Contactar por WhatsApp</a>` : ''}
+    </div>
   `;
 
   document.getElementById('detail-overlay').classList.add('open');
