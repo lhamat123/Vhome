@@ -467,6 +467,7 @@ canvas#opt-canvas{display:none}
     <div class="modal-body" id="detail-body"></div>
     <div class="modal-footer" id="detail-footer">
       <button class="btn btn-danger" id="detail-delete-btn" style="margin-right:auto;display:none" onclick="deleteProperty()">🗑 Eliminar</button>
+      <button class="btn btn-ghost" onclick="showPropertyQR()" title="Ver QR de esta propiedad">🔲 QR</button>
       <button class="btn btn-ghost" onclick="closeDetail()">Cerrar</button>
       <button class="btn btn-primary" id="detail-edit-btn" style="display:none" onclick="editCurrent()">✏️ Editar</button>
     </div>
@@ -754,7 +755,20 @@ canvas#opt-canvas{display:none}
   <canvas id="opt-canvas"></canvas>
 </div>
 
-<!-- ══ IMG ACTION MODAL ══ -->
+<!-- ══ QR OVERLAY ══ -->
+<div id="qr-overlay" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.88);align-items:center;justify-content:center;" onclick="if(event.target===this)closeQR()">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 28px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,.6)">
+    <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.4px;text-align:center" id="qr-title">QR de la propiedad</div>
+    <div style="background:#fff;border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center">
+      <img id="qr-img" src="" alt="QR" style="width:200px;height:200px;display:block">
+    </div>
+    <div style="font-size:10px;color:var(--text2);text-align:center;font-family:'DM Mono',monospace;word-break:break-all;max-width:260px" id="qr-url"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      <a id="qr-download" download="qr-propiedad.png" style="padding:7px 16px;border-radius:8px;background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.3);color:var(--accent);font-size:11px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;text-decoration:none">⬇ Descargar</a>
+      <button onclick="closeQR()" style="padding:7px 16px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);font-size:11px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer">Cerrar</button>
+    </div>
+  </div>
+</div>
 <div id="imgActionModal">
   <div class="img-action-sheet">
     <div class="img-action-handle"></div>
@@ -1738,7 +1752,22 @@ async function saveProperty() {
 // ── GALLERY PREVIEWS + DRAG & DROP + EDIT ──
 let _galleryDragIdx = null;
 
-function renderGalleryPreviews() {
+function showPropertyQR() {
+  const p = properties.find(x=>x.id===viewingId);
+  if(!p) return;
+  const url = location.href.split('#')[0] + '#prop-' + p.id;
+  const qrApiUrl = `https://chart.googleapis.com/chart?chs=400x400&cht=qr&chl=${encodeURIComponent(url)}&choe=UTF-8`;
+  document.getElementById('qr-title').textContent = p.title || p.name || 'QR de la propiedad';
+  const img = document.getElementById('qr-img');
+  img.src = qrApiUrl;
+  document.getElementById('qr-url').textContent = url;
+  document.getElementById('qr-download').href = qrApiUrl;
+  const ov = document.getElementById('qr-overlay');
+  ov.style.display = 'flex';
+}
+function closeQR() {
+  document.getElementById('qr-overlay').style.display = 'none';
+}
   const c = document.getElementById('gallery-previews');
   c.innerHTML = curGalleryImgs.map((img,i) => `
     <div class="gallery-prev-item" id="gprev-${i}"
