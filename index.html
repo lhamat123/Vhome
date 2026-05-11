@@ -438,7 +438,7 @@ canvas#opt-canvas{display:none}
         <option value="">&#x2195; Ordenar por...</option>
         <option value="price-desc">Mayor precio</option>
         <option value="price-asc">Menor precio</option>
-        <option value="rooms-desc">M&#xE1;s dormitorios</option>
+        <option value="rooms-desc">Más dormitorios</option>
         <option value="rooms-asc">Menos dormitorios</option>
         <option value="surf-desc">Mayor sup. construida</option>
         <option value="surf-asc">Menor sup. construida</option>
@@ -1358,7 +1358,7 @@ function cardHTML(p) {
       <div class="card-addr">📍 ${p.address||'—'}</div>
       <div class="card-surfaces">
         ${p.rooms?`<div class="surf-item">&#x1F6CC; <span>${p.rooms} dorm.</span></div>`:''}
-        ${p.baths?`<div class="surf-item">&#x1F6BF; <span>${p.baths} ba&#xF1;os</span></div>`:''}
+        ${p.baths?`<div class="surf-item">&#x1F6BF; <span>${p.baths} baños</span></div>`:''}
         ${p.comedor?`<div class="surf-item">&#x1F37D; <span>${p.comedor} comedor</span></div>`:''}
         ${p.cocina?`<div class="surf-item">&#x1F373; <span>${p.cocina} cocina</span></div>`:''}
         ${p.terraza?`<div class="surf-item">&#x2600; <span>${p.terraza} terraza</span></div>`:''}
@@ -1449,12 +1449,12 @@ function openDetail(id) {
     <div class="detail-section-title">Superficies</div>
     <div class="surfaces-grid">
       ${p.rooms ? `<div class="surf-box"><div class="surf-label">Dormitorios</div><div class="surf-value">${p.rooms}</div><div class="surf-unit">camas</div></div>` : ''}
-      ${p.baths ? `<div class="surf-box"><div class="surf-label">Ba&#xF1;os</div><div class="surf-value">${p.baths}</div><div class="surf-unit">serv.</div></div>` : ''}
+      ${p.baths ? `<div class="surf-box"><div class="surf-label">Baños</div><div class="surf-value">${p.baths}</div><div class="surf-unit">serv.</div></div>` : ''}
       ${p.comedor ? `<div class="surf-box"><div class="surf-label">Comedor</div><div class="surf-value">${p.comedor}</div><div class="surf-unit">uds.</div></div>` : ''}
       ${p.cocina ? `<div class="surf-box"><div class="surf-label">Cocina/Pantry</div><div class="surf-value">${p.cocina}</div><div class="surf-unit">uds.</div></div>` : ''}
       ${p.terraza ? `<div class="surf-box"><div class="surf-label">Terraza</div><div class="surf-value">${p.terraza}</div><div class="surf-unit">uds.</div></div>` : ''}
       ${p.portal ? `<div class="surf-box"><div class="surf-label">Portal</div><div class="surf-value">${p.portal}</div><div class="surf-unit">uds.</div></div>` : ''}
-      ${p.surfUtil ? `<div class="surf-box"><div class="surf-label">&#xDA;til</div><div class="surf-value">${p.surfUtil}</div><div class="surf-unit">m²</div></div>` : ''}
+      ${p.surfUtil ? `<div class="surf-box"><div class="surf-label">Útil</div><div class="surf-value">${p.surfUtil}</div><div class="surf-unit">m²</div></div>` : ''}
       ${p.surfConst ? `<div class="surf-box"><div class="surf-label">Construida</div><div class="surf-value">${p.surfConst}</div><div class="surf-unit">m²</div></div>` : ''}
       ${p.surfTotal ? `<div class="surf-box"><div class="surf-label">Total</div><div class="surf-value">${p.surfTotal}</div><div class="surf-unit">m²</div></div>` : ''}
     </div>` : ''}
