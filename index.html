@@ -126,11 +126,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .detail-contact-neg{font-size:11px;color:var(--green);margin-top:4px}
 .whatsapp-btn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:7px 14px;background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.3);border-radius:7px;font-size:11px;color:var(--green);text-decoration:none;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s}
 .whatsapp-btn:hover{background:rgba(0,230,118,.2)}
-.surfaces-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.surf-box{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;text-align:center}
-.surf-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-family:'Syne',sans-serif;font-weight:600;margin-bottom:4px}
-.surf-value{font-family:'Syne',sans-serif;font-weight:700;font-size:15px}
-.surf-unit{font-size:10px;color:var(--text2);font-family:'DM Mono',monospace}
+.surfaces-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.surf-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 9px;text-align:center}
+.surf-label{font-size:8px;text-transform:uppercase;letter-spacing:.9px;color:var(--text2);font-family:'Syne',sans-serif;font-weight:600;margin-bottom:2px}
+.surf-value{font-family:'Syne',sans-serif;font-weight:700;font-size:12px}
+.surf-unit{font-size:9px;color:var(--text2);font-family:'DM Mono',monospace}
 .detail-desc{font-size:12px;line-height:1.7;color:var(--text2);margin-bottom:16px}
 .detail-section-title{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .amenities-bubbles{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
@@ -359,7 +359,7 @@ canvas#opt-canvas{display:none}
   .list-header{display:none}
   .prop-row{grid-template-columns:54px 1fr 90px 28px}
   .prop-row>div:nth-child(4),.prop-row>div:nth-child(5){display:none}
-  .surfaces-grid{grid-template-columns:1fr 1fr}
+  .surfaces-grid{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 </head>
@@ -1460,7 +1460,7 @@ function openDetail(id) {
     </div>
 
     ${(p.surfUtil||p.surfConst||p.surfTotal) ? `
-    <div class="detail-section-title">Superficies</div>
+    <div class="detail-section-title">Destacados:</div>
     <div class="surfaces-grid">
       ${p.rooms ? `<div class="surf-box"><div class="surf-label">Dormitorios</div><div class="surf-value">${p.rooms}</div><div class="surf-unit">camas</div></div>` : ''}
       ${p.baths ? `<div class="surf-box"><div class="surf-label">Baños</div><div class="surf-value">${p.baths}</div><div class="surf-unit">serv.</div></div>` : ''}
@@ -1768,6 +1768,8 @@ function showPropertyQR() {
 function closeQR() {
   document.getElementById('qr-overlay').style.display = 'none';
 }
+
+function renderGalleryPreviews() {
   const c = document.getElementById('gallery-previews');
   c.innerHTML = curGalleryImgs.map((img,i) => `
     <div class="gallery-prev-item" id="gprev-${i}"
