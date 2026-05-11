@@ -2034,10 +2034,16 @@ function applyOptimized(){
 
 function _deliverResult(dataUrl, sizeStr){
   document.getElementById('cropper-overlay').classList.remove('open');
-  backToCrop();
+  // Reset state
   const cb=cropperCallback; cropperCallback=null;
   const target=cropperTarget;
-  optCroppedDataUrl=null; optCroppedBlob=null;
+  cropperImg=null; optCroppedDataUrl=null; optCroppedBlob=null;
+  clearTimeout(_livePreviewTimer);
+  // Reset preview images so they don't linger next open
+  document.getElementById('opt-img-orig').src='';
+  document.getElementById('opt-img-result').src='';
+  document.getElementById('opt-stats-orig').innerHTML='';
+  document.getElementById('opt-stats-result').innerHTML='';
   // Save the result to the right destination
   if(target==='main'){
     onMainImageDone(dataUrl, sizeStr);
@@ -2045,8 +2051,8 @@ function _deliverResult(dataUrl, sizeStr){
     curGalleryImgs.push(dataUrl);
     renderGalleryPreviews();
   }
-  // Then call callback (e.g. 'next' for gallery batch)
-  if(cb) setTimeout(()=>cb(dataUrl, sizeStr), 60);
+  // Call callback — for gallery batch this opens the cropper for the next image
+  if(cb) setTimeout(()=>cb(dataUrl, sizeStr), 80);
 }
 
 // ── ZOOM + PAN COMPARADOR (sincronizado) ──
