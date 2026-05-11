@@ -928,7 +928,7 @@ async function loadData() {
     if (!res.ok) throw new Error('status ' + res.status);
     const json = await res.json();
     fileSHA = json.sha;
-    const raw = JSON.parse(atob(json.content.replace(/\n/g,'')));
+    const raw = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
     properties = raw.properties || [];
   } catch(e) {
     properties = []; fileSHA = '';
