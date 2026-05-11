@@ -208,49 +208,37 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .lightbox img{max-width:94vw;max-height:92vh;border-radius:10px;object-fit:contain}
 .lightbox-close{position:absolute;top:14px;right:14px;width:36px;height:36px;background:rgba(255,255,255,.12);border:none;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-/* ── IMAGE CROPPER + OPTIMIZER ── */
-.cropper-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:16px;overflow-y:auto}
+/* ── IMAGE CROPPER + OPTIMIZER (panel unificado) ── */
+.cropper-overlay{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:3000;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:12px 14px 16px;overflow-y:auto;gap:10px}
 .cropper-overlay.open{display:flex}
-.cropper-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:12px;letter-spacing:.5px}
-.cropper-wrap{position:relative;overflow:hidden;border-radius:10px;cursor:crosshair;flex-shrink:0}
-.cropper-wrap canvas{display:block}
+.cropper-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;display:flex;align-items:center;gap:7px;width:100%;max-width:760px}
+#crop-target-label{font-size:10px;color:rgba(255,255,255,.4);margin-left:auto}
+.cropper-body{display:flex;gap:12px;width:100%;max-width:760px;align-items:flex-start;flex-wrap:wrap}
+/* Left: canvas crop */
+.cropper-left{display:flex;flex-direction:column;align-items:center;flex:1 1 340px;min-width:0}
+.cropper-wrap{position:relative;overflow:hidden;border-radius:10px;cursor:crosshair;flex-shrink:0;max-width:100%}
+.cropper-wrap canvas{display:block;max-width:100%}
 .crop-box{position:absolute;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.55);cursor:move;box-sizing:border-box}
 .crop-handle{position:absolute;width:12px;height:12px;background:var(--accent);border-radius:2px}
 .crop-handle.tl{top:-6px;left:-6px;cursor:nw-resize}
 .crop-handle.tr{top:-6px;right:-6px;cursor:ne-resize}
 .crop-handle.bl{bottom:-6px;left:-6px;cursor:sw-resize}
 .crop-handle.br{bottom:-6px;right:-6px;cursor:se-resize}
-.cropper-info{font-size:11px;color:rgba(255,255,255,.5);margin-top:8px;margin-bottom:10px}
-.cropper-btns{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;justify-content:center}
-.crop-btn{padding:9px 22px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;border:none;transition:all .15s}
-.crop-btn.cancel{background:rgba(255,255,255,.1);color:#fff}
-.crop-btn.cancel:hover{background:rgba(255,255,255,.18)}
-.crop-btn.apply{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000}
-.crop-btn.apply:hover{transform:translateY(-1px)}
-.quality-row{display:flex;align-items:center;gap:10px;font-size:11px;color:rgba(255,255,255,.7);margin-top:6px}
-.quality-row input[type=range]{width:110px;accent-color:var(--accent)}
-#crop-target-label{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
-/* ── STEP INDICATOR ── */
-.opt-step-indicator{display:flex;align-items:center;gap:6px;margin-bottom:12px;width:100%;max-width:700px}
-.opt-step{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.opt-step.done{background:rgba(0,229,255,.2);color:var(--accent)}
-.opt-step.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000}
-.opt-step.pending{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3)}
-.opt-step-line{flex:1;height:1px;background:rgba(255,255,255,.15)}
-/* ── OPT PANELS ── */
-.opt-panel{display:none;flex-direction:column;align-items:center;width:100%;max-width:700px}
-.opt-panel.active{display:flex}
-.opt-controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin:10px 0}
-.opt-ctrl{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 12px}
-.opt-ctrl label{font-size:11px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:.4rem;margin-bottom:6px;font-weight:500}
+.cropper-info{font-size:10px;color:rgba(255,255,255,.4);margin-top:6px;text-align:center}
+/* Right: optimizer controls */
+.cropper-right{display:flex;flex-direction:column;gap:8px;flex:1 1 220px;min-width:180px}
+.opt-section-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:2px}
+.opt-ctrl{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 11px}
+.opt-ctrl label{font-size:11px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:.4rem;margin-bottom:5px;font-weight:500}
 .opt-ctrl input[type=range]{width:100%;accent-color:var(--accent)}
 .opt-ctrl select{width:100%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:12px;padding:5px 8px;outline:none;font-family:'DM Mono',monospace}
 .opt-ctrl select option{background:#0a0c10;color:#fff}
 .opt-range-val{font-size:13px;font-weight:700;color:var(--accent);margin-left:auto}
-.opt-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:8px}
+/* Preview strip */
+.opt-compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:760px}
 .opt-compare-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px}
 .opt-compare-box h4{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-family:'Syne',sans-serif}
-.opt-compare-img{width:100%;height:130px;background:rgba(0,0,0,.4);border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:grab;position:relative;touch-action:none;user-select:none}
+.opt-compare-img{width:100%;height:110px;background:rgba(0,0,0,.4);border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:grab;position:relative;touch-action:none;user-select:none}
 .opt-compare-img.dragging{cursor:grabbing}
 .opt-compare-img img{max-width:100%;max-height:100%;object-fit:contain;pointer-events:none;transform-origin:0 0;will-change:transform}
 .opt-zoom-hint{position:absolute;bottom:4px;right:5px;font-size:9px;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:.04em}
@@ -259,8 +247,20 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .opt-stats{font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
 .opt-stats span{background:rgba(255,255,255,.07);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace}
 .opt-stats span.better{color:var(--green)}
-.opt-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+/* Bottom action bar */
+.cropper-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;max-width:760px;padding-top:4px}
+.crop-btn{padding:9px 22px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;border:none;transition:all .15s}
+.crop-btn.cancel{background:rgba(255,255,255,.1);color:#fff}
+.crop-btn.cancel:hover{background:rgba(255,255,255,.18)}
+.crop-btn.apply{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000}
+.crop-btn.apply:hover{transform:translateY(-1px)}
 canvas#opt-canvas{display:none}
+/* Legacy – keep these so nothing breaks */
+.quality-row{display:none}
+.opt-panel{display:flex;flex-direction:column;align-items:center;width:100%;max-width:760px}
+.opt-btns{display:none}
+.opt-step-indicator{display:none}
+.cropper-btns{display:none}
 /* ── IMG-ACTION MODAL ── */
 #imgActionModal{position:fixed;inset:0;z-index:8500;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center}
 #imgActionModal.open{display:flex}
@@ -648,71 +648,64 @@ canvas#opt-canvas{display:none}
   <img id="lightbox-img" src="" alt="">
 </div>
 
-<!-- ══ CROPPER + OPTIMIZER (2 pasos) ══ -->
+<!-- ══ CROPPER + OPTIMIZER (panel unificado) ══ -->
 <div class="cropper-overlay" id="cropper-overlay">
-  <!-- Indicador de pasos -->
-  <div class="opt-step-indicator">
-    <div class="opt-step active" id="step-ind-1">1</div>
-    <div class="opt-step-line"></div>
-    <div class="opt-step pending" id="step-ind-2">2</div>
+
+  <!-- Título -->
+  <div class="cropper-title">
+    ✂️⚡ Recortar y optimizar
+    <span id="crop-target-label"></span>
   </div>
 
-  <!-- PASO 1: RECORTAR -->
-  <div class="opt-panel active" id="opt-panel-crop">
-    <div class="cropper-title">✂️ Recortar imagen</div>
-    <div class="cropper-wrap" id="cropper-wrap">
-      <canvas id="cropper-canvas"></canvas>
-      <div class="crop-box" id="crop-box">
-        <div class="crop-handle tl" data-h="tl"></div>
-        <div class="crop-handle tr" data-h="tr"></div>
-        <div class="crop-handle bl" data-h="bl"></div>
-        <div class="crop-handle br" data-h="br"></div>
+  <!-- Cuerpo: canvas izquierda + controles derecha -->
+  <div class="cropper-body">
+    <!-- Canvas de recorte -->
+    <div class="cropper-left">
+      <div class="cropper-wrap" id="cropper-wrap">
+        <canvas id="cropper-canvas"></canvas>
+        <div class="crop-box" id="crop-box">
+          <div class="crop-handle tl" data-h="tl"></div>
+          <div class="crop-handle tr" data-h="tr"></div>
+          <div class="crop-handle bl" data-h="bl"></div>
+          <div class="crop-handle br" data-h="br"></div>
+        </div>
       </div>
+      <div class="cropper-info">Arrastra para mover · esquinas para redimensionar</div>
     </div>
-    <div id="crop-target-label"></div>
-    <div class="cropper-info">Arrastra para mover · esquinas para redimensionar</div>
-    <div class="quality-row">
-      <span>Calidad previa:</span>
-      <input type="range" id="crop-quality" min="30" max="95" value="72" oninput="updateQualityLabel()">
-      <span id="crop-qlabel">72%</span>
-      <span id="crop-size-est" style="margin-left:6px;color:var(--accent)"></span>
-    </div>
-    <div class="cropper-btns">
-      <button class="crop-btn cancel" onclick="closeCropper()">Cancelar</button>
-      <button class="crop-btn apply" onclick="goToOptimize()">Optimizar →</button>
-    </div>
-  </div>
 
-  <!-- PASO 2: OPTIMIZAR -->
-  <div class="opt-panel" id="opt-panel-opt">
-    <div class="cropper-title">⚡ Optimizar imagen</div>
-    <canvas id="opt-canvas"></canvas>
-    <div class="opt-controls-grid" id="opt-controls">
+    <!-- Controles de optimización -->
+    <div class="cropper-right">
+      <div class="opt-section-label">Optimización de salida</div>
+
       <div class="opt-ctrl">
         <label>Ancho máx: <span class="opt-range-val" id="opt-val-w">800</span>px
-          <button id="opt-lock-btn" onclick="toggleAspectLock()" title="Bloquear proporción" style="margin-left:auto;background:none;border:1px solid var(--accent);border-radius:6px;color:var(--accent);cursor:pointer;padding:1px 7px;font-size:.75rem;line-height:1.6;transition:all .15s;flex-shrink:0">🔒 1:1</button>
+          <button id="opt-lock-btn" onclick="toggleAspectLock()" title="Bloquear proporción" style="margin-left:auto;background:none;border:1px solid var(--accent);border-radius:6px;color:var(--accent);cursor:pointer;padding:1px 7px;font-size:.72rem;line-height:1.6;transition:all .15s;flex-shrink:0">🔒 1:1</button>
         </label>
         <input type="range" min="50" max="2000" value="800" id="opt-rw" oninput="optWidthChanged(this.value)">
       </div>
+
       <div class="opt-ctrl">
         <label>Alto máx: <span class="opt-range-val" id="opt-val-h">600</span>px</label>
         <input type="range" min="50" max="2000" value="600" id="opt-rh" oninput="optHeightChanged(this.value)">
       </div>
+
       <div class="opt-ctrl">
         <label>Calidad JPG/WEBP: <span class="opt-range-val" id="opt-val-q">80</span>%</label>
-        <input type="range" min="1" max="100" value="80" id="opt-rq" oninput="document.getElementById('opt-val-q').textContent=this.value;optReprocess()">
+        <input type="range" min="1" max="100" value="80" id="opt-rq" oninput="document.getElementById('opt-val-q').textContent=this.value;scheduleLivePreview()">
       </div>
+
       <div class="opt-ctrl">
         <label>Formato de salida</label>
-        <select id="opt-fmt" onchange="optReprocess()">
+        <select id="opt-fmt" onchange="scheduleLivePreview()">
           <option value="image/jpeg">JPG</option>
           <option value="image/png">PNG</option>
           <option value="image/webp" selected>WEBP</option>
         </select>
       </div>
-      <div class="opt-ctrl" style="grid-column:1/-1">
+
+      <div class="opt-ctrl">
         <label>Paleta de colores</label>
-        <select id="opt-paleta" onchange="optReprocess()">
+        <select id="opt-paleta" onchange="scheduleLivePreview()">
           <option value="full">Color completo</option>
           <option value="256">256 colores</option>
           <option value="128">128 colores</option>
@@ -721,32 +714,37 @@ canvas#opt-canvas{display:none}
         </select>
       </div>
     </div>
-    <div class="opt-compare" id="opt-compare">
-      <div class="opt-compare-box">
-        <h4>Recortada</h4>
-        <div class="opt-compare-img" id="opt-vp-orig">
-          <img id="opt-img-orig" alt="">
-          <button class="opt-zoom-reset" id="opt-reset-orig" onclick="optZoomReset()">↺ reset</button>
-          <span class="opt-zoom-hint">🔍 scroll · arrastra</span>
-        </div>
-        <div class="opt-stats" id="opt-stats-orig"></div>
+  </div>
+
+  <!-- Previews comparativas -->
+  <div class="opt-compare" id="opt-compare">
+    <div class="opt-compare-box">
+      <h4>Original recortada</h4>
+      <div class="opt-compare-img" id="opt-vp-orig">
+        <img id="opt-img-orig" alt="">
+        <button class="opt-zoom-reset" id="opt-reset-orig" onclick="optZoomReset()">↺ reset</button>
+        <span class="opt-zoom-hint">🔍 scroll · arrastra</span>
       </div>
-      <div class="opt-compare-box">
-        <h4>Optimizada</h4>
-        <div class="opt-compare-img" id="opt-vp-result">
-          <img id="opt-img-result" alt="">
-          <button class="opt-zoom-reset" id="opt-reset-result" onclick="optZoomReset()">↺ reset</button>
-          <span class="opt-zoom-hint">🔍 scroll · arrastra</span>
-        </div>
-        <div class="opt-stats" id="opt-stats-result"></div>
-      </div>
+      <div class="opt-stats" id="opt-stats-orig"></div>
     </div>
-    <div class="opt-btns">
-      <button class="crop-btn cancel" onclick="backToCrop()">← Volver a recortar</button>
-      <button class="crop-btn cancel" onclick="closeCropper()">Cancelar</button>
-      <button class="crop-btn apply" id="opt-apply-btn" onclick="applyOptimized()">✅ Usar optimizada</button>
+    <div class="opt-compare-box">
+      <h4>Resultado optimizado</h4>
+      <div class="opt-compare-img" id="opt-vp-result">
+        <img id="opt-img-result" alt="">
+        <button class="opt-zoom-reset" id="opt-reset-result" onclick="optZoomReset()">↺ reset</button>
+        <span class="opt-zoom-hint">🔍 scroll · arrastra</span>
+      </div>
+      <div class="opt-stats" id="opt-stats-result"></div>
     </div>
   </div>
+
+  <!-- Botones de acción -->
+  <div class="cropper-actions">
+    <button class="crop-btn cancel" onclick="closeCropper()">Cancelar</button>
+    <button class="crop-btn apply" id="opt-apply-btn" onclick="applyOptimized()">✅ Aplicar imagen</button>
+  </div>
+
+  <canvas id="opt-canvas"></canvas>
 </div>
 
 <!-- ══ IMG ACTION MODAL ══ -->
