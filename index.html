@@ -172,10 +172,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 
 /* ── IMAGE VIEWER (detail) ── */
 .img-viewer{width:100%;border-radius:12px;overflow:hidden;background:var(--surface2);margin-bottom:16px;position:relative}
-.img-viewer-main{position:relative;width:100%;height:280px;background:#000;overflow:hidden;cursor:zoom-in}
-.img-viewer-main img{width:100%;height:100%;object-fit:cover;transition:transform .3s ease,opacity .2s}
+.img-viewer-main{position:relative;width:100%;height:280px;background:#000;overflow:hidden;cursor:zoom-in;contain:strict}
+.img-viewer-main img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease,opacity .2s;transform:scale(1);transform-origin:50% 50%}
 .img-viewer-main.zoomed{cursor:zoom-out}
-.img-viewer-main.zoomed img{transform:scale(2);transform-origin:var(--zo-x,50%) var(--zo-y,50%)}
+.img-viewer-main.zoomed img{transform:scale(2)}
 .img-viewer-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:60px;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);border:none;border-radius:8px;color:#fff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:3;line-height:1;user-select:none}
 .img-viewer-nav:hover{background:rgba(0,0,0,.75)}
 .img-viewer-nav:disabled{opacity:.2;cursor:default}
@@ -1667,31 +1667,42 @@ function _ivRefresh() {
   const next = document.getElementById('iv-next');
   const ctr  = document.getElementById('iv-counter');
   if (!img) return;
+  // reset zoom state cleanly on the image itself
+  img.style.transform = 'scale(1)';
+  img.style.transformOrigin = '50% 50%';
   img.style.opacity = '0';
   img.src = _ivImages[_ivIndex];
   img.onload = () => { img.style.opacity = '1'; };
   if (prev) prev.disabled = (_ivIndex === 0);
   if (next) next.disabled = (_ivIndex === _ivImages.length - 1);
   if (ctr)  ctr.textContent = (_ivIndex + 1) + ' / ' + _ivImages.length;
-  // update strip
+  // scroll active thumb within the strip only — not the page
+  const strip = document.getElementById('iv-strip');
+  if (strip) {
+    const thumb = document.getElementById('iv-thumb-' + _ivIndex);
+    if (thumb) {
+      const sl = thumb.offsetLeft - strip.offsetWidth / 2 + thumb.offsetWidth / 2;
+      strip.scrollTo({ left: sl, behavior: 'smooth' });
+    }
+  }
+  // update active class on thumbnails
   document.querySelectorAll('.img-viewer-thumb').forEach((t,i) => {
     t.classList.toggle('active', i === _ivIndex);
-    if (i === _ivIndex) t.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
   });
 }
 
 function ivToggleZoom(e, fromBtn) {
   const main = document.getElementById('iv-main');
-  if (!main) return;
+  const img  = document.getElementById('iv-img');
+  if (!main || !img) return;
   if (!_ivZoomed) {
-    // calculate click position relative to the container for transform-origin
-    const r = main.getBoundingClientRect();
+    const r  = main.getBoundingClientRect();
     const ox = fromBtn ? 50 : Math.round(((e.clientX - r.left) / r.width) * 100);
     const oy = fromBtn ? 50 : Math.round(((e.clientY - r.top)  / r.height) * 100);
-    main.style.setProperty('--zo-x', ox + '%');
-    main.style.setProperty('--zo-y', oy + '%');
+    img.style.transformOrigin = ox + '% ' + oy + '%';
     _ivSetZoom(true);
   } else {
+    img.style.transformOrigin = '50% 50%';
     _ivSetZoom(false);
   }
 }
@@ -1699,10 +1710,11 @@ function ivToggleZoom(e, fromBtn) {
 function _ivSetZoom(on) {
   _ivZoomed = on;
   const main = document.getElementById('iv-main');
+  const img  = document.getElementById('iv-img');
   const btn  = document.getElementById('iv-zoom-btn');
   if (main) main.classList.toggle('zoomed', on);
-  if (btn)  btn.title = on ? 'Salir del zoom' : 'Zoom 2x';
-  if (btn)  btn.textContent = on ? '🔎' : '🔍';
+  if (img)  img.style.transform = on ? 'scale(2)' : 'scale(1)';
+  if (btn)  { btn.title = on ? 'Salir del zoom' : 'Zoom 2x'; btn.textContent = on ? '🔎' : '🔍'; }
 }
 
 // ── FORM MODAL ──
