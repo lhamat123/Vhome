@@ -245,8 +245,14 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 /* ── LIGHTBOX ── */
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;display:none;align-items:center;justify-content:center}
 .lightbox.open{display:flex}
-.lightbox img{max-width:94vw;max-height:92vh;border-radius:10px;object-fit:contain}
+.lightbox img{max-width:88vw;max-height:88vh;border-radius:10px;object-fit:contain;transition:opacity .2s}
 .lightbox-close{position:absolute;top:14px;right:14px;width:36px;height:36px;background:rgba(255,255,255,.12);border:none;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:72px;background:rgba(255,255,255,.1);border:none;border-radius:8px;color:#fff;font-size:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;line-height:1;z-index:2;user-select:none}
+.lightbox-nav:hover{background:rgba(255,255,255,.22)}
+.lightbox-prev{left:12px}
+.lightbox-next{right:12px}
+.lightbox-nav:disabled{opacity:.2;cursor:default}
+.lightbox-counter{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#fff;font-size:12px;padding:4px 12px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:.5px;pointer-events:none}
 
 /* ── IMAGE CROPPER + OPTIMIZER (panel unificado) ── */
 .cropper-overlay{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:3000;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:12px 14px 16px;overflow-y:auto;gap:10px}
@@ -686,7 +692,10 @@ canvas#opt-canvas{display:none}
 <!-- ══ LIGHTBOX ══ -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="" alt="">
+  <button class="lightbox-nav lightbox-prev" onclick="event.stopPropagation();lightboxNav(-1)" title="Anterior">&#8249;</button>
+  <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()">
+  <button class="lightbox-nav lightbox-next" onclick="event.stopPropagation();lightboxNav(1)" title="Siguiente">&#8250;</button>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
 </div>
 
 <!-- ══ CROPPER + OPTIMIZER (panel unificado) ══ -->
@@ -1391,7 +1400,7 @@ function cardHTML(p) {
   <div class="prop-card" onclick="openDetail('${p.id}')">
     <div class="card-image">
       ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}">` : `<div class="no-img">${typeEmoji(p.type)}</div>`}
-      <span class="card-type-badge type-${typeClass(p.type)}">${p.type}</span>
+      <div style="position:absolute;top:10px;left:10px;display:flex;gap:5px;align-items:center;flex-wrap:wrap"><span class="card-type-badge type-${typeClass(p.type)}" style="position:relative;top:auto;left:auto">${p.type}</span>${p.docStatus ? `<span class="doc-badge doc-${docClass(p.docStatus)}" style="backdrop-filter:blur(8px);background:rgba(0,0,0,0.45)">${docEmoji(p.docStatus)} ${p.docStatus}</span>` : ''}</div>
       <button class="card-fav-btn ${isFav(p.id)?'on':''}" onclick="event.stopPropagation();toggleFav('${p.id}')" title="${isFav(p.id)?'Quitar de favoritos':'Agregar a favoritos'}">
         <i class="star-off">&#x2606;</i><i class="star-on">&#x2605;</i>
       </button>
@@ -1399,7 +1408,6 @@ function cardHTML(p) {
     <div class="card-body">
       <div class="card-price-row">
         <div class="card-price">${fmtPrice(p.price)}</div>
-        ${p.docStatus ? `<span class="doc-badge doc-${docClass(p.docStatus)}">${docEmoji(p.docStatus)} ${p.docStatus}</span>` : ''}
       </div>
       <div class="card-name">${p.name}</div>
       <div class="card-addr">📍 ${p.address||'—'}</div>
@@ -1465,13 +1473,23 @@ function openDetail(id) {
     return a ? `<div class="amenity-bubble"><span class="check">✓</span>${a.label}</div>` : '';
   }).join('');
 
-  const gallery = (p.gallery||[]).map((img,i) =>
-    `<div class="gallery-thumb" onclick="openLightbox('${img}')"><img src="${img}" alt="Foto ${i+1}"></div>`
-  ).join('');
+  const allImages = [...(p.mainImage ? [p.mainImage] : []), ...(p.gallery||[])];
+  const allImagesJson = JSON.stringify(allImages).replace(/"/g,'&quot;');
+
+  // build gallery with lightbox data
+  const galleryHTML = allImages.length > 0 ? `
+    <div class="gallery-grid" data-imgs="${allImagesJson}">
+      ${allImages.map((img,i) => `<div class="gallery-thumb" onclick="openLightbox('${img}',JSON.parse(document.getElementById('lbdata-${p.id}').textContent))"><img src="${img}" alt="Foto ${i+1}"></div>`).join('')}
+    </div>
+    <script type="application/json" id="lbdata-${p.id}">${JSON.stringify(allImages)}<\/script>` : '';
 
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-hero" style="position:relative">
-      ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}">` : `<div class="detail-hero-empty">${typeEmoji(p.type)}</div>`}
+      ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}" style="cursor:zoom-in" onclick="openLightbox('${p.mainImage}',JSON.parse(document.getElementById('lbdata-${p.id}').textContent))">` : `<div class="detail-hero-empty">${typeEmoji(p.type)}</div>`}
+      <div style="position:absolute;top:10px;left:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span class="card-type-badge type-${typeClass(p.type)}" style="position:relative;top:auto;left:auto;font-size:10px;padding:4px 11px">${typeEmoji(p.type)} ${p.type}</span>
+        ${p.docStatus ? `<span class="doc-badge doc-${docClass(p.docStatus)}" style="backdrop-filter:blur(8px)">${docEmoji(p.docStatus)} ${p.docStatus}</span>` : ''}
+      </div>
       <div class="detail-hero-actions">
         ${p.address ? `<a class="detail-act-btn" href="${mapsUrl(p.address)}" target="_blank" title="Ver en Google Maps">🗺<span>Maps</span></a>` : ''}
         ${p.contactTel ? `<a class="detail-act-btn detail-act-wa" href="https://wa.me/${p.contactTel.replace(/\D/g,'')}" target="_blank" title="WhatsApp">💬<span>Chat</span></a>` : ''}
@@ -1483,9 +1501,7 @@ function openDetail(id) {
       <div class="detail-top-left">
         <div class="detail-price-inline">
           <span class="detail-price" style="margin-bottom:0">${fmtPrice(p.price)}</span>
-          ${p.docStatus ? `<span class="doc-badge doc-${docClass(p.docStatus)}">${docEmoji(p.docStatus)} ${p.docStatus}</span>` : ''}
         </div>
-        <span class="card-type-badge type-${typeClass(p.type)}" style="font-size:11px;padding:3px 10px;margin-top:4px;display:inline-block">${typeEmoji(p.type)} ${p.type}</span>
       </div>
     </div>
     <div class="detail-addr">📍 ${p.address||'—'}</div>
@@ -1508,7 +1524,7 @@ function openDetail(id) {
 
     ${p.description ? `<div class="detail-section-title">Descripción</div><div class="detail-desc">${p.description.replace(/\n/g,'<br>')}</div>` : ''}
 
-    ${gallery ? `<div class="detail-section-title">Galería de fotos y planos</div><div class="gallery-grid">${gallery}</div>` : ''}
+    ${allImages.length > 0 ? `<div class="detail-section-title">Galería de fotos y planos</div>${galleryHTML}` : ''}
 
     <div class="detail-contact-box">
       <div class="detail-contact-title">Contacto directo</div>
@@ -1546,11 +1562,53 @@ function deleteProperty() {
 function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); }
 
 // ── LIGHTBOX ──
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
+let _lbImages = [];
+let _lbIndex  = 0;
+
+function openLightbox(src, allImages) {
+  _lbImages = allImages || [src];
+  _lbIndex  = _lbImages.indexOf(src);
+  if (_lbIndex < 0) _lbIndex = 0;
+  _lbShow();
   document.getElementById('lightbox').classList.add('open');
+  document.addEventListener('keydown', _lbKey);
 }
-function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+function _lbShow() {
+  const img = document.getElementById('lightbox-img');
+  img.style.opacity = '0';
+  img.src = _lbImages[_lbIndex];
+  img.onload = () => { img.style.opacity = '1'; };
+  // counter
+  const c = document.getElementById('lightbox-counter');
+  if (_lbImages.length > 1) {
+    c.textContent = (_lbIndex + 1) + ' / ' + _lbImages.length;
+    c.style.display = 'block';
+  } else {
+    c.style.display = 'none';
+  }
+  // nav buttons
+  document.querySelector('.lightbox-prev').disabled = (_lbIndex === 0);
+  document.querySelector('.lightbox-next').disabled = (_lbIndex === _lbImages.length - 1);
+}
+
+function lightboxNav(dir) {
+  const next = _lbIndex + dir;
+  if (next < 0 || next >= _lbImages.length) return;
+  _lbIndex = next;
+  _lbShow();
+}
+
+function _lbKey(e) {
+  if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  if (e.key === 'ArrowRight') lightboxNav(1);
+  if (e.key === 'Escape')     closeLightbox();
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.removeEventListener('keydown', _lbKey);
+}
 
 // ── FORM MODAL ──
 // ── ROOMS / BATHS SELECTOR ──
