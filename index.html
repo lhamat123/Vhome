@@ -132,7 +132,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .modal-body{padding:20px}
 
 /* ── DETAIL VIEW ── */
-.detail-hero{width:100%;height:240px;border-radius:12px;overflow:hidden;background:var(--surface2);margin-bottom:16px;position:relative}
+.detail-hero{width:100%;border-radius:12px;overflow:hidden;background:var(--surface2);margin-bottom:0;position:relative}
 .detail-hero img{width:100%;height:100%;object-fit:cover}
 .detail-hero-empty{display:flex;align-items:center;justify-content:center;height:100%;font-size:64px;opacity:.2}
 .detail-price{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--accent);margin-bottom:4px}
@@ -170,7 +170,31 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .amenity-bubble{padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:11px;display:flex;align-items:center;gap:5px}
 .amenity-bubble .check{color:var(--green);font-weight:700}
 
-/* ── GALLERY ── */
+/* ── IMAGE VIEWER (detail) ── */
+.img-viewer{width:100%;border-radius:12px;overflow:hidden;background:var(--surface2);margin-bottom:16px;position:relative}
+.img-viewer-main{position:relative;width:100%;height:280px;background:#000;overflow:hidden;cursor:zoom-in}
+.img-viewer-main img{width:100%;height:100%;object-fit:cover;transition:transform .3s ease,opacity .2s}
+.img-viewer-main.zoomed{cursor:zoom-out}
+.img-viewer-main.zoomed img{transform:scale(2);transform-origin:var(--zo-x,50%) var(--zo-y,50%)}
+.img-viewer-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:60px;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);border:none;border-radius:8px;color:#fff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:3;line-height:1;user-select:none}
+.img-viewer-nav:hover{background:rgba(0,0,0,.75)}
+.img-viewer-nav:disabled{opacity:.2;cursor:default}
+.img-viewer-prev{left:10px}
+.img-viewer-next{right:10px}
+.img-viewer-badges{position:absolute;top:10px;left:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;z-index:3}
+.img-viewer-actions{position:absolute;bottom:10px;right:10px;display:flex;gap:6px;z-index:3}
+.img-viewer-zoom-btn{width:34px;height:34px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.img-viewer-zoom-btn:hover{background:rgba(0,0,0,.8)}
+.img-viewer-counter{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);backdrop-filter:blur(4px);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;pointer-events:none;z-index:3}
+.img-viewer-strip{display:flex;gap:6px;padding:8px;overflow-x:auto;background:var(--surface2);scrollbar-width:thin}
+.img-viewer-strip::-webkit-scrollbar{height:3px}
+.img-viewer-strip::-webkit-scrollbar-thumb{background:var(--sb);border-radius:10px}
+.img-viewer-thumb{flex-shrink:0;width:72px;height:54px;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:border-color .15s,opacity .15s;opacity:.6}
+.img-viewer-thumb:hover{opacity:1}
+.img-viewer-thumb.active{border-color:var(--accent);opacity:1}
+.img-viewer-thumb img{width:100%;height:100%;object-fit:cover}
+
+/* ── GALLERY (legacy small grid, kept for fallback) ── */
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:10px}
 .gallery-thumb{height:90px;border-radius:8px;overflow:hidden;background:var(--surface2);cursor:pointer;transition:all .15s;border:2px solid transparent}
 .gallery-thumb:hover{border-color:var(--accent);transform:scale(1.02)}
@@ -1474,30 +1498,35 @@ function openDetail(id) {
   }).join('');
 
   const allImages = [...(p.mainImage ? [p.mainImage] : []), ...(p.gallery||[])];
-  const allImagesJson = JSON.stringify(allImages).replace(/"/g,'&quot;');
-
-  // build gallery with lightbox data
-  const galleryHTML = allImages.length > 0 ? `
-    <div class="gallery-grid" data-imgs="${allImagesJson}">
-      ${allImages.map((img,i) => `<div class="gallery-thumb" onclick="openLightbox('${img}',JSON.parse(document.getElementById('lbdata-${p.id}').textContent))"><img src="${img}" alt="Foto ${i+1}"></div>`).join('')}
-    </div>
-    <script type="application/json" id="lbdata-${p.id}">${JSON.stringify(allImages)}<\/script>` : '';
 
   document.getElementById('detail-body').innerHTML = `
-    <div class="detail-hero" style="position:relative">
-      ${p.mainImage ? `<img src="${p.mainImage}" alt="${p.name}" style="cursor:zoom-in" onclick="openLightbox('${p.mainImage}',JSON.parse(document.getElementById('lbdata-${p.id}').textContent))">` : `<div class="detail-hero-empty">${typeEmoji(p.type)}</div>`}
-      <div style="position:absolute;top:10px;left:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-        <span class="card-type-badge type-${typeClass(p.type)}" style="position:relative;top:auto;left:auto;font-size:10px;padding:4px 11px">${typeEmoji(p.type)} ${p.type}</span>
-        ${p.docStatus ? `<span class="doc-badge doc-${docClass(p.docStatus)}" style="backdrop-filter:blur(8px)">${docEmoji(p.docStatus)} ${p.docStatus}</span>` : ''}
+    ${allImages.length > 0 ? `
+    <div class="img-viewer" id="iv-wrap">
+      <div class="img-viewer-main" id="iv-main" onclick="ivToggleZoom(event)">
+        <img id="iv-img" src="${allImages[0]}" alt="">
+        <div class="img-viewer-badges">
+          <span class="card-type-badge type-${typeClass(p.type)}" style="position:relative;top:auto;left:auto;font-size:10px;padding:4px 11px">${typeEmoji(p.type)} ${p.type}</span>
+          ${p.docStatus ? `<span class="doc-badge doc-${docClass(p.docStatus)}" style="backdrop-filter:blur(8px)">${docEmoji(p.docStatus)} ${p.docStatus}</span>` : ''}
+        </div>
+        <button class="img-viewer-nav img-viewer-prev" id="iv-prev" onclick="event.stopPropagation();ivNav(-1)" title="Anterior">&#8249;</button>
+        <button class="img-viewer-nav img-viewer-next" id="iv-next" onclick="event.stopPropagation();ivNav(1)" title="Siguiente">&#8250;</button>
+        <div class="img-viewer-actions">
+          <button class="img-viewer-zoom-btn" id="iv-zoom-btn" onclick="event.stopPropagation();ivToggleZoom(event,true)" title="Zoom 2x">🔍</button>
+          ${p.address ? `<a class="img-viewer-zoom-btn" href="${mapsUrl(p.address)}" target="_blank" onclick="event.stopPropagation()" title="Google Maps" style="text-decoration:none">🗺</a>` : ''}
+          ${p.contactTel ? `<a class="img-viewer-zoom-btn detail-act-wa" href="https://wa.me/${p.contactTel.replace(/\D/g,'')}" target="_blank" onclick="event.stopPropagation()" title="WhatsApp" style="text-decoration:none;background:rgba(0,120,60,.7)">💬</a>` : ''}
+          <button class="img-viewer-zoom-btn detail-act-qr" onclick="event.stopPropagation();showPropertyQR()" title="Ver QR" style="background:rgba(0,80,100,.7)">🔲</button>
+        </div>
+        ${allImages.length > 1 ? `<div class="img-viewer-counter" id="iv-counter">1 / ${allImages.length}</div>` : ''}
       </div>
-      <div class="detail-hero-actions">
-        ${p.address ? `<a class="detail-act-btn" href="${mapsUrl(p.address)}" target="_blank" title="Ver en Google Maps">🗺<span>Maps</span></a>` : ''}
-        ${p.contactTel ? `<a class="detail-act-btn detail-act-wa" href="https://wa.me/${p.contactTel.replace(/\D/g,'')}" target="_blank" title="WhatsApp">💬<span>Chat</span></a>` : ''}
-        <button class="detail-act-btn detail-act-qr" onclick="showPropertyQR()" title="Ver QR">🔲<span>QR</span></button>
-      </div>
+      ${allImages.length > 1 ? `
+      <div class="img-viewer-strip" id="iv-strip">
+        ${allImages.map((img,i) => `<div class="img-viewer-thumb${i===0?' active':''}" id="iv-thumb-${i}" onclick="ivGoTo(${i})"><img src="${img}" alt="Foto ${i+1}"></div>`).join('')}
+      </div>` : ''}
     </div>
+    <script type="application/json" id="lbdata-${p.id}">${JSON.stringify([...(p.mainImage?[p.mainImage]:[]),...(p.gallery||[])])}<\/script>
+    ` : `<div style="width:100%;height:180px;border-radius:12px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.2;margin-bottom:16px">${typeEmoji(p.type)}</div>`}
 
-    <div class="detail-top-row">
+    <div class="detail-top-row" style="margin-top:14px">
       <div class="detail-top-left">
         <div class="detail-price-inline">
           <span class="detail-price" style="margin-bottom:0">${fmtPrice(p.price)}</span>
@@ -1524,8 +1553,6 @@ function openDetail(id) {
 
     ${p.description ? `<div class="detail-section-title">Descripción</div><div class="detail-desc">${p.description.replace(/\n/g,'<br>')}</div>` : ''}
 
-    ${allImages.length > 0 ? `<div class="detail-section-title">Galería de fotos y planos</div>${galleryHTML}` : ''}
-
     <div class="detail-contact-box">
       <div class="detail-contact-title">Contacto directo</div>
       <div class="detail-contact-name">${p.contactName||'—'}</div>
@@ -1537,6 +1564,7 @@ function openDetail(id) {
 
   document.getElementById('detail-overlay').classList.add('open');
   updateDetailFavBtn();
+  if (allImages.length > 0) ivInit(allImages);
 }
 
 function closeDetail() {
@@ -1608,6 +1636,73 @@ function _lbKey(e) {
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   document.removeEventListener('keydown', _lbKey);
+}
+
+// ── INLINE IMAGE VIEWER (detail modal) ──
+let _ivImages = [];
+let _ivIndex  = 0;
+let _ivZoomed = false;
+
+function ivInit(images) {
+  _ivImages = images;
+  _ivIndex  = 0;
+  _ivZoomed = false;
+  _ivRefresh();
+}
+
+function ivGoTo(idx) {
+  if (idx < 0 || idx >= _ivImages.length) return;
+  if (_ivZoomed) { _ivSetZoom(false); }
+  _ivIndex = idx;
+  _ivRefresh();
+}
+
+function ivNav(dir) {
+  ivGoTo(_ivIndex + dir);
+}
+
+function _ivRefresh() {
+  const img  = document.getElementById('iv-img');
+  const prev = document.getElementById('iv-prev');
+  const next = document.getElementById('iv-next');
+  const ctr  = document.getElementById('iv-counter');
+  if (!img) return;
+  img.style.opacity = '0';
+  img.src = _ivImages[_ivIndex];
+  img.onload = () => { img.style.opacity = '1'; };
+  if (prev) prev.disabled = (_ivIndex === 0);
+  if (next) next.disabled = (_ivIndex === _ivImages.length - 1);
+  if (ctr)  ctr.textContent = (_ivIndex + 1) + ' / ' + _ivImages.length;
+  // update strip
+  document.querySelectorAll('.img-viewer-thumb').forEach((t,i) => {
+    t.classList.toggle('active', i === _ivIndex);
+    if (i === _ivIndex) t.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+  });
+}
+
+function ivToggleZoom(e, fromBtn) {
+  const main = document.getElementById('iv-main');
+  if (!main) return;
+  if (!_ivZoomed) {
+    // calculate click position relative to the container for transform-origin
+    const r = main.getBoundingClientRect();
+    const ox = fromBtn ? 50 : Math.round(((e.clientX - r.left) / r.width) * 100);
+    const oy = fromBtn ? 50 : Math.round(((e.clientY - r.top)  / r.height) * 100);
+    main.style.setProperty('--zo-x', ox + '%');
+    main.style.setProperty('--zo-y', oy + '%');
+    _ivSetZoom(true);
+  } else {
+    _ivSetZoom(false);
+  }
+}
+
+function _ivSetZoom(on) {
+  _ivZoomed = on;
+  const main = document.getElementById('iv-main');
+  const btn  = document.getElementById('iv-zoom-btn');
+  if (main) main.classList.toggle('zoomed', on);
+  if (btn)  btn.title = on ? 'Salir del zoom' : 'Zoom 2x';
+  if (btn)  btn.textContent = on ? '🔎' : '🔍';
 }
 
 // ── FORM MODAL ──
